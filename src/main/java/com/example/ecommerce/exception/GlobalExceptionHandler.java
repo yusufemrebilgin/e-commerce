@@ -1,8 +1,9 @@
 package com.example.ecommerce.exception;
 
+import com.example.ecommerce.exception.response.ErrorDetails;
+import com.example.ecommerce.exception.response.SimpleErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -16,18 +17,43 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.springframework.http.HttpStatus.*;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorDetails> handleNotFoundException(Exception ex, WebRequest request) {
-        ErrorDetails errorDetails = ErrorDetails.builder()
-                .status(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .message("Resource Not Found")
-                .errors(Map.of("error", ex.getMessage()))
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<SimpleErrorResponse> handleGenericException(Exception ex, WebRequest request) {
+        log.error("GenericException: {}", ex.getMessage(), ex);
+        SimpleErrorResponse errorResponse = SimpleErrorResponse.builder()
+                .status(INTERNAL_SERVER_ERROR.toString())
+                .message("An unexpected error occurred: " + ex.getMessage())
                 .build();
-        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>(errorResponse, INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<SimpleErrorResponse> handleNotFoundException(Exception ex, WebRequest request) {
+        log.error("NotFoundException: {}", ex.getMessage(), ex);
+        SimpleErrorResponse errorResponse = SimpleErrorResponse.builder()
+                .status(NOT_FOUND.toString())
+                .message(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, NOT_FOUND);
+    }
+
+    @ExceptionHandler({UsernameAlreadyTakenException.class, EmailAlreadyInUseException.class})
+    public ResponseEntity<SimpleErrorResponse> handleBadRequestException(Exception ex, WebRequest request) {
+        log.error("BadRequestException: {}", ex.getMessage(), ex);
+        SimpleErrorResponse errorResponse = SimpleErrorResponse.builder()
+                .status(BAD_REQUEST.toString())
+                .message(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, BAD_REQUEST);
     }
 
     @Override
@@ -35,7 +61,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   @NonNull HttpHeaders headers,
                                                                   @NonNull HttpStatusCode status,
                                                                   @NonNull WebRequest request) {
-        log.error(ex.getMessage(), ex);
+        log.error("Validation failed: {}", ex.getMessage(), ex);
 
         Map<String, String> validationErrors = new HashMap<>();
         ex.getAllErrors().forEach(error -> {
@@ -45,12 +71,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         });
 
         ErrorDetails errorDetails = ErrorDetails.builder()
-                .status(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .status(BAD_REQUEST.toString())
                 .message("Validation Failed")
                 .errors(validationErrors)
                 .build();
 
-        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorDetails, BAD_REQUEST);
     }
 
 }
