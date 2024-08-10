@@ -44,6 +44,7 @@ public class Product extends BaseEntity {
     private BigDecimal price;
     private Integer stockQuantity;
 
+    private boolean isDiscountAvailable;
     private BigDecimal discountedPrice;
     private Double discountPercentage;
     private LocalDateTime discountStart;
