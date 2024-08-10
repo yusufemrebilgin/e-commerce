@@ -71,13 +71,11 @@ public class ProductService {
     }
 
     public ProductDto createProduct(Long categoryId, CreateProductRequest request) {
-        Category category = categoryService.getCategoryById(categoryId);
         Product product = productMapper.mapToEntity(request);
-        product.setCategory(category);
+        Category category = categoryService.getCategoryById(categoryId);
 
-        if (isDiscountDefined(product)) {
-            product.setDiscountedPrice(calculateDiscountPrice(product));
-        }
+        product.setCategory(category);
+        updateDiscountIfApplicable(product);
 
         return productMapper.mapToDto(productRepository.save(product));
     }
@@ -87,13 +85,12 @@ public class ProductService {
         log.info("Existing product {}", product);
 
         productMapper.updateProductFromDto(request, product);
+        updateDiscountIfApplicable(product);
 
-        if (isDiscountDefined(product)) {
-            product.setDiscountedPrice(calculateDiscountPrice(product));
-        }
+        Product updatedProduct = productRepository.save(product);
+        log.info("Updated product {}", updatedProduct);
 
-        log.info("Updated product {}", product);
-        return productMapper.mapToDto(productRepository.save(product));
+        return productMapper.mapToDto(updatedProduct);
     }
 
     public void deleteProduct(UUID productId) {
@@ -143,23 +140,58 @@ public class ProductService {
         }
     }
 
-    private BigDecimal calculateDiscountPrice(Product product) {
-        double discountPercentage = product.getDiscountPercentage();
-        BigDecimal currentPrice = product.getPrice();
-        return currentPrice.subtract(currentPrice.multiply(BigDecimal.valueOf(discountPercentage / 100)));
+    private void updateDiscountIfApplicable(Product product) {
+        if (!areDiscountFieldsValid(product)) {
+            product.setDiscountAvailable(false);
+            resetDiscountFields(product);
+            return;
+        }
+
+        if (isDiscountExpired(product.getDiscountEnd())) {
+            log.info("Discount is expired for product {}", product.getId());
+            product.setDiscountAvailable(false);
+            resetDiscountFields(product);
+        } else {
+            product.setDiscountAvailable(true);
+            product.setDiscountedPrice(calculateDiscountPrice(
+                    product.getPrice(),
+                    product.getDiscountPercentage()
+            ));
+        }
     }
 
-    private boolean isDiscountActive(Product product) {
-        LocalDateTime now = LocalDateTime.now();
-        return  isDiscountDefined(product)
-                && now.isAfter(product.getDiscountStart())
-                && now.isBefore(product.getDiscountEnd());
+    private boolean areDiscountFieldsValid(Product p) {
+        // All discount fields must be either all defined or all null
+        boolean allDefined = p.getDiscountPercentage() != null
+                && p.getDiscountStart() != null
+                && p.getDiscountEnd() != null;
+
+        boolean allNull = p.getDiscountPercentage() == null
+                && p.getDiscountStart() == null
+                && p.getDiscountEnd() == null;
+
+        return allDefined || allNull;
     }
 
-    private boolean isDiscountDefined(Product product) {
-        return  product.getDiscountPercentage() != null
-                && product.getDiscountStart() != null
-                && product.getDiscountEnd() != null;
+    private BigDecimal calculateDiscountPrice(BigDecimal originalPrice, Double discountPercentage) {
+        if (originalPrice == null || discountPercentage == null) {
+            return null; // determines that discount is not defined
+        }
+
+        BigDecimal discount = BigDecimal.valueOf(discountPercentage / 100);
+        BigDecimal discountAmount = originalPrice.multiply(discount);
+        return originalPrice.subtract(discountAmount);
+    }
+
+    private boolean isDiscountExpired(LocalDateTime end) {
+        return end != null && LocalDateTime.now().isAfter(end);
+    }
+
+    private void resetDiscountFields(Product product) {
+        product.setDiscountPercentage(null);
+        product.setDiscountStart(null);
+        product.setDiscountEnd(null);
+        product.setDiscountedPrice(null);
     }
 
     private String generateUniqueFileName(String originalFilename) {
@@ -171,7 +203,7 @@ public class ProductService {
 
         do {
             uniqueFilename = UUID.randomUUID().toString().substring(0, 10) + extension;
-        } while(productImageRepository.existsByFilename(uniqueFilename));
+        } while (productImageRepository.existsByFilename(uniqueFilename));
 
         return uniqueFilename;
     }

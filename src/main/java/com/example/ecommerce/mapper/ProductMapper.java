@@ -38,7 +38,7 @@ public class ProductMapper implements Mapper<Product, ProductDto> {
                 .name(request.name())
                 .description(request.description())
                 .price(request.price())
-                .stockQuantity(request.stock())
+                .stockQuantity(request.quantity())
                 .discountPercentage(request.discountPercentage())
                 .discountStart(request.discountStart())
                 .discountEnd(request.discountEnd())
@@ -50,10 +50,15 @@ public class ProductMapper implements Mapper<Product, ProductDto> {
         existingProduct.setName(request.name());
         existingProduct.setDescription(request.description());
         existingProduct.setPrice(request.price());
-        existingProduct.setStockQuantity(request.stock());
-        existingProduct.setDiscountPercentage(request.discountPercentage());
-        existingProduct.setDiscountStart(request.discountStart());
-        existingProduct.setDiscountEnd(request.discountEnd());
+        existingProduct.setStockQuantity(request.quantity());
+
+        // Update discount related fields if they are provided
+        if (request.discountPercentage() != null)
+            existingProduct.setDiscountPercentage(request.discountPercentage());
+        if (request.discountStart() != null)
+            existingProduct.setDiscountStart(request.discountStart());
+        if (request.discountEnd() != null)
+            existingProduct.setDiscountEnd(request.discountEnd());
     }
 
 }

@@ -23,9 +23,9 @@ public record CreateProductRequest(
         @PositiveOrZero(message = "Price must be zero or positive")
         BigDecimal price,
 
-        @NotNull(message = "Stock must not be null")
-        @Positive(message = "Stock must be positive")
-        int stock,
+        @NotNull(message = "Stock quantity must not be null")
+        @Positive(message = "Stock quantity must be positive")
+        int quantity,
 
         @Min(value = 0, message = "Discount percentage must be at least 0")
         @Max(value = 100, message = "Discount percentage must be at most 100")
