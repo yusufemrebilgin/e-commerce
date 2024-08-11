@@ -1,6 +1,6 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.dto.CategoryDto;
+import com.example.ecommerce.payload.dto.CategoryDto;
 import com.example.ecommerce.exception.CategoryNotFoundException;
 import com.example.ecommerce.mapper.CategoryMapper;
 import com.example.ecommerce.mapper.PaginationMapper;

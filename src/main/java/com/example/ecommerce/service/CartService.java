@@ -1,7 +1,7 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.dto.CartDto;
-import com.example.ecommerce.dto.CartItemDto;
+import com.example.ecommerce.payload.dto.CartDto;
+import com.example.ecommerce.payload.dto.CartItemDto;
 import com.example.ecommerce.exception.CartItemNotFoundException;
 import com.example.ecommerce.mapper.CartItemMapper;
 import com.example.ecommerce.mapper.CartMapper;

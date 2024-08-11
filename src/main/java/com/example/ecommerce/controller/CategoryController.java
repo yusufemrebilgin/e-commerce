@@ -1,6 +1,6 @@
 package com.example.ecommerce.controller;
 
-import com.example.ecommerce.dto.CategoryDto;
+import com.example.ecommerce.payload.dto.CategoryDto;
 import com.example.ecommerce.payload.request.category.CreateCategoryRequest;
 import com.example.ecommerce.payload.request.category.UpdateCategoryRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;

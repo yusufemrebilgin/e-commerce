@@ -1,7 +1,7 @@
 package com.example.ecommerce.controller;
 
-import com.example.ecommerce.dto.ProductDto;
-import com.example.ecommerce.dto.ProductImageDto;
+import com.example.ecommerce.payload.dto.ProductDto;
+import com.example.ecommerce.payload.dto.ProductImageDto;
 import com.example.ecommerce.payload.request.product.CreateProductRequest;
 import com.example.ecommerce.payload.request.product.UpdateProductRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;

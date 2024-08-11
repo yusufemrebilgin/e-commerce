@@ -1,4 +1,4 @@
-package com.example.ecommerce.dto;
+package com.example.ecommerce.payload.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

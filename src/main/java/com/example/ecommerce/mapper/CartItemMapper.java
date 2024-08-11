@@ -1,6 +1,6 @@
 package com.example.ecommerce.mapper;
 
-import com.example.ecommerce.dto.CartItemDto;
+import com.example.ecommerce.payload.dto.CartItemDto;
 import com.example.ecommerce.model.CartItem;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

@@ -1,3 +1,3 @@
-package com.example.ecommerce.dto;
+package com.example.ecommerce.payload.dto;
 
 public record CategoryDto(Long categoryId, String categoryName) {}

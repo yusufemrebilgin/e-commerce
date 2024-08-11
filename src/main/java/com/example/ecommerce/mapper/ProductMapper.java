@@ -1,6 +1,6 @@
 package com.example.ecommerce.mapper;
 
-import com.example.ecommerce.dto.ProductDto;
+import com.example.ecommerce.payload.dto.ProductDto;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.model.ProductImage;
 import com.example.ecommerce.payload.request.product.CreateProductRequest;

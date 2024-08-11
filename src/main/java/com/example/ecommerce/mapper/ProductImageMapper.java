@@ -1,6 +1,6 @@
 package com.example.ecommerce.mapper;
 
-import com.example.ecommerce.dto.ProductImageDto;
+import com.example.ecommerce.payload.dto.ProductImageDto;
 import com.example.ecommerce.model.ProductImage;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
