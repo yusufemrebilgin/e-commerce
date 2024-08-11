@@ -9,6 +9,7 @@ import com.example.ecommerce.service.ProductService;
 import com.example.ecommerce.util.PageableFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,7 +67,7 @@ public class ProductController {
     @PostMapping("/categories/{categoryId}/products")
     public ResponseEntity<ProductDto> createProduct(@PathVariable Long categoryId,
                                                     @Valid @RequestBody CreateProductRequest request) {
-        return ResponseEntity.ok(productService.createProduct(categoryId, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(categoryId, request));
     }
 
     @PutMapping("/products/{productId}")

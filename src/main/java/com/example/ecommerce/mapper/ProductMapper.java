@@ -25,6 +25,7 @@ public class ProductMapper implements Mapper<Product, ProductDto> {
                 product.getStockQuantity(),
                 product.getPrice(),
                 product.getDiscountedPrice(),
+                product.isDiscountAvailable(),
                 product.getDiscountPercentage(),
                 product.getDiscountStart(),
                 product.getDiscountEnd(),
