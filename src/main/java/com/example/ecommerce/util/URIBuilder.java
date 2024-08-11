@@ -10,7 +10,7 @@ public final class URIBuilder {
         return ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
     }
 
-    public static URI getResourceLocation(Long id) {
+    public static URI getResourceLocation(Object id) {
         return ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(id).toUri();
     }
