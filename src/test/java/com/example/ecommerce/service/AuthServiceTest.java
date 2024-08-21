@@ -96,14 +96,13 @@ class AuthServiceTest {
                 "test_username",
                 "test_password",
                 "test@example.com",
-                Set.of("user", "admin")
+                Set.of("user")
         );
 
         given(userRepository.existsByUsername(anyString())).willReturn(false);
         given(userRepository.existsByEmail(anyString())).willReturn(false);
         given(passwordEncoder.encode(request.password())).willReturn("encoded_password");
         given(roleRepository.findByRoleName(RoleName.ROLE_USER)).willReturn(Optional.of(new Role(1L, RoleName.ROLE_USER)));
-        given(roleRepository.findByRoleName(RoleName.ROLE_ADMIN)).willReturn(Optional.of(new Role(2L, RoleName.ROLE_ADMIN)));
 
         // when
         MessageResponse response = authService.register(request);
@@ -116,8 +115,8 @@ class AuthServiceTest {
         then(user.getUsername()).isEqualTo("test_username");
         then(user.getPassword()).isEqualTo("encoded_password");
         then(user.getEmail()).isEqualTo("test@example.com");
-        then(user.getRoles()).hasSize(2);
-        then(user.getRoles().stream().map(Role::getRoleName).toList()).contains(RoleName.ROLE_USER, RoleName.ROLE_ADMIN);
+        then(user.getRoles()).hasSize(1);
+        then(user.getRoles().stream().map(Role::getRoleName).toList()).contains(RoleName.ROLE_USER);
 
         then(response).isNotNull();
         then(response.message()).isEqualTo("User registered successfully!");
