@@ -3,8 +3,8 @@ spring:
     name: e-commerce
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/ecommerce
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
