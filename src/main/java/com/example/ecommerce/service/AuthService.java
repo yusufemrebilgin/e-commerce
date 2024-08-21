@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.exception.EmailAlreadyInUseException;
 import com.example.ecommerce.exception.RoleNotFoundException;
+import com.example.ecommerce.exception.UnauthorizedRoleAssignmentException;
 import com.example.ecommerce.exception.UsernameAlreadyTakenException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
@@ -78,9 +79,16 @@ public class AuthService {
         Set<Role> roles = new HashSet<>();
         Set<RoleName> givenRoles = RoleName.fromStrings(userRegistrationRequest.roles());
 
+        if (givenRoles.contains(RoleName.ROLE_ADMIN)) {
+            throw new UnauthorizedRoleAssignmentException("Admin role cannot be assigned");
+        }
+
         if (givenRoles.isEmpty()) {
             Role userRole = roleRepository.findByRoleName(RoleName.ROLE_USER)
-                    .orElseThrow(RoleNotFoundException::new);
+                    .orElseGet(() -> {
+                        // If role is not found create user role as default
+                        return roleRepository.save(new Role(0L, RoleName.ROLE_USER));
+                    });
             roles.add(userRole);
         } else {
             for (RoleName roleName : givenRoles) {

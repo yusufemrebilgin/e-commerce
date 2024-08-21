@@ -19,8 +19,10 @@ public enum RoleName {
 
     public static Set<RoleName> fromStrings(Set<String> rolesAsStringSet) {
         Set<RoleName> roleNames = new HashSet<>();
-        for (String role : rolesAsStringSet) {
-            roleNames.add(fromName(role.toUpperCase(Locale.ENGLISH)));
+        if (rolesAsStringSet != null) {
+            for (String role : rolesAsStringSet) {
+                roleNames.add(fromName(role.toUpperCase(Locale.ENGLISH)));
+            }
         }
         return roleNames;
     }
