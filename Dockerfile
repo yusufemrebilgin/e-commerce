@@ -6,7 +6,7 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-RUN mvn --batch-mode package --file pom.xml
+RUN mvn clean package -DskipTests --file pom.xml
 
 # Stage 2
 FROM amazoncorretto:17-alpine3.19-jdk
