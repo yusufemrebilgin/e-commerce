@@ -5,8 +5,9 @@ import java.util.Set;
 
 public enum RoleName {
 
-    ROLE_USER,
-    ROLE_ADMIN;
+    ROLE_ADMIN,
+    ROLE_SELLER,
+    ROLE_CUSTOMER;
 
     public static RoleName fromName(String name) {
         for (RoleName roleName : values()) {
