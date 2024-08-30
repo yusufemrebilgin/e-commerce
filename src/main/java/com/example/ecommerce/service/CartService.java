@@ -1,18 +1,17 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.payload.dto.CartDto;
-import com.example.ecommerce.payload.dto.CartItemDto;
 import com.example.ecommerce.exception.CartItemNotFoundException;
 import com.example.ecommerce.mapper.CartItemMapper;
 import com.example.ecommerce.mapper.CartMapper;
 import com.example.ecommerce.model.Cart;
 import com.example.ecommerce.model.CartItem;
 import com.example.ecommerce.model.Product;
+import com.example.ecommerce.payload.dto.CartDto;
+import com.example.ecommerce.payload.dto.CartItemDto;
 import com.example.ecommerce.payload.request.cart.CreateCartItemRequest;
 import com.example.ecommerce.payload.request.cart.UpdateCartItemRequest;
 import com.example.ecommerce.repository.CartItemRepository;
 import com.example.ecommerce.repository.CartRepository;
-import com.example.ecommerce.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CartService {
 
-    private final AuthUtils authUtils;
+    private final UserService userService;
     private final ProductService productService;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
@@ -34,7 +33,7 @@ public class CartService {
 
     protected Cart getCartByAuthenticatedUser() {
         return cartRepository
-                .findByUser(authUtils.getCurrentUsername())
+                .findByUser(userService.getCurrentUsername())
                 .orElseGet(this::createCart);
     }
 
@@ -158,7 +157,7 @@ public class CartService {
 
     private Cart createCart() {
         Cart cart = Cart.builder()
-                .user(authUtils.getCurrentUser())
+                .user(userService.getCurrentUser())
                 .cartItems(new ArrayList<>())
                 .totalPrice(BigDecimal.ZERO)
                 .build();
