@@ -234,7 +234,7 @@ class ProductServiceTest {
                 .build();
 
         given(productRepository.findById(productId)).willReturn(Optional.of(existingProduct));
-        given(productRepository.save(updatedProduct)).willReturn(updatedProduct);
+        given(productRepository.save(any(Product.class))).willReturn(updatedProduct);
         given(productMapper.mapToDto(updatedProduct)).willReturn(expected);
 
         // when

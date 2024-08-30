@@ -141,7 +141,7 @@ class CategoryServiceTest {
         Category category = new Category(0L, request.categoryName());
         CategoryDto expectedDto = new CategoryDto(0L, request.categoryName());
 
-        given(categoryRepository.save(category)).willReturn(category);
+        given(categoryRepository.save(any(Category.class))).willReturn(category);
         given(categoryMapper.mapToDto(category)).willReturn(expectedDto);
 
         // when
@@ -165,7 +165,7 @@ class CategoryServiceTest {
 
         given(categoryRepository.findById(categoryId)).willReturn(Optional.of(existingCategory));
         given(categoryRepository.save(any(Category.class))).willReturn(updatedCategory);
-        given(categoryMapper.mapToDto(existingCategory)).willReturn(expectedDto);
+        given(categoryMapper.mapToDto(updatedCategory)).willReturn(expectedDto);
 
         // when
         CategoryDto actualDto = categoryService.updateCategory(categoryId, request);
