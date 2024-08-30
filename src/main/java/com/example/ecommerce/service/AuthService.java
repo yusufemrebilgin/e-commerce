@@ -84,10 +84,10 @@ public class AuthService {
         }
 
         if (givenRoles.isEmpty()) {
-            Role userRole = roleRepository.findByRoleName(RoleName.ROLE_USER)
+            Role userRole = roleRepository.findByRoleName(RoleName.ROLE_CUSTOMER)
                     .orElseGet(() -> {
-                        // If role is not found create user role as default
-                        return roleRepository.save(new Role(0L, RoleName.ROLE_USER));
+                        // If role is not found create customer role as default
+                        return roleRepository.save(new Role(0L, RoleName.ROLE_CUSTOMER));
                     });
             roles.add(userRole);
         } else {

@@ -96,13 +96,13 @@ class AuthServiceTest {
                 "test_username",
                 "test_password",
                 "test@example.com",
-                Set.of("user")
+                Set.of("customer")
         );
 
         given(userRepository.existsByUsername(anyString())).willReturn(false);
         given(userRepository.existsByEmail(anyString())).willReturn(false);
         given(passwordEncoder.encode(request.password())).willReturn("encoded_password");
-        given(roleRepository.findByRoleName(RoleName.ROLE_USER)).willReturn(Optional.of(new Role(1L, RoleName.ROLE_USER)));
+        given(roleRepository.findByRoleName(RoleName.ROLE_CUSTOMER)).willReturn(Optional.of(new Role(1L, RoleName.ROLE_CUSTOMER)));
 
         // when
         MessageResponse response = authService.register(request);
@@ -116,7 +116,7 @@ class AuthServiceTest {
         then(user.getPassword()).isEqualTo("encoded_password");
         then(user.getEmail()).isEqualTo("test@example.com");
         then(user.getRoles()).hasSize(1);
-        then(user.getRoles().stream().map(Role::getRoleName).toList()).contains(RoleName.ROLE_USER);
+        then(user.getRoles().stream().map(Role::getRoleName).toList()).contains(RoleName.ROLE_CUSTOMER);
 
         then(response).isNotNull();
         then(response.message()).isEqualTo("User registered successfully!");
