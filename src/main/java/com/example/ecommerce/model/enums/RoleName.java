@@ -7,7 +7,8 @@ public enum RoleName {
 
     ROLE_ADMIN,
     ROLE_SELLER,
-    ROLE_CUSTOMER;
+    ROLE_CUSTOMER,
+    ROLE_SUPER_ADMIN;
 
     public static RoleName fromName(String name) {
         for (RoleName roleName : values()) {
