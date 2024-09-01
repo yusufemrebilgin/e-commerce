@@ -4,6 +4,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +19,11 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@DiscriminatorValue("CUSTOMER")
+@DiscriminatorValue("Customer")
 public class Customer extends User {
+
+    @OneToOne(mappedBy = "customer")
+    private Cart cart;
 
     @OneToMany(
             mappedBy = "customer",

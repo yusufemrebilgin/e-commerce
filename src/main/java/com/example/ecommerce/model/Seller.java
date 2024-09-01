@@ -19,7 +19,7 @@ import java.util.Set;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@DiscriminatorValue("SELLER")
+@DiscriminatorValue("Seller")
 public class Seller extends User {
 
     private String companyName;
