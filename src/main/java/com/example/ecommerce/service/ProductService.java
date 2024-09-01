@@ -53,6 +53,10 @@ public class ProductService {
         return productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(productId));
     }
 
+    protected Integer getAvailableStockQuantity(UUID productId) {
+        return productRepository.findStockQuantityByProductId(productId);
+    }
+
     public PaginatedResponse<ProductDto> getAllProducts(int page, int size, String sort) {
         Pageable pageable = PageableFactory.getPageable(page, size, sort);
         return paginationMapper.toPaginatedResponse(productRepository.findAll(pageable), productMapper);
@@ -138,6 +142,17 @@ public class ProductService {
             productImageRepository.delete(productImage);
             log.info("Image deleted {}", productImage.getFilename());
         }
+    }
+
+    @Transactional
+    void decreaseStockForOrder(UUID productId, int quantity) {
+        Product product = getProductById(productId);
+        if (quantity < 0 || product.getStockQuantity() < quantity) {
+            throw new IllegalArgumentException("Invalid quantity parameter");
+        }
+
+        product.setStockQuantity(product.getStockQuantity() - quantity);
+        productRepository.save(product);
     }
 
     private void updateDiscountIfApplicable(Product product) {
