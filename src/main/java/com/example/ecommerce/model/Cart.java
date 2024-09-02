@@ -38,4 +38,8 @@ public class Cart extends BaseEntity {
 
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
+    public boolean isEmpty() {
+        return cartItems == null || cartItems.isEmpty();
+    }
+
 }

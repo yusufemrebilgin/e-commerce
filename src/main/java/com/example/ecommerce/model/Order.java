@@ -51,4 +51,8 @@ public class Order extends BaseEntity {
 
     private BigDecimal totalPrice;
 
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
+
 }
