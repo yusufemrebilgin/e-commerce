@@ -4,7 +4,9 @@ import com.example.ecommerce.exception.EmailAlreadyInUseException;
 import com.example.ecommerce.exception.RoleNotFoundException;
 import com.example.ecommerce.exception.UnauthorizedRoleAssignmentException;
 import com.example.ecommerce.exception.UsernameAlreadyTakenException;
+import com.example.ecommerce.model.Customer;
 import com.example.ecommerce.model.Role;
+import com.example.ecommerce.model.Seller;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.model.enums.RoleName;
 import com.example.ecommerce.payload.request.auth.LoginRequest;
@@ -28,6 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.example.ecommerce.model.enums.RoleName.*;
 
 @Service
 @RequiredArgsConstructor
@@ -69,25 +73,40 @@ public class AuthService {
             throw new EmailAlreadyInUseException();
         }
 
-        User user = User.builder()
-                .name(userRegistrationRequest.name())
-                .username(userRegistrationRequest.username())
-                .email(userRegistrationRequest.email())
-                .password(encoder.encode(userRegistrationRequest.password()))
-                .build();
-
         Set<Role> roles = new HashSet<>();
         Set<RoleName> givenRoles = RoleName.fromStrings(userRegistrationRequest.roles());
 
-        if (givenRoles.contains(RoleName.ROLE_ADMIN)) {
-            throw new UnauthorizedRoleAssignmentException("Admin role cannot be assigned");
+        User user;
+        if (givenRoles.contains(ROLE_SELLER)) {
+            user = new Seller();
+        } else if (givenRoles.contains(ROLE_CUSTOMER)) {
+            user = new Customer();
+        } else {
+            user = new User();
+        }
+
+        user.setName(userRegistrationRequest.name());
+        user.setUsername(userRegistrationRequest.username());
+        user.setPassword(encoder.encode(userRegistrationRequest.password()));
+        user.setEmail(userRegistrationRequest.email());
+
+        if (givenRoles.contains(ROLE_ADMIN) || givenRoles.contains(ROLE_SUPER_ADMIN)) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails currentUser = (CustomUserDetails) auth.getPrincipal();
+
+            boolean isSuperAdmin = currentUser.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals(ROLE_SUPER_ADMIN.name()));
+
+            if (!isSuperAdmin) {
+                throw new UnauthorizedRoleAssignmentException("Only SUPER_ADMIN can assign ADMIN or SUPER_ADMIN role");
+            }
         }
 
         if (givenRoles.isEmpty()) {
-            Role userRole = roleRepository.findByRoleName(RoleName.ROLE_CUSTOMER)
+            Role userRole = roleRepository.findByRoleName(ROLE_CUSTOMER)
                     .orElseGet(() -> {
                         // If role is not found create customer role as default
-                        return roleRepository.save(new Role(0L, RoleName.ROLE_CUSTOMER));
+                        return roleRepository.save(new Role(0L, ROLE_CUSTOMER));
                     });
             roles.add(userRole);
         } else {

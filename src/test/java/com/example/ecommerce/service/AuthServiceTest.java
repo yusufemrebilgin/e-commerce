@@ -1,6 +1,7 @@
 package com.example.ecommerce.service;
 
 import com.example.ecommerce.exception.EmailAlreadyInUseException;
+import com.example.ecommerce.exception.UnauthorizedRoleAssignmentException;
 import com.example.ecommerce.exception.UsernameAlreadyTakenException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
@@ -22,6 +23,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
@@ -160,6 +163,29 @@ class AuthServiceTest {
         // then
         then(ex).isNotNull();
         then(ex).hasMessageContaining("Email is already in use");
+    }
+
+    @Test
+    void givenRegistrationRequestWithNonAdminAuth_whenTriesToAssignAdminRole_throwUnauthorizedRoleAssignmentException() {
+        // given
+        UserRegistrationRequest request = new UserRegistrationRequest(
+                "test", "testuser", "password", "@example.com", Set.of("admin")
+        );
+        CustomUserDetails nonAdminDetails = new CustomUserDetails(
+                0L, "nonadmin", "@example.com", "password", Set.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"))
+        );
+        Authentication authentication = new UsernamePasswordAuthenticationToken(nonAdminDetails, null, nonAdminDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        UnauthorizedRoleAssignmentException ex = catchThrowableOfType(
+                () -> authService.register(request),
+                UnauthorizedRoleAssignmentException.class
+        );
+
+        // then
+        then(ex).isNotNull();
+        then(ex).hasMessageContaining("Only SUPER_ADMIN can assign ADMIN or SUPER_ADMIN role");
     }
 
 }
