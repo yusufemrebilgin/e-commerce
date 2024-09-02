@@ -35,7 +35,6 @@ class CartServiceTest {
     @InjectMocks
     CartService cartService;
 
-
     @Mock
     UserService userService;
 
@@ -62,7 +61,7 @@ class CartServiceTest {
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(expected));
 
         // when
-        Cart actual = cartService.getCartByAuthenticatedUser();
+        Cart actual = cartService.getCartByAuthenticatedCustomer();
 
         // then
         then(actual).isNotNull();
@@ -79,7 +78,7 @@ class CartServiceTest {
         given(cartRepository.save(any(Cart.class))).willReturn(expected);
 
         // when
-        Cart actual = cartService.getCartByAuthenticatedUser();
+        Cart actual = cartService.getCartByAuthenticatedCustomer();
 
         // then
         then(actual).isNotNull();
@@ -171,10 +170,12 @@ class CartServiceTest {
                 .isDiscountAvailable(true)
                 .discountPercentage(20d)
                 .price(BigDecimal.valueOf(200))
+                .stockQuantity(50)
                 .discountedPrice(BigDecimal.valueOf(160)) // 200 - (200 * 0.2)
                 .build();
 
         CartItem existingCartItem = CartItem.builder()
+                .product(product)
                 .quantity(5)
                 .isDiscountApplied(true)
                 .totalPrice(BigDecimal.valueOf(800))
@@ -195,6 +196,7 @@ class CartServiceTest {
         given(userService.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(cart));
         given(productService.getProductById(product.getId())).willReturn(product);
+        given(productService.getAvailableStockQuantity(any(UUID.class))).willReturn(product.getStockQuantity());
         given(cartItemRepository.existsByCartIdAndProductId(cart.getId(), product.getId())).willReturn(true);
         given(cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId())).willReturn(existingCartItem);
         given(cartItemRepository.save(existingCartItem)).willReturn(existingCartItem);
@@ -222,6 +224,7 @@ class CartServiceTest {
         Product product = Product.builder()
                 .id(UUID.randomUUID())
                 .price(BigDecimal.valueOf(200))
+                .stockQuantity(50)
                 .build();
 
         CartItem createdCartItem = CartItem.builder()
@@ -245,6 +248,7 @@ class CartServiceTest {
         given(userService.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(cart));
         given(productService.getProductById(product.getId())).willReturn(product);
+        given(productService.getAvailableStockQuantity(any(UUID.class))).willReturn(product.getStockQuantity());
         given(cartItemRepository.existsByCartIdAndProductId(cart.getId(), product.getId())).willReturn(false);
         given(cartItemRepository.save(any(CartItem.class))).willReturn(createdCartItem);
         given(cartItemMapper.mapToDto(any(CartItem.class))).willReturn(expected);
@@ -266,7 +270,13 @@ class CartServiceTest {
                 .totalPrice(BigDecimal.valueOf(1000))
                 .build();
 
+        Product product = Product.builder()
+                .id(UUID.randomUUID())
+                .stockQuantity(50)
+                .build();
+
         CartItem existingCartItem = CartItem.builder()
+                .product(product)
                 .quantity(5)
                 .unitPrice(BigDecimal.valueOf(40))
                 .totalPrice(BigDecimal.valueOf(200))
@@ -282,6 +292,7 @@ class CartServiceTest {
         given(userService.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(cart));
         given(cartItemRepository.findById(existingCartItem.getId())).willReturn(Optional.of(existingCartItem));
+        given(productService.getAvailableStockQuantity(any(UUID.class))).willReturn(product.getStockQuantity());
         given(cartItemRepository.save(existingCartItem)).willReturn(existingCartItem);
         given(cartItemMapper.mapToDto(existingCartItem)).willReturn(expected);
 

@@ -1,6 +1,7 @@
 package com.example.ecommerce.service;
 
 import com.example.ecommerce.exception.CartItemNotFoundException;
+import com.example.ecommerce.exception.InsufficientStockException;
 import com.example.ecommerce.mapper.CartItemMapper;
 import com.example.ecommerce.mapper.CartMapper;
 import com.example.ecommerce.model.Cart;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,7 +33,7 @@ public class CartService {
     private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
 
-    protected Cart getCartByAuthenticatedUser() {
+    protected Cart getCartByAuthenticatedCustomer() {
         return cartRepository
                 .findByUser(userService.getCurrentUsername())
                 .orElseGet(this::createCart);
@@ -44,16 +46,18 @@ public class CartService {
     }
 
     public CartDto getCart() {
-        return cartMapper.mapToDto(getCartByAuthenticatedUser());
+        return cartMapper.mapToDto(getCartByAuthenticatedCustomer());
     }
 
     @Transactional
     public CartItemDto addItemToCart(CreateCartItemRequest request) {
 
-        Cart cart = getCartByAuthenticatedUser();
+        Cart cart = getCartByAuthenticatedCustomer();
         Product product = productService.getProductById(UUID.fromString(request.productId()));
 
         int quantity = request.quantity();
+
+        checkStock(product.getId(), quantity);
 
         boolean hasDiscount = product.isDiscountAvailable();
 
@@ -102,11 +106,13 @@ public class CartService {
     @Transactional
     public CartItemDto updateItemInCart(UUID cartItemId, UpdateCartItemRequest request) {
 
-        Cart cart = getCartByAuthenticatedUser();
+        Cart cart = getCartByAuthenticatedCustomer();
         CartItem cartItem = getCartItemById(cartItemId);
 
         int currentQuantity = cartItem.getQuantity();
         int updatedQuantity = request.quantity();
+
+        checkStock(cartItem.getProduct().getId(), updatedQuantity);
 
         BigDecimal unitPrice = cartItem.getUnitPrice();
         BigDecimal oldTotalPrice = cartItem.getTotalPrice();
@@ -140,7 +146,7 @@ public class CartService {
 
     @Transactional
     public void deleteItemFromCart(UUID cartItemId) {
-        Cart cart = getCartByAuthenticatedUser();
+        Cart cart = getCartByAuthenticatedCustomer();
         CartItem cartItem = getCartItemById(cartItemId);
 
         BigDecimal amountToBeDeducted = cartItem.getTotalPrice();
@@ -151,13 +157,34 @@ public class CartService {
         cartItemRepository.delete(cartItem);
     }
 
+    @Transactional
+    void emptyCartAndUpdateStocks() {
+        Cart cart = getCartByAuthenticatedCustomer();
+        List<CartItem> cartItems = cart.getCartItems();
+
+        for (CartItem cartItem : cartItems) {
+            Product product = cartItem.getProduct();
+            productService.decreaseStockForOrder(product.getId(), cartItem.getQuantity());
+        }
+
+        cart.getCartItems().clear();
+        cart.setTotalPrice(BigDecimal.ZERO);
+    }
+
+    private void checkStock(UUID productId, int requestedQuantity) {
+        int availableStockQuantity = productService.getAvailableStockQuantity(productId);
+        if (availableStockQuantity < requestedQuantity) {
+            throw new InsufficientStockException(availableStockQuantity, requestedQuantity);
+        }
+    }
+
     private BigDecimal calculateDiscountedAmount(double percentage, BigDecimal itemPrice) {
         return itemPrice.multiply(BigDecimal.valueOf(percentage / 100));
     }
 
     private Cart createCart() {
         Cart cart = Cart.builder()
-                .user(userService.getCurrentUser())
+                .customer(userService.getCurrentCustomer())
                 .cartItems(new ArrayList<>())
                 .totalPrice(BigDecimal.ZERO)
                 .build();
