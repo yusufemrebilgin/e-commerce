@@ -24,36 +24,33 @@ import static org.springframework.http.HttpStatus.*;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<SimpleErrorResponse> handleGenericException(Exception ex, WebRequest request) {
-        log.error("GenericException: {}", ex.getMessage(), ex);
-        SimpleErrorResponse errorResponse = SimpleErrorResponse.builder()
-                .status(INTERNAL_SERVER_ERROR.toString())
-                .message("An unexpected error occurred: " + ex.getMessage())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, INTERNAL_SERVER_ERROR);
+    public ResponseEntity<SimpleErrorResponse> handleGenericException(Exception ex) {
+        log.error("GenericException: {}", ex.getMessage());
+        return buildSimpleErrorResponse(INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleNotFoundException(Exception ex, WebRequest request) {
-        log.error("NotFoundException: {}", ex.getMessage(), ex);
-        SimpleErrorResponse errorResponse = SimpleErrorResponse.builder()
-                .status(NOT_FOUND.toString())
-                .message(ex.getMessage())
-                .build();
+    public ResponseEntity<SimpleErrorResponse> handleNotFoundException(Exception ex) {
+        log.error("NotFoundException: {}", ex.getMessage());
+        return buildSimpleErrorResponse(NOT_FOUND, ex.getMessage());
+    }
 
-        return new ResponseEntity<>(errorResponse, NOT_FOUND);
+    @ExceptionHandler({InvalidPaymentMethodException.class, EmptyCartException.class})
+    public ResponseEntity<SimpleErrorResponse> handleBadRequestException(Exception ex) {
+        log.error("BadRequestException: {}", ex.getMessage());
+        return buildSimpleErrorResponse(BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler({UsernameAlreadyTakenException.class, EmailAlreadyInUseException.class})
-    public ResponseEntity<SimpleErrorResponse> handleBadRequestException(Exception ex, WebRequest request) {
-        log.error("BadRequestException: {}", ex.getMessage(), ex);
-        SimpleErrorResponse errorResponse = SimpleErrorResponse.builder()
-                .status(BAD_REQUEST.toString())
-                .message(ex.getMessage())
-                .build();
+    public ResponseEntity<SimpleErrorResponse> handleConflictException(Exception ex) {
+        log.error("Conflict: {}", ex.getMessage());
+        return buildSimpleErrorResponse(CONFLICT, ex.getMessage());
+    }
 
-        return new ResponseEntity<>(errorResponse, BAD_REQUEST);
+    @ExceptionHandler(ForbiddenRoleAssignmentException.class)
+    public ResponseEntity<SimpleErrorResponse> handleForbiddenException(Exception ex) {
+        log.error("Forbidden: {}", ex.getMessage());
+        return buildSimpleErrorResponse(FORBIDDEN, ex.getMessage());
     }
 
     @Override
@@ -61,7 +58,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   @NonNull HttpHeaders headers,
                                                                   @NonNull HttpStatusCode status,
                                                                   @NonNull WebRequest request) {
-        log.error("Validation failed: {}", ex.getMessage(), ex);
+        log.error("Validation failed: {}", ex.getMessage());
 
         Map<String, String> validationErrors = new HashMap<>();
         ex.getAllErrors().forEach(error -> {
@@ -77,6 +74,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorDetails, BAD_REQUEST);
+    }
+
+    private ResponseEntity<SimpleErrorResponse> buildSimpleErrorResponse(HttpStatusCode status, String message) {
+        return new ResponseEntity<>(
+                SimpleErrorResponse.builder().message(message).status(status.toString()).build(),
+                status
+        );
     }
 
 }
