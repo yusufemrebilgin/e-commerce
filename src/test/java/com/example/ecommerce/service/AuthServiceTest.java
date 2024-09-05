@@ -1,7 +1,7 @@
 package com.example.ecommerce.service;
 
 import com.example.ecommerce.exception.EmailAlreadyInUseException;
-import com.example.ecommerce.exception.UnauthorizedRoleAssignmentException;
+import com.example.ecommerce.exception.ForbiddenRoleAssignmentException;
 import com.example.ecommerce.exception.UsernameAlreadyTakenException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
@@ -178,9 +178,9 @@ class AuthServiceTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
-        UnauthorizedRoleAssignmentException ex = catchThrowableOfType(
+        ForbiddenRoleAssignmentException ex = catchThrowableOfType(
                 () -> authService.register(request),
-                UnauthorizedRoleAssignmentException.class
+                ForbiddenRoleAssignmentException.class
         );
 
         // then
