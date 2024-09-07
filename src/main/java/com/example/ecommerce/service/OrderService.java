@@ -1,7 +1,7 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.exception.AddressNotFoundException;
-import com.example.ecommerce.exception.EmptyCartException;
+import com.example.ecommerce.exception.user.AddressNotFoundException;
+import com.example.ecommerce.exception.cart.EmptyCartException;
 import com.example.ecommerce.mapper.OrderMapper;
 import com.example.ecommerce.model.Address;
 import com.example.ecommerce.model.Cart;
@@ -50,7 +50,7 @@ public class OrderService {
         Address deliveryAddress = addresses.stream()
                 .filter(a -> Objects.equals(a.getId(), request.addressId()))
                 .findFirst()
-                .orElseThrow(AddressNotFoundException::new);
+                .orElseThrow(() -> new AddressNotFoundException(request.addressId()));
 
         Order order = Order.builder()
                 .customer(cart.getCustomer())

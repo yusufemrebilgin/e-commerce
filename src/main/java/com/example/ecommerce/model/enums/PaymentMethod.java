@@ -1,6 +1,6 @@
 package com.example.ecommerce.model.enums;
 
-import com.example.ecommerce.exception.InvalidPaymentMethodException;
+import com.example.ecommerce.exception.payment.InvalidPaymentMethodException;
 
 public enum PaymentMethod {
     DEBIT_CART,

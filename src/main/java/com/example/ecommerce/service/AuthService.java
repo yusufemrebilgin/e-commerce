@@ -1,9 +1,9 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.exception.EmailAlreadyInUseException;
-import com.example.ecommerce.exception.RoleNotFoundException;
-import com.example.ecommerce.exception.ForbiddenRoleAssignmentException;
-import com.example.ecommerce.exception.UsernameAlreadyTakenException;
+import com.example.ecommerce.exception.user.EmailAlreadyInUseException;
+import com.example.ecommerce.exception.user.RoleNotFoundException;
+import com.example.ecommerce.exception.user.ForbiddenRoleAssignmentException;
+import com.example.ecommerce.exception.user.UsernameAlreadyTakenException;
 import com.example.ecommerce.model.Customer;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.Seller;
@@ -98,7 +98,7 @@ public class AuthService {
                     .anyMatch(a -> a.getAuthority().equals(ROLE_SUPER_ADMIN.name()));
 
             if (!isSuperAdmin) {
-                throw new ForbiddenRoleAssignmentException("Only SUPER_ADMIN can assign ADMIN or SUPER_ADMIN role");
+                throw new ForbiddenRoleAssignmentException();
             }
         }
 

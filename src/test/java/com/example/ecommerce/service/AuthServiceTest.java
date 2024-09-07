@@ -1,8 +1,8 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.exception.EmailAlreadyInUseException;
-import com.example.ecommerce.exception.ForbiddenRoleAssignmentException;
-import com.example.ecommerce.exception.UsernameAlreadyTakenException;
+import com.example.ecommerce.exception.user.EmailAlreadyInUseException;
+import com.example.ecommerce.exception.user.ForbiddenRoleAssignmentException;
+import com.example.ecommerce.exception.user.UsernameAlreadyTakenException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.model.enums.RoleName;

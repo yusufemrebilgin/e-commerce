@@ -1,6 +1,6 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.exception.CartItemNotFoundException;
+import com.example.ecommerce.exception.cart.CartItemNotFoundException;
 import com.example.ecommerce.mapper.CartItemMapper;
 import com.example.ecommerce.mapper.CartMapper;
 import com.example.ecommerce.model.Cart;

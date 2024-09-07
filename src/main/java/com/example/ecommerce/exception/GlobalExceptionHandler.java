@@ -1,5 +1,10 @@
 package com.example.ecommerce.exception;
 
+import com.example.ecommerce.exception.user.EmailAlreadyInUseException;
+import com.example.ecommerce.exception.user.ForbiddenRoleAssignmentException;
+import com.example.ecommerce.exception.user.UsernameAlreadyTakenException;
+import com.example.ecommerce.exception.cart.EmptyCartException;
+import com.example.ecommerce.exception.payment.InvalidPaymentMethodException;
 import com.example.ecommerce.exception.response.ErrorDetails;
 import com.example.ecommerce.exception.response.SimpleErrorResponse;
 import lombok.extern.slf4j.Slf4j;

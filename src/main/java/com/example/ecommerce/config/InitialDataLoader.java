@@ -1,6 +1,6 @@
 package com.example.ecommerce.config;
 
-import com.example.ecommerce.exception.RoleNotFoundException;
+import com.example.ecommerce.exception.user.RoleNotFoundException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.model.enums.RoleName;

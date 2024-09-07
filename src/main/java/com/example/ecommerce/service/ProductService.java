@@ -2,8 +2,8 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.payload.dto.ProductDto;
 import com.example.ecommerce.payload.dto.ProductImageDto;
-import com.example.ecommerce.exception.ProductImageNotFoundException;
-import com.example.ecommerce.exception.ProductNotFoundException;
+import com.example.ecommerce.exception.product.ProductImageNotFoundException;
+import com.example.ecommerce.exception.product.ProductNotFoundException;
 import com.example.ecommerce.mapper.PaginationMapper;
 import com.example.ecommerce.mapper.ProductImageMapper;
 import com.example.ecommerce.mapper.ProductMapper;
