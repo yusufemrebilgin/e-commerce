@@ -1,15 +1,14 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.payload.dto.CategoryDto;
 import com.example.ecommerce.exception.category.CategoryNotFoundException;
 import com.example.ecommerce.mapper.CategoryMapper;
 import com.example.ecommerce.mapper.PaginationMapper;
 import com.example.ecommerce.model.Category;
+import com.example.ecommerce.payload.dto.CategoryDto;
 import com.example.ecommerce.payload.request.category.CreateCategoryRequest;
 import com.example.ecommerce.payload.request.category.UpdateCategoryRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.repository.CategoryRepository;
-import com.example.ecommerce.util.PageableFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,8 +25,7 @@ public class CategoryService {
         return categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
     }
 
-    public PaginatedResponse<CategoryDto> getAllCategories(int page, int size, String sort) {
-        Pageable pageable = PageableFactory.getPageable(page, size, sort);
+    public PaginatedResponse<CategoryDto> getAllCategories(Pageable pageable) {
         return paginationMapper.toPaginatedResponse(categoryRepository.findAll(pageable), categoryMapper);
     }
 

@@ -5,10 +5,11 @@ import com.example.ecommerce.payload.request.category.CreateCategoryRequest;
 import com.example.ecommerce.payload.request.category.UpdateCategoryRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.service.CategoryService;
-import com.example.ecommerce.util.PageableFactory;
-import com.example.ecommerce.util.URIBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,19 +28,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<CategoryDto>> getAllCategories(
-            @RequestParam(defaultValue = PageableFactory.DEFAULT_PAGE) int page,
-            @RequestParam(defaultValue = PageableFactory.DEFAULT_SIZE) int size,
-            @RequestParam(required = false) String sort) {
-        return ResponseEntity.ok(categoryService.getAllCategories(page, size, sort));
+    public ResponseEntity<PaginatedResponse<CategoryDto>> getAllCategories(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(categoryService.getAllCategories(pageable));
     }
 
     @PostMapping
     public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
-        CategoryDto createdCategory = categoryService.createCategory(request);
-        return ResponseEntity
-                .created(URIBuilder.getResourceLocation(createdCategory.categoryId()))
-                .body(createdCategory);
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(request));
     }
 
     @PutMapping("/{categoryId}")

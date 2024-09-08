@@ -6,9 +6,10 @@ import com.example.ecommerce.payload.request.product.CreateProductRequest;
 import com.example.ecommerce.payload.request.product.UpdateProductRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.service.ProductService;
-import com.example.ecommerce.util.PageableFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,34 +35,25 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/products/{productId}")
-    public ResponseEntity<?> get(@PathVariable UUID productId) {
+    public ResponseEntity<?> getProduct(@PathVariable UUID productId) {
         return ResponseEntity.ok(productService.getProduct(productId));
     }
 
     @GetMapping("/products")
-    public ResponseEntity<PaginatedResponse<ProductDto>> getAllProducts(
-            @RequestParam(defaultValue = PageableFactory.DEFAULT_PAGE) int page,
-            @RequestParam(defaultValue = PageableFactory.DEFAULT_SIZE) int size,
-            @RequestParam(required = false) String sort) {
-        return ResponseEntity.ok(productService.getAllProducts(page, size, sort));
+    public ResponseEntity<PaginatedResponse<ProductDto>> getAllProducts(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
     @GetMapping("/products/search")
     public ResponseEntity<PaginatedResponse<ProductDto>> getAllProductsByName(
-            @RequestParam(name = "query") String name,
-            @RequestParam(defaultValue = PageableFactory.DEFAULT_PAGE) int page,
-            @RequestParam(defaultValue = PageableFactory.DEFAULT_SIZE) int size,
-            @RequestParam(required = false) String sort) {
-        return ResponseEntity.ok(productService.getAllProductsByName(name, page, size, sort));
+            @RequestParam String name, @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(productService.getAllProductsByName(name, pageable));
     }
 
     @GetMapping("/categories/{categoryId}/products")
     public ResponseEntity<PaginatedResponse<ProductDto>> getAllProductsByCategory(
-            @PathVariable Long categoryId,
-            @RequestParam(defaultValue = PageableFactory.DEFAULT_PAGE) int page,
-            @RequestParam(defaultValue = PageableFactory.DEFAULT_SIZE) int size,
-            @RequestParam(required = false) String sort) {
-        return ResponseEntity.ok(productService.getAllProductsByCategory(categoryId, page, size, sort));
+            @PathVariable Long categoryId, @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(productService.getAllProductsByCategory(categoryId, pageable));
     }
 
     @PostMapping("/categories/{categoryId}/products")

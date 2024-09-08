@@ -1,7 +1,5 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.payload.dto.ProductDto;
-import com.example.ecommerce.payload.dto.ProductImageDto;
 import com.example.ecommerce.exception.product.ProductImageNotFoundException;
 import com.example.ecommerce.exception.product.ProductNotFoundException;
 import com.example.ecommerce.mapper.PaginationMapper;
@@ -10,13 +8,14 @@ import com.example.ecommerce.mapper.ProductMapper;
 import com.example.ecommerce.model.Category;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.model.ProductImage;
+import com.example.ecommerce.payload.dto.ProductDto;
+import com.example.ecommerce.payload.dto.ProductImageDto;
 import com.example.ecommerce.payload.request.product.CreateProductRequest;
 import com.example.ecommerce.payload.request.product.UpdateProductRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.repository.ProductImageRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.util.ImageUtils;
-import com.example.ecommerce.util.PageableFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -57,19 +56,16 @@ public class ProductService {
         return productRepository.findStockQuantityByProductId(productId);
     }
 
-    public PaginatedResponse<ProductDto> getAllProducts(int page, int size, String sort) {
-        Pageable pageable = PageableFactory.getPageable(page, size, sort);
+    public PaginatedResponse<ProductDto> getAllProducts(Pageable pageable) {
         return paginationMapper.toPaginatedResponse(productRepository.findAll(pageable), productMapper);
     }
 
-    public PaginatedResponse<ProductDto> getAllProductsByCategory(Long categoryId, int page, int size, String sort) {
-        Pageable pageable = PageableFactory.getPageable(page, size, sort);
+    public PaginatedResponse<ProductDto> getAllProductsByCategory(Long categoryId, Pageable pageable) {
         return paginationMapper.toPaginatedResponse(productRepository
                 .findAllByCategoryId(categoryId, pageable), productMapper);
     }
 
-    public PaginatedResponse<ProductDto> getAllProductsByName(String name, int page, int size, String sort) {
-        Pageable pageable = PageableFactory.getPageable(page, size, sort);
+    public PaginatedResponse<ProductDto> getAllProductsByName(String name, Pageable pageable) {
         return paginationMapper.toPaginatedResponse(productRepository
                 .findAllByNameIgnoreCaseStartingWith(name, pageable), productMapper);
     }

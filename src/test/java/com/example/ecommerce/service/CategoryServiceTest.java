@@ -9,7 +9,6 @@ import com.example.ecommerce.payload.request.category.CreateCategoryRequest;
 import com.example.ecommerce.payload.request.category.UpdateCategoryRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.repository.CategoryRepository;
-import com.example.ecommerce.util.PageableFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -55,8 +55,6 @@ class CategoryServiceTest {
     })
     void givenPaginationParameters_whenSuccess_returnPaginatedResponse(int page, int size, int expectedSize) {
         // given
-        Pageable pageable = PageableFactory.getPageable(page, size, "name:asc");
-
         Category category1 = new Category(1L, "Clothing");
         Category category2 = new Category(2L, "Computers");
         Category category3 = new Category(3L, "Electronics");
@@ -83,11 +81,11 @@ class CategoryServiceTest {
                 categoryPage.isLast()
         );
 
-        given(categoryRepository.findAll(pageable)).willReturn(categoryPage);
+        given(categoryRepository.findAll(any(Pageable.class))).willReturn(categoryPage);
         given(paginationMapper.toPaginatedResponse(categoryPage, categoryMapper)).willReturn(expected);
 
         // when
-        PaginatedResponse<CategoryDto> actual = categoryService.getAllCategories(page, size, "name:asc");
+        PaginatedResponse<CategoryDto> actual = categoryService.getAllCategories(PageRequest.of(page, size));
 
         // then
         then(actual).isNotNull();
@@ -96,7 +94,7 @@ class CategoryServiceTest {
             then(actual.content().get(i).categoryName()).isEqualTo(expectedDtoList.get(i).categoryName());
         }
 
-        verify(categoryRepository, times(1)).findAll(pageable);
+        verify(categoryRepository, times(1)).findAll(any(Pageable.class));
         verify(paginationMapper, times(1)).toPaginatedResponse(categoryPage, categoryMapper);
     }
 
