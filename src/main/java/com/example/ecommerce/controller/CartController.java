@@ -4,9 +4,9 @@ import com.example.ecommerce.payload.dto.CartItemDto;
 import com.example.ecommerce.payload.request.cart.CreateCartItemRequest;
 import com.example.ecommerce.payload.request.cart.UpdateCartItemRequest;
 import com.example.ecommerce.service.CartService;
-import com.example.ecommerce.util.URIBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +34,7 @@ public class CartController {
     @PostMapping("/items")
     public ResponseEntity<CartItemDto> addCartItem(@Valid @RequestBody CreateCartItemRequest request) {
         CartItemDto cartItem = cartService.addItemToCart(request);
-        return ResponseEntity.created(URIBuilder.getResourceLocation(cartItem.id())).body(cartItem);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartItem);
     }
 
     @PutMapping("/items/{cartItemId}")
