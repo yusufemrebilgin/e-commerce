@@ -12,6 +12,7 @@ import com.example.ecommerce.payload.request.cart.CreateCartItemRequest;
 import com.example.ecommerce.payload.request.cart.UpdateCartItemRequest;
 import com.example.ecommerce.repository.CartItemRepository;
 import com.example.ecommerce.repository.CartRepository;
+import com.example.ecommerce.util.AuthUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,7 +37,7 @@ class CartServiceTest {
     CartService cartService;
 
     @Mock
-    UserService userService;
+    AuthUtils authUtils;
 
     @Mock
     ProductService productService;
@@ -57,11 +58,11 @@ class CartServiceTest {
     void givenAuthenticatedUsername_whenCartFound_returnCart() {
         // given
         Cart expected = new Cart();
-        given(userService.getCurrentUsername()).willReturn("test_user");
+        given(authUtils.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(expected));
 
         // when
-        Cart actual = cartService.getCartByAuthenticatedCustomer();
+        Cart actual = cartService.getCartByAuthenticatedUser();
 
         // then
         then(actual).isNotNull();
@@ -73,12 +74,12 @@ class CartServiceTest {
     void givenAuthenticatedUsername_whenCartNotFoundCreateCart_returnCreatedCart() {
         // given
         Cart expected = new Cart();
-        given(userService.getCurrentUsername()).willReturn("test_user");
+        given(authUtils.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.empty());
         given(cartRepository.save(any(Cart.class))).willReturn(expected);
 
         // when
-        Cart actual = cartService.getCartByAuthenticatedCustomer();
+        Cart actual = cartService.getCartByAuthenticatedUser();
 
         // then
         then(actual).isNotNull();
@@ -126,7 +127,7 @@ class CartServiceTest {
     void givenAuthenticatedUsername_whenCartFound_returnCartDto() {
         // given
         CartDto expected = CartDto.builder().build();
-        given(userService.getCurrentUsername()).willReturn("test_user");
+        given(authUtils.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(new Cart()));
         given(cartMapper.mapToDto(any(Cart.class))).willReturn(expected);
 
@@ -143,7 +144,7 @@ class CartServiceTest {
     void givenAuthenticatedUsername_whenCartNotFoundCreateCart_returnCartDto() {
         // given
         CartDto expected = CartDto.builder().build();
-        given(userService.getCurrentUsername()).willReturn("test_user");
+        given(authUtils.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.empty());
         given(cartRepository.save(any(Cart.class))).willReturn(new Cart());
         given(cartMapper.mapToDto(any(Cart.class))).willReturn(expected);
@@ -193,7 +194,7 @@ class CartServiceTest {
                 .discount(BigDecimal.valueOf(400))
                 .build();
 
-        given(userService.getCurrentUsername()).willReturn("test_user");
+        given(authUtils.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(cart));
         given(productService.getProductById(product.getId())).willReturn(product);
         given(productService.getAvailableStockQuantity(any(UUID.class))).willReturn(product.getStockQuantity());
@@ -245,7 +246,7 @@ class CartServiceTest {
                 .totalPrice(BigDecimal.valueOf(1000))
                 .build();
 
-        given(userService.getCurrentUsername()).willReturn("test_user");
+        given(authUtils.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(cart));
         given(productService.getProductById(product.getId())).willReturn(product);
         given(productService.getAvailableStockQuantity(any(UUID.class))).willReturn(product.getStockQuantity());
@@ -289,7 +290,7 @@ class CartServiceTest {
                 .totalPrice(BigDecimal.valueOf(320)) // 40 * 8
                 .build();
 
-        given(userService.getCurrentUsername()).willReturn("test_user");
+        given(authUtils.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(cart));
         given(cartItemRepository.findById(existingCartItem.getId())).willReturn(Optional.of(existingCartItem));
         given(productService.getAvailableStockQuantity(any(UUID.class))).willReturn(product.getStockQuantity());
@@ -317,7 +318,7 @@ class CartServiceTest {
                 .totalPrice(BigDecimal.valueOf(3000))
                 .build();
 
-        given(userService.getCurrentUsername()).willReturn("test_user");
+        given(authUtils.getCurrentUsername()).willReturn("test_user");
         given(cartRepository.findByUser(anyString())).willReturn(Optional.of(cart));
         given(cartItemRepository.findById(existingCartItem.getId())).willReturn(Optional.of(existingCartItem));
 

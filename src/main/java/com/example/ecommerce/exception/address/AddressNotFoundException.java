@@ -1,4 +1,4 @@
-package com.example.ecommerce.exception.user;
+package com.example.ecommerce.exception.address;
 
 import com.example.ecommerce.constant.ErrorMessages;
 import com.example.ecommerce.exception.NotFoundException;

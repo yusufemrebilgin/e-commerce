@@ -13,6 +13,7 @@ import com.example.ecommerce.payload.request.cart.CreateCartItemRequest;
 import com.example.ecommerce.payload.request.cart.UpdateCartItemRequest;
 import com.example.ecommerce.repository.CartItemRepository;
 import com.example.ecommerce.repository.CartRepository;
+import com.example.ecommerce.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +27,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CartService {
 
-    private final UserService userService;
+    private final AuthUtils authUtils;
     private final ProductService productService;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
 
-    protected Cart getCartByAuthenticatedCustomer() {
+    protected Cart getCartByAuthenticatedUser() {
         return cartRepository
-                .findByUser(userService.getCurrentUsername())
+                .findByUser(authUtils.getCurrentUsername())
                 .orElseGet(this::createCart);
     }
 
@@ -46,13 +47,13 @@ public class CartService {
     }
 
     public CartDto getCart() {
-        return cartMapper.mapToDto(getCartByAuthenticatedCustomer());
+        return cartMapper.mapToDto(getCartByAuthenticatedUser());
     }
 
     @Transactional
     public CartItemDto addItemToCart(CreateCartItemRequest request) {
 
-        Cart cart = getCartByAuthenticatedCustomer();
+        Cart cart = getCartByAuthenticatedUser();
         Product product = productService.getProductById(UUID.fromString(request.productId()));
 
         int quantity = request.quantity();
@@ -106,7 +107,7 @@ public class CartService {
     @Transactional
     public CartItemDto updateItemInCart(UUID cartItemId, UpdateCartItemRequest request) {
 
-        Cart cart = getCartByAuthenticatedCustomer();
+        Cart cart = getCartByAuthenticatedUser();
         CartItem cartItem = getCartItemById(cartItemId);
 
         int currentQuantity = cartItem.getQuantity();
@@ -146,7 +147,7 @@ public class CartService {
 
     @Transactional
     public void deleteItemFromCart(UUID cartItemId) {
-        Cart cart = getCartByAuthenticatedCustomer();
+        Cart cart = getCartByAuthenticatedUser();
         CartItem cartItem = getCartItemById(cartItemId);
 
         BigDecimal amountToBeDeducted = cartItem.getTotalPrice();
@@ -159,7 +160,7 @@ public class CartService {
 
     @Transactional
     void emptyCartAndUpdateStocks() {
-        Cart cart = getCartByAuthenticatedCustomer();
+        Cart cart = getCartByAuthenticatedUser();
         List<CartItem> cartItems = cart.getCartItems();
 
         for (CartItem cartItem : cartItems) {
@@ -184,7 +185,7 @@ public class CartService {
 
     private Cart createCart() {
         Cart cart = Cart.builder()
-                .customer(userService.getCurrentCustomer())
+                .user(authUtils.getCurrentUser())
                 .cartItems(new ArrayList<>())
                 .totalPrice(BigDecimal.ZERO)
                 .build();

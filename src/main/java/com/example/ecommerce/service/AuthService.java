@@ -1,19 +1,15 @@
 package com.example.ecommerce.service;
 
 import com.example.ecommerce.exception.user.EmailAlreadyInUseException;
-import com.example.ecommerce.exception.user.RoleNotFoundException;
 import com.example.ecommerce.exception.user.ForbiddenRoleAssignmentException;
 import com.example.ecommerce.exception.user.UsernameAlreadyTakenException;
-import com.example.ecommerce.model.Customer;
 import com.example.ecommerce.model.Role;
-import com.example.ecommerce.model.Seller;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.model.enums.RoleName;
 import com.example.ecommerce.payload.request.auth.LoginRequest;
 import com.example.ecommerce.payload.request.auth.UserRegistrationRequest;
 import com.example.ecommerce.payload.response.AuthResponse;
 import com.example.ecommerce.payload.response.MessageResponse;
-import com.example.ecommerce.repository.RoleRepository;
 import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.security.CustomUserDetails;
 import com.example.ecommerce.security.jwt.JwtUtils;
@@ -26,22 +22,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.example.ecommerce.model.enums.RoleName.*;
+import static com.example.ecommerce.model.enums.RoleName.ROLE_ADMIN;
+import static com.example.ecommerce.model.enums.RoleName.ROLE_SUPER_ADMIN;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final JwtUtils jwtUtils;
-    private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final PasswordEncoder encoder;
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+
 
     public AuthResponse login(LoginRequest loginRequest) {
 
@@ -73,22 +70,14 @@ public class AuthService {
             throw new EmailAlreadyInUseException();
         }
 
-        Set<Role> roles = new HashSet<>();
         Set<RoleName> givenRoles = RoleName.fromStrings(userRegistrationRequest.roles());
 
-        User user;
-        if (givenRoles.contains(ROLE_SELLER)) {
-            user = new Seller();
-        } else if (givenRoles.contains(ROLE_CUSTOMER)) {
-            user = new Customer();
-        } else {
-            user = new User();
-        }
-
-        user.setName(userRegistrationRequest.name());
-        user.setUsername(userRegistrationRequest.username());
-        user.setPassword(encoder.encode(userRegistrationRequest.password()));
-        user.setEmail(userRegistrationRequest.email());
+        User user = User.builder()
+                .name(userRegistrationRequest.name())
+                .username(userRegistrationRequest.username())
+                .password(encoder.encode(userRegistrationRequest.password()))
+                .email(userRegistrationRequest.email())
+                .build();
 
         if (givenRoles.contains(ROLE_ADMIN) || givenRoles.contains(ROLE_SUPER_ADMIN)) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -102,20 +91,9 @@ public class AuthService {
             }
         }
 
-        if (givenRoles.isEmpty()) {
-            Role userRole = roleRepository.findByRoleName(ROLE_CUSTOMER)
-                    .orElseGet(() -> {
-                        // If role is not found create customer role as default
-                        return roleRepository.save(new Role(0L, ROLE_CUSTOMER));
-                    });
-            roles.add(userRole);
-        } else {
-            for (RoleName roleName : givenRoles) {
-                Role existingRole = roleRepository.findByRoleName(roleName)
-                        .orElseThrow(() -> new RoleNotFoundException(roleName.name()));
-                roles.add(existingRole);
-            }
-        }
+        Set<Role> roles = givenRoles.isEmpty()
+                ? roleService.assignDefaultRole()
+                : roleService.assignRoles(givenRoles);
 
         user.setRoles(roles);
         userRepository.save(user);

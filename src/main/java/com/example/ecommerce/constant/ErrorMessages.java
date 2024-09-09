@@ -4,7 +4,6 @@ public enum ErrorMessages {
 
     // User
     ROLE_NOT_FOUND("Role not found with name %s"),
-    ADDRESS_NOT_FOUND("Address not found with id %s"),
     EMAIL_ALREADY_IN_USE("Email is already in use"),
     USERNAME_ALREADY_TAKEN("Username is already taken"),
     FORBIDDEN_ROLE_ASSIGNMENT("Only SUPER_ADMIN can assign ADMIN or SUPER_ADMIN role"),
@@ -20,6 +19,10 @@ public enum ErrorMessages {
     PRODUCT_NOT_FOUND("Product not found with id %s"),
     PRODUCT_IMAGE_NOT_FOUND("ProductImage not found with name %s"),
     INSUFFICIENT_STOCK("Insufficient stock capacity! Available: %d Requested: %d"),
+
+    // Address
+    ADDRESS_NOT_FOUND("Address not found with id %s"),
+    ADDRESS_LIMIT_EXCEEDED("Cannot add more addresses"),
 
     // Payment
     INVALID_PAYMENT_METHOD("Invalid payment method: %s");

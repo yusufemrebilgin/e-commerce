@@ -37,7 +37,7 @@ public class InitialDataLoader {
     }
 
     private void loadDefaultRoles() {
-        Set<RoleName> roleNames = Set.of(ROLE_SELLER, ROLE_CUSTOMER, ROLE_ADMIN, ROLE_SUPER_ADMIN);
+        Set<RoleName> roleNames = Set.of(ROLE_USER, ROLE_ADMIN, ROLE_SUPER_ADMIN);
         for (RoleName roleName : roleNames) {
             if (roleRepository.findByRoleName(roleName).isEmpty()) {
                 roleRepository.save(new Role(0L, roleName));

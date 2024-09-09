@@ -1,5 +1,6 @@
 package com.example.ecommerce.service;
 
+import com.example.ecommerce.constant.ErrorMessages;
 import com.example.ecommerce.exception.user.EmailAlreadyInUseException;
 import com.example.ecommerce.exception.user.ForbiddenRoleAssignmentException;
 import com.example.ecommerce.exception.user.UsernameAlreadyTakenException;
@@ -10,7 +11,6 @@ import com.example.ecommerce.payload.request.auth.LoginRequest;
 import com.example.ecommerce.payload.request.auth.UserRegistrationRequest;
 import com.example.ecommerce.payload.response.AuthResponse;
 import com.example.ecommerce.payload.response.MessageResponse;
-import com.example.ecommerce.repository.RoleRepository;
 import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.security.CustomUserDetails;
 import com.example.ecommerce.security.jwt.JwtUtils;
@@ -30,7 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.BDDAssertions.catchThrowableOfType;
@@ -56,7 +55,7 @@ class AuthServiceTest {
     UserRepository userRepository;
 
     @Mock
-    RoleRepository roleRepository;
+    RoleService roleService;
 
     @Mock
     PasswordEncoder passwordEncoder;
@@ -99,13 +98,13 @@ class AuthServiceTest {
                 "test_username",
                 "test_password",
                 "test@example.com",
-                Set.of("customer")
+                Set.of("user")
         );
 
         given(userRepository.existsByUsername(anyString())).willReturn(false);
         given(userRepository.existsByEmail(anyString())).willReturn(false);
         given(passwordEncoder.encode(request.password())).willReturn("encoded_password");
-        given(roleRepository.findByRoleName(RoleName.ROLE_CUSTOMER)).willReturn(Optional.of(new Role(1L, RoleName.ROLE_CUSTOMER)));
+        given(roleService.assignRoles(anySet())).willReturn(Set.of(new Role(0L, RoleName.ROLE_USER)));
 
         // when
         MessageResponse response = authService.register(request);
@@ -119,7 +118,7 @@ class AuthServiceTest {
         then(user.getPassword()).isEqualTo("encoded_password");
         then(user.getEmail()).isEqualTo("test@example.com");
         then(user.getRoles()).hasSize(1);
-        then(user.getRoles().stream().map(Role::getRoleName).toList()).contains(RoleName.ROLE_CUSTOMER);
+        then(user.getRoles().stream().map(Role::getRoleName).toList()).contains(RoleName.ROLE_USER);
 
         then(response).isNotNull();
         then(response.message()).isEqualTo("User registered successfully!");
@@ -142,7 +141,7 @@ class AuthServiceTest {
 
         // then
         then(ex).isNotNull();
-        then(ex).hasMessageContaining("Username is already taken");
+        then(ex).hasMessageContaining(ErrorMessages.USERNAME_ALREADY_TAKEN.message());
     }
 
     @Test
@@ -172,7 +171,7 @@ class AuthServiceTest {
                 "test", "testuser", "password", "@example.com", Set.of("admin")
         );
         CustomUserDetails nonAdminDetails = new CustomUserDetails(
-                0L, "nonadmin", "@example.com", "password", Set.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"))
+                0L, "nonadmin", "@example.com", "password", Set.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
         Authentication authentication = new UsernamePasswordAuthenticationToken(nonAdminDetails, null, nonAdminDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -185,7 +184,7 @@ class AuthServiceTest {
 
         // then
         then(ex).isNotNull();
-        then(ex).hasMessageContaining("Only SUPER_ADMIN can assign ADMIN or SUPER_ADMIN role");
+        then(ex).hasMessageContaining(ErrorMessages.FORBIDDEN_ROLE_ASSIGNMENT.message());
     }
 
 }

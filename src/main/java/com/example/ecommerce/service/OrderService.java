@@ -1,14 +1,14 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.exception.user.AddressNotFoundException;
+import com.example.ecommerce.exception.address.AddressNotFoundException;
 import com.example.ecommerce.exception.cart.EmptyCartException;
 import com.example.ecommerce.mapper.OrderMapper;
 import com.example.ecommerce.model.Address;
 import com.example.ecommerce.model.Cart;
 import com.example.ecommerce.model.CartItem;
-import com.example.ecommerce.model.Customer;
 import com.example.ecommerce.model.Order;
 import com.example.ecommerce.model.OrderItem;
+import com.example.ecommerce.model.User;
 import com.example.ecommerce.model.enums.OrderStatus;
 import com.example.ecommerce.payload.dto.OrderDto;
 import com.example.ecommerce.payload.request.order.CreateOrderRequest;
@@ -34,15 +34,14 @@ public class OrderService {
     @Transactional
     public OrderDto placeOrder(CreateOrderRequest request) {
 
-        Cart cart = cartService.getCartByAuthenticatedCustomer();
+        Cart cart = cartService.getCartByAuthenticatedUser();
 
         if (cart.isEmpty()) {
             throw new EmptyCartException();
         }
 
-        Customer customer = cart.getCustomer();
-
-        List<Address> addresses = customer.getAddresses();
+        User user = cart.getUser();
+        List<Address> addresses = user.getAddresses();
         if (addresses == null || addresses.isEmpty()) {
             throw new AddressNotFoundException("Address must be defined to place an order");
         }
@@ -53,7 +52,7 @@ public class OrderService {
                 .orElseThrow(() -> new AddressNotFoundException(request.addressId()));
 
         Order order = Order.builder()
-                .customer(cart.getCustomer())
+                .user(cart.getUser())
                 .address(deliveryAddress)
                 .orderStatus(OrderStatus.PENDING)
                 .totalPrice(cart.getTotalPrice())
