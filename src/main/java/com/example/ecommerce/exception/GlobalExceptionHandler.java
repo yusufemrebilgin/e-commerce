@@ -1,5 +1,7 @@
 package com.example.ecommerce.exception;
 
+import com.example.ecommerce.exception.address.AddressLimitExceededException;
+import com.example.ecommerce.exception.address.DuplicateAddressTitleException;
 import com.example.ecommerce.exception.user.EmailAlreadyInUseException;
 import com.example.ecommerce.exception.user.ForbiddenRoleAssignmentException;
 import com.example.ecommerce.exception.user.UsernameAlreadyTakenException;
@@ -40,13 +42,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildSimpleErrorResponse(NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler({InvalidPaymentMethodException.class, EmptyCartException.class})
+    @ExceptionHandler({
+            InvalidPaymentMethodException.class,
+            EmptyCartException.class,
+            AddressLimitExceededException.class
+    })
     public ResponseEntity<SimpleErrorResponse> handleBadRequestException(Exception ex) {
         log.error("BadRequestException: {}", ex.getMessage());
         return buildSimpleErrorResponse(BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler({UsernameAlreadyTakenException.class, EmailAlreadyInUseException.class})
+    @ExceptionHandler({
+            UsernameAlreadyTakenException.class,
+            EmailAlreadyInUseException.class,
+            DuplicateAddressTitleException.class
+    })
     public ResponseEntity<SimpleErrorResponse> handleConflictException(Exception ex) {
         log.error("Conflict: {}", ex.getMessage());
         return buildSimpleErrorResponse(CONFLICT, ex.getMessage());

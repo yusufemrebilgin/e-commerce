@@ -7,4 +7,6 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
 
     long countAddressByUserId(Long userId);
 
+    boolean existsByTitleAndUserId(String title, Long userId);
+
 }

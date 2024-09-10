@@ -12,6 +12,7 @@ public class AddressMapper implements Mapper<Address, AddressDto> {
     @Override
     public AddressDto mapToDto(@NonNull Address address) {
         return new AddressDto(
+                address.getId(),
                 address.getTitle(),
                 new AddressDto.Area(
                         address.getCity(),

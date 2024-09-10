@@ -23,6 +23,7 @@ public enum ErrorMessages {
     // Address
     ADDRESS_NOT_FOUND("Address not found with id %s"),
     ADDRESS_LIMIT_EXCEEDED("Cannot add more addresses"),
+    DUPLICATE_ADDRESS_TITLE("Address with title %s already exists for current user"),
 
     // Payment
     INVALID_PAYMENT_METHOD("Invalid payment method: %s");

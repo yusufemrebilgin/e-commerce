@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.exception.address.AddressLimitExceededException;
 import com.example.ecommerce.exception.address.AddressNotFoundException;
+import com.example.ecommerce.exception.address.DuplicateAddressTitleException;
 import com.example.ecommerce.mapper.AddressMapper;
 import com.example.ecommerce.model.Address;
 import com.example.ecommerce.model.User;
@@ -34,7 +35,10 @@ public class AddressService {
     }
 
     public AddressDto createAddress(CreateAddressRequest request) {
+
         User user = authUtils.getCurrentUser();
+        checkAddressTitle(request.title(), user);
+
         long addressCount = addressRepository.countAddressByUserId(user.getId());
 
         if (addressCount >= MAX_ADDRESSES) {
@@ -58,6 +62,7 @@ public class AddressService {
 
     public AddressDto updateAddress(Long addressId, UpdateAddressRequest request) {
         Address address = getAddressById(addressId);
+        checkAddressTitle(request.title(), address.getUser());
         addressMapper.updateAddressFromDto(request, address);
         return addressMapper.mapToDto(addressRepository.save(address));
     }
@@ -65,6 +70,12 @@ public class AddressService {
     public void deleteAddress(Long addressId) {
         Address address = getAddressById(addressId);
         addressRepository.delete(address);
+    }
+
+    private void checkAddressTitle(String title, User currentUser) {
+        if (addressRepository.existsByTitleAndUserId(title, currentUser.getId())) {
+            throw new DuplicateAddressTitleException(title);
+        }
     }
 
 }
