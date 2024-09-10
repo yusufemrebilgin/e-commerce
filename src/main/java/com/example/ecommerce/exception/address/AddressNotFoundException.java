@@ -10,7 +10,7 @@ public class AddressNotFoundException extends NotFoundException {
     }
 
     public AddressNotFoundException(Long id) {
-        super(ErrorMessages.ADDRESS_NOT_FOUND.format(id));
+        super(ErrorMessages.ADDRESS_NOT_FOUND.message(id));
     }
 
 }

@@ -6,7 +6,7 @@ import com.example.ecommerce.exception.NotFoundException;
 public class ProductImageNotFoundException extends NotFoundException {
 
     public ProductImageNotFoundException(String filename) {
-        super(ErrorMessages.PRODUCT_IMAGE_NOT_FOUND.format(filename));
+        super(ErrorMessages.PRODUCT_IMAGE_NOT_FOUND.message(filename));
     }
 
 }

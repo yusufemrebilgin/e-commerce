@@ -38,7 +38,7 @@ public enum ErrorMessages {
         return message;
     }
 
-    public String format(Object... args) {
+    public String message(Object... args) {
         return String.format(message, args);
     }
 

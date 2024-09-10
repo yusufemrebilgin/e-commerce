@@ -8,7 +8,7 @@ import java.util.UUID;
 public class CartItemNotFoundException extends NotFoundException {
 
     public CartItemNotFoundException(UUID id) {
-        super(ErrorMessages.CART_ITEM_NOT_FOUND.format(id));
+        super(ErrorMessages.CART_ITEM_NOT_FOUND.message(id));
     }
 
 }
