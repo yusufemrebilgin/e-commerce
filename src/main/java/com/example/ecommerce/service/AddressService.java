@@ -31,15 +31,17 @@ public class AddressService {
     }
 
     public List<AddressDto> getAllAddresses() {
-        return addressMapper.mapToDtoList(addressRepository.findAll(), addressMapper);
+        User currentUser = authUtils.getCurrentUser();
+        List<Address> addresses = addressRepository.findAllByUserId(currentUser.getId());
+        return addressMapper.mapToDtoList(addresses, addressMapper);
     }
 
     public AddressDto createAddress(CreateAddressRequest request) {
 
-        User user = authUtils.getCurrentUser();
-        checkAddressTitle(request.title(), user);
+        User currentUser = authUtils.getCurrentUser();
+        checkAddressTitleForUser(request.title(), currentUser);
 
-        long addressCount = addressRepository.countAddressByUserId(user.getId());
+        long addressCount = addressRepository.countAddressByUserId(currentUser.getId());
 
         if (addressCount >= MAX_ADDRESSES) {
             throw new AddressLimitExceededException();
@@ -54,7 +56,7 @@ public class AddressService {
                 .district(request.district())
                 .postalCode(request.postalCode())
                 .addressDetails(request.addressDetails())
-                .user(user)
+                .user(currentUser)
                 .build();
 
         return addressMapper.mapToDto(addressRepository.save(address));
@@ -62,7 +64,7 @@ public class AddressService {
 
     public AddressDto updateAddress(Long addressId, UpdateAddressRequest request) {
         Address address = getAddressById(addressId);
-        checkAddressTitle(request.title(), address.getUser());
+        checkAddressTitleForUser(request.title(), address.getUser());
         addressMapper.updateAddressFromDto(request, address);
         return addressMapper.mapToDto(addressRepository.save(address));
     }
@@ -72,8 +74,8 @@ public class AddressService {
         addressRepository.delete(address);
     }
 
-    private void checkAddressTitle(String title, User currentUser) {
-        if (addressRepository.existsByTitleAndUserId(title, currentUser.getId())) {
+    private void checkAddressTitleForUser(String title, User user) {
+        if (addressRepository.existsByTitleAndUserId(title, user.getId())) {
             throw new DuplicateAddressTitleException(title);
         }
     }

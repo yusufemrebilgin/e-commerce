@@ -23,4 +23,8 @@ public record AddressDto(
             String details
     ) {}
 
+    public AddressDto() {
+        this(0L, null, null, null);
+    }
+
 }

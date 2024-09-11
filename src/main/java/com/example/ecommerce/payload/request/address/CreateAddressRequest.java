@@ -1,7 +1,9 @@
 package com.example.ecommerce.payload.request.address;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
+@Builder
 public record CreateAddressRequest(
 
         @NotBlank(message = "Title is required")
