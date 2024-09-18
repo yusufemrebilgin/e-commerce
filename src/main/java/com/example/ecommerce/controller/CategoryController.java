@@ -7,8 +7,8 @@ import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +28,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<CategoryDto>> getAllCategories(@PageableDefault Pageable pageable) {
+    public ResponseEntity<PaginatedResponse<CategoryDto>> getAllCategories(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(categoryService.getAllCategories(pageable));
     }
 
@@ -39,7 +39,7 @@ public class CategoryController {
 
     @PutMapping("/{categoryId}")
     public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long categoryId,
-                                            @Valid @RequestBody UpdateCategoryRequest request) {
+                                                      @Valid @RequestBody UpdateCategoryRequest request) {
         return ResponseEntity.ok(categoryService.updateCategory(categoryId, request));
     }
 

@@ -8,8 +8,8 @@ import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,19 +40,19 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public ResponseEntity<PaginatedResponse<ProductDto>> getAllProducts(@PageableDefault Pageable pageable) {
+    public ResponseEntity<PaginatedResponse<ProductDto>> getAllProducts(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
     @GetMapping("/products/search")
     public ResponseEntity<PaginatedResponse<ProductDto>> getAllProductsByName(
-            @RequestParam String name, @PageableDefault Pageable pageable) {
+            @RequestParam String name, @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProductsByName(name, pageable));
     }
 
     @GetMapping("/categories/{categoryId}/products")
     public ResponseEntity<PaginatedResponse<ProductDto>> getAllProductsByCategory(
-            @PathVariable Long categoryId, @PageableDefault Pageable pageable) {
+            @PathVariable Long categoryId, @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProductsByCategory(categoryId, pageable));
     }
 

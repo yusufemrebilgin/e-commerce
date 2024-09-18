@@ -14,3 +14,7 @@ spring:
 jwt:
   secret: aGJrZnJrZ2F334a3fE5MjY0NTYwOTMxMjM0NTYwOTMzMjM0NTYwOTMz
   expirationMs: 3600000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
