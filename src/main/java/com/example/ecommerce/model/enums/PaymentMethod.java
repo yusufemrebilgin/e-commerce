@@ -3,8 +3,8 @@ package com.example.ecommerce.model.enums;
 import com.example.ecommerce.exception.payment.InvalidPaymentMethodException;
 
 public enum PaymentMethod {
-    DEBIT_CART,
-    CREDIT_CART;
+    DEBIT_CARD,
+    CREDIT_CARD;
 
     public static PaymentMethod fromString(String paymentMethod) {
         try {
