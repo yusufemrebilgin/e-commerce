@@ -13,7 +13,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Page<Product> findAllByCategoryId(Long categoryId, Pageable pageable);
     Page<Product> findAllByNameIgnoreCaseStartingWith(String name, Pageable pageable);
 
-    @Query("SELECT p.stockQuantity FROM Product p WHERE p.id = ?1")
+    @Query("SELECT p.stock FROM Product p WHERE p.id = ?1")
     Integer findStockQuantityByProductId(UUID productId);
 
 }

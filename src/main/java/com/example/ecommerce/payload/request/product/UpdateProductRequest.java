@@ -21,13 +21,16 @@ public record UpdateProductRequest(
         @NotBlank(message = "Product description must not be blank or null")
         String description,
 
-        @NotNull(message = "Price must not be null")
-        @PositiveOrZero(message = "Price must be zero or positive")
-        BigDecimal price,
+        @NotNull(message = "Category id must not be null")
+        Long categoryId,
 
         @NotNull(message = "Stock quantity must not be null")
         @Positive(message = "Stock quantity must be positive")
-        int quantity,
+        int stock,
+
+        @NotNull(message = "Price must not be null")
+        @PositiveOrZero(message = "Price must be zero or positive")
+        BigDecimal price,
 
         @Min(value = 0, message = "Discount percentage must be at least 0")
         @Max(value = 100, message = "Discount percentage must be at most 100")

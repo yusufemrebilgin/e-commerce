@@ -1,7 +1,14 @@
 package com.example.ecommerce.model;
 
+import com.example.ecommerce.model.embeddable.Discount;
+import com.example.ecommerce.model.listener.ProductListener;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,30 +35,63 @@ import java.util.UUID;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(ProductListener.class)
 public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
     private String name;
     private String description;
+
+    private int stock;
     private BigDecimal price;
-    private Integer stockQuantity;
 
-    private boolean isDiscountAvailable;
-    private BigDecimal discountedPrice;
-    private Double discountPercentage;
-    private LocalDateTime discountStart;
-    private LocalDateTime discountEnd;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "percentage", column = @Column(name = "discount_percentage")),
+            @AttributeOverride(name = "start", column = @Column(name = "discount_start")),
+            @AttributeOverride(name = "end", column = @Column(name = "discount_end"))
+    })
+    private Discount discount;
 
-    @OneToMany(mappedBy = "product",
-            cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductImage> images = new ArrayList<>();
+
+    public boolean isDiscountValid() {
+        return discount != null && discount.isValid();
+    }
+
+    public boolean isDiscountActive() {
+        if (!isDiscountValid()) {
+            return false;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        return now.isAfter(discount.getStart()) && now.isBefore(discount.getEnd());
+    }
+
+    public boolean isDiscountInFuture() {
+        if (!isDiscountValid()) {
+            return false;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        return now.isBefore(discount.getStart());
+    }
+
+    public BigDecimal getDiscountedPrice() {
+        if (isDiscountActive()) {
+            return price.subtract(price.multiply(BigDecimal.valueOf(discount.getPercentage())));
+        }
+        return price; // if there is no discount return regular price
+    }
+
+    public boolean hasSufficientStock(int quantity) {
+        return stock >= quantity;
+    }
 
 }
