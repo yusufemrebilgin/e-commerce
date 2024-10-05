@@ -4,12 +4,12 @@ import lombok.NonNull;
 
 import java.util.List;
 
-public interface Mapper<E, D> {
+public interface Mapper<E, R> {
 
-    D mapToDto(@NonNull E entity);
+    R mapToResponse(@NonNull E entity);
 
-    default List<D> mapToDtoList(List<E> list, Mapper<E, D> mapper) {
-        return list.stream().map(this::mapToDto).toList();
+    default List<R> mapToResponseList(List<E> list, Mapper<E, R> mapper) {
+        return list.stream().map(mapper::mapToResponse).toList();
     }
 
 }

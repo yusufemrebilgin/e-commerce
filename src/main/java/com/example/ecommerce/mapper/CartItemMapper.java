@@ -13,10 +13,10 @@ public class CartItemMapper implements Mapper<CartItem, CartItemDto> {
     private final ProductMapper productMapper;
 
     @Override
-    public CartItemDto mapToDto(@NonNull CartItem cartItem) {
+    public CartItemDto mapToResponse(@NonNull CartItem cartItem) {
         return new CartItemDto(
                 cartItem.getId(),
-                productMapper.mapToDto(cartItem.getProduct()),
+                productMapper.mapToResponse(cartItem.getProduct()),
                 cartItem.getQuantity(),
                 cartItem.getTotalDiscountAmount(),
                 cartItem.getTotalPrice()

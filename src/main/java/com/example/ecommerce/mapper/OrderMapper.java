@@ -13,13 +13,13 @@ public class OrderMapper implements Mapper<Order, OrderDto> {
     private final OrderItemMapper orderItemMapper;
 
     @Override
-    public OrderDto mapToDto(@NonNull Order order) {
+    public OrderDto mapToResponse(@NonNull Order order) {
         return new OrderDto(
                 order.getId(),
                 order.getOrderStatus().name(),
                 order.getOrderDate(),
                 order.getTotalPrice(),
-                orderItemMapper.mapToDtoList(order.getOrderItems(), orderItemMapper)
+                orderItemMapper.mapToResponseList(order.getOrderItems(), orderItemMapper)
         );
     }
 

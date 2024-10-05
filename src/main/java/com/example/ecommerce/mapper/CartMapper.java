@@ -13,11 +13,11 @@ public class CartMapper implements Mapper<Cart, CartDto> {
     private final CartItemMapper cartItemMapper;
 
     @Override
-    public CartDto mapToDto(@NonNull Cart cart) {
+    public CartDto mapToResponse(@NonNull Cart cart) {
         return new CartDto(
                 cart.getId(),
                 cart.getTotalPrice(),
-                cartItemMapper.mapToDtoList(cart.getCartItems(), cartItemMapper)
+                cartItemMapper.mapToResponseList(cart.getCartItems(), cartItemMapper)
         );
     }
 
