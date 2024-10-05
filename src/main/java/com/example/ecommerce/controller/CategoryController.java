@@ -1,8 +1,8 @@
 package com.example.ecommerce.controller;
 
-import com.example.ecommerce.payload.dto.CategoryDto;
 import com.example.ecommerce.payload.request.category.CreateCategoryRequest;
 import com.example.ecommerce.payload.request.category.UpdateCategoryRequest;
+import com.example.ecommerce.payload.response.CategoryResponse;
 import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.service.CategoryService;
 import jakarta.validation.Valid;
@@ -28,17 +28,17 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<CategoryDto>> getAllCategories(@ParameterObject Pageable pageable) {
+    public ResponseEntity<PaginatedResponse<CategoryResponse>> getAllCategories(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(categoryService.getAllCategories(pageable));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
+    public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(request));
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long categoryId,
+    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable Long categoryId,
                                                       @Valid @RequestBody UpdateCategoryRequest request) {
         return ResponseEntity.ok(categoryService.updateCategory(categoryId, request));
     }
