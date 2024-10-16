@@ -30,8 +30,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -83,7 +82,10 @@ class CategoryServiceTest {
 
         // then
         then(actual).isNotNull();
+        then(actual.page()).isEqualTo(page);
+        then(actual.size()).isEqualTo(size);
         then(actual.content()).hasSize(expectedSize);
+        then(actual.totalPages()).isEqualTo(categoryPage.getTotalPages());
         for (int i = 0; i < expectedSize; i++) {
             then(actual.content().get(i).categoryName()).isEqualTo(expectedResponseList.get(i).categoryName());
         }
@@ -104,8 +106,6 @@ class CategoryServiceTest {
         // getProductImage
         then(actual).isNotNull();
         then(actual).isEqualTo(expected);
-        then(actual.getId()).isEqualTo(expected.getId());
-        then(actual.getName()).isEqualTo(expected.getName());
     }
 
     @Test
@@ -123,6 +123,7 @@ class CategoryServiceTest {
         // then
         then(ex).isNotNull();
         then(ex).hasMessageContaining(categoryId.toString());
+        verify(categoryRepository, never()).save(any(Category.class));
     }
 
     @Test
@@ -141,7 +142,6 @@ class CategoryServiceTest {
         // then
         then(actual).isNotNull();
         then(actual).isEqualTo(expected);
-        then(actual.categoryName()).isEqualTo(expected.categoryName());
     }
 
     @Test

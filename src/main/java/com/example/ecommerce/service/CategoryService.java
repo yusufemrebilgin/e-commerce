@@ -24,29 +24,61 @@ public class CategoryService {
 
     private final PaginationMapper paginationMapper;
 
-
+    /**
+     * Retrieves a category by its ID.
+     *
+     * @param categoryId ID of the category to retrieve
+     * @return found {@link Category}
+     * @throws CategoryNotFoundException if category is not found
+     */
     protected Category getCategoryById(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
     }
 
+    /**
+     * Retrieves a paginated list of all categories. Caches the result to improve performance.
+     *
+     * @param pageable pagination information
+     * @return a paginated list of {@link CategoryResponse}
+     */
     @Cacheable(value = "categories", key = "#pageable.pageNumber")
     public PaginatedResponse<CategoryResponse> getAllCategories(Pageable pageable) {
         return paginationMapper.toPaginatedResponse(categoryRepository.findAll(pageable), categoryMapper);
     }
 
+    /**
+     * Creates a new category and evicts the category cache to ensure data consistency.
+     *
+     * @param categoryRequest a {@link CreateCategoryRequest} containing new category data
+     * @return newly created {@link CategoryResponse}
+     */
     @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse createCategory(CreateCategoryRequest categoryRequest) {
         Category newCategory = new Category(0L, categoryRequest.categoryName());
         return categoryMapper.mapToResponse(categoryRepository.save(newCategory));
     }
 
+    /**
+     * Updates an existing category and evicts the relevant caches to ensure updated data is fetched.
+     *
+     * @param categoryId      ID of the category to update
+     * @param categoryRequest a {@link UpdateCategoryRequest} containing updated category data
+     * @return updated {@link CategoryResponse}
+     * @throws CategoryNotFoundException if category with given ID is not found
+     */
     @CacheEvict(value = {"category", "categories"}, key = "#categoryId", allEntries = true)
     public CategoryResponse updateCategory(Long categoryId, UpdateCategoryRequest categoryRequest) {
-        Category category = getCategoryById(categoryId);
-        category.setName(categoryRequest.categoryName());
-        return categoryMapper.mapToResponse(categoryRepository.save(category));
+        Category existingCategory = getCategoryById(categoryId);
+        existingCategory.setName(categoryRequest.categoryName());
+        return categoryMapper.mapToResponse(categoryRepository.save(existingCategory));
     }
 
+    /**
+     * Deletes a category by its ID and evicts the relevant caches.
+     *
+     * @param categoryId ID of the category data
+     * @throws CategoryNotFoundException if category with given ID is not found
+     */
     @CacheEvict(value = {"category", "categories"}, key = "#categoryId", allEntries = true)
     public void deleteCategory(Long categoryId) {
         categoryRepository.delete(getCategoryById(categoryId));
