@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static lombok.Builder.Default;
+
 @Entity
 @Builder
 @ToString
@@ -60,6 +62,7 @@ public class Product extends BaseEntity {
     })
     private Discount discount;
 
+    @Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductImage> images = new ArrayList<>();
 
@@ -69,29 +72,35 @@ public class Product extends BaseEntity {
 
     public boolean isDiscountActive() {
         if (!isDiscountValid()) {
+            resetDiscount();
             return false;
         }
         LocalDateTime now = LocalDateTime.now();
         return now.isAfter(discount.getStart()) && now.isBefore(discount.getEnd());
     }
 
-    public boolean isDiscountInFuture() {
+    public boolean isDiscountExpired() {
         if (!isDiscountValid()) {
+            resetDiscount();
             return false;
         }
         LocalDateTime now = LocalDateTime.now();
-        return now.isBefore(discount.getStart());
+        return now.isAfter(discount.getStart()) && now.isAfter(discount.getEnd());
     }
 
     public BigDecimal getDiscountedPrice() {
         if (isDiscountActive()) {
-            return price.subtract(price.multiply(BigDecimal.valueOf(discount.getPercentage())));
+            return price.subtract(price.multiply(BigDecimal.valueOf(discount.getPercentage() / 100)));
         }
         return price; // if there is no discount return regular price
     }
 
     public boolean hasSufficientStock(int quantity) {
         return stock >= quantity;
+    }
+
+    public void resetDiscount() {
+        this.setDiscount(null);
     }
 
 }

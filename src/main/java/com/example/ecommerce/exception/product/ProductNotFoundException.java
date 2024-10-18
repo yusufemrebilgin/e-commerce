@@ -7,8 +7,8 @@ import java.util.UUID;
 
 public class ProductNotFoundException extends NotFoundException {
 
-    public ProductNotFoundException(UUID id) {
-        super(ErrorMessages.PRODUCT_NOT_FOUND.message(id));
+    public ProductNotFoundException(UUID productId) {
+        super(ErrorMessages.PRODUCT_NOT_FOUND.message(productId));
     }
 
 }
