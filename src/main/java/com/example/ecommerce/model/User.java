@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static lombok.Builder.Default;
+
 @Entity
 @Builder
 @ToString
@@ -39,6 +41,7 @@ public class User extends BaseEntity {
     private String name;
     private String email;
 
+    @Default
     @ManyToMany
     @JoinTable(
             name = "user_roles",

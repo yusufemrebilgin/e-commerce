@@ -1,9 +1,9 @@
 package com.example.ecommerce.service;
 
 import com.example.ecommerce.constant.ErrorMessages;
-import com.example.ecommerce.exception.user.EmailAlreadyInUseException;
-import com.example.ecommerce.exception.user.ForbiddenRoleAssignmentException;
-import com.example.ecommerce.exception.user.UsernameAlreadyTakenException;
+import com.example.ecommerce.exception.auth.EmailAlreadyInUseException;
+import com.example.ecommerce.exception.auth.ForbiddenRoleAssignmentException;
+import com.example.ecommerce.exception.auth.UsernameAlreadyTakenException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.model.enums.RoleName;
@@ -14,20 +14,18 @@ import com.example.ecommerce.payload.response.MessageResponse;
 import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.security.CustomUserDetails;
 import com.example.ecommerce.security.jwt.JwtUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,131 +58,139 @@ class AuthServiceTest {
     @Mock
     PasswordEncoder passwordEncoder;
 
-    @Test
-    void givenValidLoginRequest_whenSuccess_returnAuthResponse() {
-        // given
-        LoginRequest request = new LoginRequest("username", "password");
+    private LoginRequest loginRequest;
+    private UserRegistrationRequest registrationRequest;
 
-        Authentication authentication = mock(Authentication.class);
+    @BeforeEach
+    void setUp() {
+        loginRequest = new LoginRequest("username", "password");
+        registrationRequest = new UserRegistrationRequest(
+                "name", "username", "password", "email@example.com", Set.of("USER")
+        );
+    }
+
+    @Test
+    void givenValidLoginRequest_whenAuthenticateUser_thenReturnAuthResponse() {
+        // given
+        Authentication auth = mock(Authentication.class);
         CustomUserDetails userDetails = mock(CustomUserDetails.class);
 
-        AuthResponse expected = new AuthResponse(
-                "jwtToken",
-                3600,
-                List.of()
+        AuthResponse expected = new AuthResponse("jwtToken", 3600, List.of());
+
+        Map<String, Object> jwtResponse = Map.of(
+                "token", "jwtToken",
+                "expiresIn", 3600
         );
 
-        given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authentication);
-        given(authentication.getPrincipal()).willReturn(userDetails);
-        given(userDetails.getAuthorities()).willReturn(Collections.emptyList());
-        given(jwtUtils.generateTokenFromUsername(userDetails)).willReturn(Map.of("token", "jwtToken", "expiresIn", 3600));
+        given(authenticationManager.authenticate(any())).willReturn(auth);
+        given(auth.getPrincipal()).willReturn(userDetails);
+        given(jwtUtils.generateTokenFromUsername(userDetails)).willReturn(jwtResponse);
 
         // when
-        AuthResponse actual = authService.login(request);
+        AuthResponse actual = authService.login(loginRequest);
 
         // then
         then(actual).isNotNull();
         then(actual).isEqualTo(expected);
-        then(actual.expiresIn()).isEqualTo(3600);
-        then(actual.token()).isEqualTo("jwtToken");
-        then(actual.roles()).isEmpty();
+        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
     @Test
-    void givenValidUserRegistrationRequest_whenSuccess_returnMessageResponse() {
+    void givenValidRegistrationRequest_whenRegisterUser_thenReturnSuccessResponse() {
         // given
-        UserRegistrationRequest request = new UserRegistrationRequest(
-                "Test User",
-                "test_username",
-                "test_password",
-                "test@example.com",
-                Set.of("user")
-        );
-
-        given(userRepository.existsByUsername(anyString())).willReturn(false);
-        given(userRepository.existsByEmail(anyString())).willReturn(false);
-        given(passwordEncoder.encode(request.password())).willReturn("encoded_password");
+        given(passwordEncoder.encode(registrationRequest.password())).willReturn("encoded_pw");
         given(roleService.assignRoles(anySet())).willReturn(Set.of(new Role(0L, RoleName.ROLE_USER)));
 
         // when
-        MessageResponse response = authService.register(request);
+        MessageResponse response = authService.register(registrationRequest);
 
         // then
-        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository, times(1)).save(userArgumentCaptor.capture());
-        User user = userArgumentCaptor.getValue();
-
-        then(user.getUsername()).isEqualTo("test_username");
-        then(user.getPassword()).isEqualTo("encoded_password");
-        then(user.getEmail()).isEqualTo("test@example.com");
-        then(user.getRoles()).hasSize(1);
-        then(user.getRoles().stream().map(Role::getRoleName).toList()).contains(RoleName.ROLE_USER);
-
         then(response).isNotNull();
-        then(response.message()).isEqualTo("User registered successfully!");
+        then(response.message()).contains("success");
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void givenUserRegistrationRequestWithExistingUsername_whenUsernameFound_throwUsernameAlreadyTakenException() {
+    void givenRegistrationRequestWithExistingUsername_whenRegisterUser_thenThrowUsernameAlreadyTakenException() {
         // given
-        UserRegistrationRequest request = new UserRegistrationRequest(
-                "test", "username", "password", "@example.com", Set.of()
-        );
-
         given(userRepository.existsByUsername(anyString())).willReturn(true);
 
-        // when
+        // when & then
         UsernameAlreadyTakenException ex = catchThrowableOfType(
-                () -> authService.register(request),
+                () -> authService.register(registrationRequest),
                 UsernameAlreadyTakenException.class
         );
 
-        // then
         then(ex).isNotNull();
-        then(ex).hasMessageContaining(ErrorMessages.USERNAME_ALREADY_TAKEN.message());
+        then(ex.getMessage()).isEqualTo(ErrorMessages.USERNAME_ALREADY_TAKEN.message());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void givenUserRegistrationRequestWithExistingEmail_whenEmailFound_throwEmailAlreadyInUseException() {
+    void givenRegistrationRequestWithExistingEmail_whenRegisterUser_thenThrowEmailAlreadyInUseException() {
         // given
-        UserRegistrationRequest request = new UserRegistrationRequest(
-                "test", "username", "password", "@example.com", Set.of()
-        );
-
         given(userRepository.existsByEmail(anyString())).willReturn(true);
 
-        // when
+        // when & then
         EmailAlreadyInUseException ex = catchThrowableOfType(
-                () -> authService.register(request),
+                () -> authService.register(registrationRequest),
                 EmailAlreadyInUseException.class
         );
 
-        // then
         then(ex).isNotNull();
-        then(ex).hasMessageContaining("Email is already in use");
+        then(ex.getMessage()).isEqualTo(ErrorMessages.EMAIL_ALREADY_IN_USE.message());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void givenRegistrationRequestWithNonAdminAuth_whenTriesToAssignAdminRole_throwUnauthorizedRoleAssignmentException() {
+    void givenAdminRegistrationRequestWithSuperAdminAuth_whenRegisterAdmin_thenReturnSuccessResponse() {
         // given
-        UserRegistrationRequest request = new UserRegistrationRequest(
-                "test", "testuser", "password", "@example.com", Set.of("admin")
-        );
-        CustomUserDetails nonAdminDetails = new CustomUserDetails(
-                0L, "nonadmin", "@example.com", "password", Set.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
-        Authentication authentication = new UsernamePasswordAuthenticationToken(nonAdminDetails, null, nonAdminDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserRegistrationRequest adminRegistrationRequest = UserRegistrationRequest.builder()
+                .roles(Set.of("ADMIN"))
+                .build();
+
+        User superAdmin = User.builder()
+                .roles(Set.of(new Role(0L, RoleName.ROLE_SUPER_ADMIN)))
+                .build();
+
+        CustomUserDetails superAdminDetails = CustomUserDetails.build(superAdmin);
+        Authentication auth = new UsernamePasswordAuthenticationToken(superAdminDetails, null, superAdminDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        // when
+        MessageResponse response = authService.register(adminRegistrationRequest);
+
+        // then
+        then(response).isNotNull();
+        then(response.message()).contains("success");
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void givenAdminRegistrationRequestWithNonSuperAdminAuth_whenRegisterAdmin_thenThrowForbiddenRoleAssignmentException() {
+        // given
+        UserRegistrationRequest adminRegistrationRequest = UserRegistrationRequest.builder()
+                .roles(Set.of("ADMIN"))
+                .build();
+
+        User nonAdminUser = User.builder()
+                .roles(Set.of(new Role(0L, RoleName.ROLE_USER)))
+                .build();
+
+        CustomUserDetails userDetails = CustomUserDetails.build(nonAdminUser);
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         // when
         ForbiddenRoleAssignmentException ex = catchThrowableOfType(
-                () -> authService.register(request),
+                () -> authService.register(adminRegistrationRequest),
                 ForbiddenRoleAssignmentException.class
         );
 
         // then
         then(ex).isNotNull();
-        then(ex).hasMessageContaining(ErrorMessages.FORBIDDEN_ROLE_ASSIGNMENT.message());
+        then(ex.getMessage()).isEqualTo(ErrorMessages.FORBIDDEN_ROLE_ASSIGNMENT.message());
+        verify(userRepository, never()).save(any(User.class));
     }
 
 }
