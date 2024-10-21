@@ -17,16 +17,25 @@ public enum ErrorMessages {
 
     // Product
     PRODUCT_NOT_FOUND("Product not found with id %s"),
-    PRODUCT_IMAGE_NOT_FOUND("ProductImage not found with name %s"),
     INSUFFICIENT_STOCK("Insufficient stock capacity! Available: %d Requested: %d"),
+
+    // Product Image
+    EMPTY_FILE("File is empty %s"),
+    INVALID_FILE_TYPE("Invalid file type for %s. Allowed types are %s"),
+    FILE_STORAGE_FAILED("Failed to store file %s"),
+    PRODUCT_IMAGE_NOT_FOUND("ProductImage not found with name %s"),
 
     // Address
     ADDRESS_NOT_FOUND("Address not found with id %s"),
     ADDRESS_LIMIT_EXCEEDED("Cannot add more addresses"),
     DUPLICATE_ADDRESS_TITLE("Address with title %s already exists for current user"),
 
+    // Order
+    ORDER_NOT_FOUND("Order not found with id %s"),
+
     // Payment
-    INVALID_PAYMENT_METHOD("Invalid payment method: %s");
+    INVALID_PAYMENT_METHOD("Invalid payment method: %s"),
+    PAYMENT_FAILED("Payment processing failed. Please try again or use a different payment method");
 
     private final String message;
 
