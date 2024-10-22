@@ -1,7 +1,7 @@
 package com.example.ecommerce.service;
 
 import com.example.ecommerce.constant.ErrorMessages;
-import com.example.ecommerce.exception.product.ProductImageNotFoundException;
+import com.example.ecommerce.exception.productimage.ProductImageNotFoundException;
 import com.example.ecommerce.exception.product.ProductNotFoundException;
 import com.example.ecommerce.exception.productimage.EmptyFileException;
 import com.example.ecommerce.exception.productimage.InvalidFileTypeException;

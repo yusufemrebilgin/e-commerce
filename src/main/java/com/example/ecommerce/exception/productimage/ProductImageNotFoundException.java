@@ -1,4 +1,4 @@
-package com.example.ecommerce.exception.product;
+package com.example.ecommerce.exception.productimage;
 
 import com.example.ecommerce.constant.ErrorMessages;
 import com.example.ecommerce.exception.NotFoundException;
