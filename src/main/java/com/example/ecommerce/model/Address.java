@@ -1,5 +1,8 @@
 package com.example.ecommerce.model;
 
+import com.example.ecommerce.model.embeddable.Area;
+import com.example.ecommerce.model.embeddable.Location;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,14 +26,14 @@ public class Address extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Title of the address (e.g., "Home", "Office")
     private String title;
-    private String neighbourhood;
-    private String street;
-    private String building;
-    private String city;
-    private String district;
-    private String postalCode;
-    private String addressDetails;
+
+    @Embedded
+    private Area area;
+
+    @Embedded
+    private Location location;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

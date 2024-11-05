@@ -1,42 +1,47 @@
 package com.example.ecommerce.mapper;
 
 import com.example.ecommerce.model.Address;
-import com.example.ecommerce.payload.dto.AddressDto;
+import com.example.ecommerce.model.embeddable.Area;
+import com.example.ecommerce.model.embeddable.Location;
 import com.example.ecommerce.payload.request.address.UpdateAddressRequest;
+import com.example.ecommerce.payload.response.AddressResponse;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AddressMapper implements Mapper<Address, AddressDto> {
+public class AddressMapper implements Mapper<Address, AddressResponse> {
 
     @Override
-    public AddressDto mapToResponse(@NonNull Address address) {
-        return new AddressDto(
+    public AddressResponse mapToResponse(@NonNull Address address) {
+        return new AddressResponse(
                 address.getId(),
                 address.getTitle(),
-                new AddressDto.Area(
-                        address.getCity(),
-                        address.getDistrict(),
-                        address.getPostalCode()
-                ),
-                new AddressDto.Location(
-                        address.getNeighbourhood(),
-                        address.getStreet(),
-                        address.getBuilding(),
-                        address.getAddressDetails()
-                )
+                address.getArea(),
+                address.getLocation()
         );
     }
 
-    public void updateAddressFromDto(@NonNull UpdateAddressRequest request, @NonNull Address existingAddress) {
+    public void updateAddressFromRequest(@NonNull UpdateAddressRequest request, @NonNull Address existingAddress) {
         existingAddress.setTitle(request.title());
-        existingAddress.setNeighbourhood(request.neighbourhood());
-        existingAddress.setStreet(request.street());
-        existingAddress.setBuilding(request.building());
-        existingAddress.setCity(request.city());
-        existingAddress.setDistrict(request.district());
-        existingAddress.setPostalCode(request.postalCode());
-        existingAddress.setAddressDetails(request.addressDetails());
+
+        Area area = existingAddress.getArea();
+        if (area == null) {
+            area = new Area();
+            existingAddress.setArea(area);
+        }
+        area.setCity(request.city());
+        area.setDistrict(request.district());
+        area.setPostalCode(request.postalCode());
+
+        Location location = existingAddress.getLocation();
+        if (location == null) {
+            location = new Location();
+            existingAddress.setLocation(location);
+        }
+        location.setNeighbourhood(request.neighbourhood());
+        location.setStreet(request.street());
+        location.setBuilding(request.building());
+        location.setAddressDetails(request.addressDetails());
     }
 
 }
