@@ -1,21 +1,20 @@
 package com.example.ecommerce.mapper;
 
 import com.example.ecommerce.model.OrderItem;
-import com.example.ecommerce.payload.dto.OrderItemDto;
+import com.example.ecommerce.payload.response.OrderItemResponse;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OrderItemMapper implements Mapper<OrderItem, OrderItemDto> {
+public class OrderItemMapper implements Mapper<OrderItem, OrderItemResponse> {
 
     @Override
-    public OrderItemDto mapToResponse(@NonNull OrderItem orderItem) {
-        return new OrderItemDto(
+    public OrderItemResponse mapToResponse(@NonNull OrderItem orderItem) {
+        return new OrderItemResponse(
                 orderItem.getId(),
                 orderItem.getProduct().getName(),
-                orderItem.getQuantity(),
-                orderItem.getTotalPrice(),
-                orderItem.getTotalDiscountAmount()
+                orderItem.getProductInfo(),
+                orderItem.getDiscountInfo()
         );
     }
 

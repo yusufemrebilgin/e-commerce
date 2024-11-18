@@ -22,6 +22,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static lombok.Builder.Default;
+
 @Entity
 @Builder
 @Getter @Setter
@@ -38,18 +40,21 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Default
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @Builder.Default
+    @Default
+    private OrderStatus orderStatus = OrderStatus.PENDING;
+
+    @Default
     private LocalDateTime orderDate = LocalDateTime.now();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
 
-    private OrderStatus orderStatus;
-
-    private BigDecimal totalPrice;
+    @Default
+    private BigDecimal totalPrice = BigDecimal.ZERO;
 
     @ManyToOne
     @JoinColumn(name = "address_id")
