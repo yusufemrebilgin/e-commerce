@@ -1,5 +1,8 @@
 package com.example.ecommerce.model;
 
+import com.example.ecommerce.model.embeddable.DiscountInfo;
+import com.example.ecommerce.model.embeddable.ProductInfo;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -34,11 +36,14 @@ public class CartItem extends BaseEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private int quantity;
-    private boolean isDiscountApplied;
-    private BigDecimal discountPerItem;
-    private BigDecimal totalDiscountAmount;
-    private BigDecimal unitPrice;
-    private BigDecimal totalPrice;
+    @Embedded
+    private ProductInfo productInfo;
+
+    @Embedded
+    private DiscountInfo discountInfo;
+
+    public int getQuantity() {
+        return productInfo != null ? productInfo.getQuantity() : 0;
+    }
 
 }
