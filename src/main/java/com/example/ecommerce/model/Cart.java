@@ -18,6 +18,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static lombok.Builder.Default;
+
 @Entity
 @Builder
 @Getter @Setter
@@ -33,9 +35,11 @@ public class Cart extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Default
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 
+    @Default
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
     public boolean isEmpty() {

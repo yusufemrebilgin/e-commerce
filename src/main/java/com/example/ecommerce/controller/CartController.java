@@ -1,51 +1,52 @@
 package com.example.ecommerce.controller;
 
-import com.example.ecommerce.payload.dto.CartItemDto;
-import com.example.ecommerce.payload.request.cart.CreateCartItemRequest;
-import com.example.ecommerce.payload.request.cart.UpdateCartItemRequest;
+import com.example.ecommerce.payload.response.CartResponse;
+import com.example.ecommerce.payload.response.CartSummaryResponse;
 import com.example.ecommerce.service.CartService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
-
 @RestController
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('USER')")
 @RequestMapping("/api/v1/cart")
 public class CartController {
 
     private final CartService cartService;
 
-    @GetMapping
-    public ResponseEntity<?> getCart() {
+    /**
+     * Retrieves the current cart for the authenticated user.
+     *
+     * @return a {@link ResponseEntity} containing the {@link CartResponse} with cart details
+     */
+    @GetMapping("/current")
+    public ResponseEntity<CartResponse> getCart() {
         return ResponseEntity.ok(cartService.getCart());
     }
 
-    @PostMapping("/items")
-    public ResponseEntity<CartItemDto> addCartItem(@Valid @RequestBody CreateCartItemRequest request) {
-        CartItemDto cartItem = cartService.addItemToCart(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartItem);
+    /**
+     * Retrieves a summary of the current cart, including total item count and total price.
+     *
+     * @return a {@link ResponseEntity} containing the {@link CartSummaryResponse} with cart summary details
+     */
+    @GetMapping("/summary")
+    public ResponseEntity<CartSummaryResponse> getCartSummary() {
+        return ResponseEntity.ok(cartService.getCartSummary());
     }
 
-    @PutMapping("/items/{cartItemId}")
-    public ResponseEntity<CartItemDto> updateCartItem(@PathVariable UUID cartItemId,
-                                                      @Valid @RequestBody UpdateCartItemRequest request) {
-        return ResponseEntity.ok(cartService.updateItemInCart(cartItemId, request));
-    }
-
-    @DeleteMapping("/items/{cartItemId}")
-    public ResponseEntity<?> deleteCartItem(@PathVariable UUID cartItemId) {
-        cartService.deleteItemFromCart(cartItemId);
+    /**
+     * Clears all items from the current cart for the authenticated user.
+     *
+     * @return a {@link ResponseEntity} with no content indicating the cart has been cleared
+     */
+    @DeleteMapping("/clear")
+    public ResponseEntity<Void> clearCart() {
+        cartService.clearCart();
         return ResponseEntity.noContent().build();
     }
 
