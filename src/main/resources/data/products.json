@@ -1,0 +1,302 @@
+[
+  {
+    "name": "Gaming Laptop X15",
+    "description": "High-performance gaming laptop with NVIDIA RTX 3070 and Intel i7 processor.",
+    "categoryId": 1,
+    "stock": 25,
+    "price": 1999.99,
+    "discountPercentage": 15.0,
+    "discountStart": "2025-12-01T00:00:00",
+    "discountEnd": "2025-12-31T23:59:59"
+  },
+  {
+    "name": "Ultrabook Pro 14",
+    "description": "Lightweight and powerful ultrabook with 14-inch Retina display and 16GB RAM.",
+    "categoryId": 1,
+    "stock": 40,
+    "price": 1499.99,
+    "discountPercentage": 10.0,
+    "discountStart": "2025-11-20T00:00:00",
+    "discountEnd": "2025-12-05T23:59:59"
+  },
+  {
+    "name": "Workstation Z500",
+    "description": "Professional-grade workstation laptop with AMD Ryzen 9 and 32GB RAM.",
+    "categoryId": 1,
+    "stock": 15,
+    "price": 2499.99,
+    "discountPercentage": 20.0,
+    "discountStart": "2025-12-10T00:00:00",
+    "discountEnd": "2025-01-10T23:59:59"
+  },
+  {
+    "name": "Budget Laptop A1",
+    "description": "Affordable laptop for everyday use with Intel i3 processor and 8GB RAM.",
+    "categoryId": 1,
+    "stock": 50,
+    "price": 599.99,
+    "discountPercentage": 5.0,
+    "discountStart": "2025-11-01T00:00:00",
+    "discountEnd": "2025-11-30T23:59:59"
+  },
+  {
+    "name": "2-in-1 Convertible Laptop",
+    "description": "Versatile 2-in-1 laptop with 360-degree hinge and touch screen.",
+    "categoryId": 1,
+    "stock": 30,
+    "price": 899.99,
+    "discountPercentage": 12.5,
+    "discountStart": "2025-12-01T00:00:00",
+    "discountEnd": "2025-01-01T23:59:59"
+  },
+  {
+    "name": "Creator Laptop V20",
+    "description": "Laptop for content creators with 4K display and powerful graphics card.",
+    "categoryId": 1,
+    "stock": 20,
+    "price": 1899.99,
+    "discountPercentage": 10.0,
+    "discountStart": "2025-12-15T00:00:00",
+    "discountEnd": "2025-01-15T23:59:59"
+  },
+  {
+    "name": "Student Laptop S10",
+    "description": "Durable and budget-friendly laptop designed for students.",
+    "categoryId": 1,
+    "stock": 60,
+    "price": 499.99,
+    "discountPercentage": 8.0,
+    "discountStart": "2025-11-15T00:00:00",
+    "discountEnd": "2025-12-15T23:59:59"
+  },
+  {
+    "name": "Performance Laptop P50",
+    "description": "High-end performance laptop with Intel i9 processor and 1TB SSD.",
+    "categoryId": 1,
+    "stock": 10,
+    "price": 2999.99,
+    "discountPercentage": 18.0,
+    "discountStart": "2025-12-05T00:00:00",
+    "discountEnd": "2025-12-25T23:59:59"
+  },
+  {
+    "name": "Portable Laptop M3",
+    "description": "Compact and portable laptop with long battery life and sleek design.",
+    "categoryId": 1,
+    "stock": 35,
+    "price": 799.99,
+    "discountPercentage": 7.5,
+    "discountStart": "2025-11-10T00:00:00",
+    "discountEnd": "2025-11-30T23:59:59"
+  },
+  {
+    "name": "Developer Laptop D400",
+    "description": "Laptop optimized for software development with Linux support and 32GB RAM.",
+    "categoryId": 1,
+    "stock": 20,
+    "price": 1299.99,
+    "discountPercentage": 10.0,
+    "discountStart": "2025-12-01T00:00:00",
+    "discountEnd": "2025-12-31T23:59:59"
+  },
+  {
+    "name": "iPad Pro 12.9-inch",
+    "description": "Apple's premium tablet with M1 chip, 12.9-inch Liquid Retina display, and 5G connectivity.",
+    "categoryId": 2,
+    "stock": 30,
+    "price": 1099.99,
+    "discountPercentage": 10.0,
+    "discountStart": "2024-12-01T00:00:00",
+    "discountEnd": "2024-12-31T23:59:59"
+  },
+  {
+    "name": "Samsung Galaxy Tab S8",
+    "description": "High-performance Android tablet with 11-inch AMOLED display and S Pen support.",
+    "categoryId": 2,
+    "stock": 50,
+    "price": 799.99,
+    "discountPercentage": 15.0,
+    "discountStart": "2024-11-01T00:00:00",
+    "discountEnd": "2024-11-30T23:59:59"
+  },
+  {
+    "name": "Microsoft Surface Pro 8",
+    "description": "Versatile 2-in-1 tablet and laptop with 11th Gen Intel Core i7, 16GB RAM, and Windows 11.",
+    "categoryId": 2,
+    "stock": 20,
+    "price": 1599.99,
+    "discountPercentage": 12.5,
+    "discountStart": "2024-11-15T00:00:00",
+    "discountEnd": "2024-12-15T23:59:59"
+  },
+  {
+    "name": "Amazon Fire HD 10",
+    "description": "Affordable tablet with 10.1-inch display, Alexa voice assistant, and long-lasting battery.",
+    "categoryId": 2,
+    "stock": 100,
+    "price": 149.99,
+    "discountPercentage": 5.0,
+    "discountStart": "2024-11-05T00:00:00",
+    "discountEnd": "2024-11-20T23:59:59"
+  },
+  {
+    "name": "Lenovo Tab P11 Pro",
+    "description": "Mid-range Android tablet with 11.5-inch OLED display, Qualcomm Snapdragon 730G, and Dolby Atmos.",
+    "categoryId": 2,
+    "stock": 40,
+    "price": 499.99,
+    "discountPercentage": 8.0,
+    "discountStart": "2024-12-01T00:00:00",
+    "discountEnd": "2025-01-01T23:59:59"
+  },
+  {
+    "name": "Huawei MatePad Pro 12.6",
+    "description": "High-end Android tablet with 12.6-inch OLED display, Kirin 9000E chipset, and stylus support.",
+    "categoryId": 2,
+    "stock": 15,
+    "price": 799.99,
+    "discountPercentage": 20.0,
+    "discountStart": "2024-12-10T00:00:00",
+    "discountEnd": "2025-01-10T23:59:59"
+  },
+  {
+    "name": "Samsung Galaxy Tab A7",
+    "description": "Affordable and portable Android tablet with 10.4-inch display and Dolby Atmos speakers.",
+    "categoryId": 2,
+    "stock": 80,
+    "price": 229.99,
+    "discountPercentage": 6.0,
+    "discountStart": "2024-11-10T00:00:00",
+    "discountEnd": "2024-11-30T23:59:59"
+  },
+  {
+    "name": "iPad Air 4th Gen",
+    "description": "Apple's mid-range tablet with A14 Bionic chip, 10.9-inch display, and Touch ID.",
+    "categoryId": 2,
+    "stock": 25,
+    "price": 599.99,
+    "discountPercentage": 10.0,
+    "discountStart": "2024-12-01T00:00:00",
+    "discountEnd": "2024-12-31T23:59:59"
+  },
+  {
+    "name": "Microsoft Surface Go 3",
+    "description": "Compact 2-in-1 tablet with 10.5-inch touchscreen, Intel Pentium Gold processor, and Windows 11.",
+    "categoryId": 2,
+    "stock": 35,
+    "price": 399.99,
+    "discountPercentage": 7.5,
+    "discountStart": "2024-11-20T00:00:00",
+    "discountEnd": "2024-12-05T23:59:59"
+  },
+  {
+    "name": "Xiaomi Mi Pad 5",
+    "description": "Affordable tablet with 11-inch 120Hz display, Snapdragon 860, and MIUI for Pad interface.",
+    "categoryId": 2,
+    "stock": 60,
+    "price": 399.99,
+    "discountPercentage": 10.0,
+    "discountStart": "2024-11-25T00:00:00",
+    "discountEnd": "2024-12-25T23:59:59"
+  },
+  {
+    "name": "iPhone 15 Pro Max",
+    "description": "Apple's flagship smartphone with A17 Pro chip, 6.7-inch Super Retina XDR display, and 48MP camera.",
+    "categoryId": 3,
+    "stock": 100,
+    "price": 1099.99,
+    "discountPercentage": 10.0,
+    "discountStart": "2024-11-01T00:00:00",
+    "discountEnd": "2024-11-30T23:59:59"
+  },
+  {
+    "name": "Samsung Galaxy S24 Ultra",
+    "description": "Samsung's top-tier Android phone with 6.8-inch Dynamic AMOLED display, Snapdragon 8 Gen 3, and 200MP camera.",
+    "categoryId": 3,
+    "stock": 80,
+    "price": 1299.99,
+    "discountPercentage": 15.0,
+    "discountStart": "2024-12-01T00:00:00",
+    "discountEnd": "2024-12-31T23:59:59"
+  },
+  {
+    "name": "Google Pixel 8 Pro",
+    "description": "Google's flagship smartphone with Tensor G3 chip, 6.7-inch OLED display, and advanced AI-driven camera features.",
+    "categoryId": 3,
+    "stock": 150,
+    "price": 899.99,
+    "discountPercentage": 12.0,
+    "discountStart": "2024-11-15T00:00:00",
+    "discountEnd": "2024-12-15T23:59:59"
+  },
+  {
+    "name": "OnePlus 11 5G",
+    "description": "Flagship OnePlus phone with 6.7-inch AMOLED display, Snapdragon 8 Gen 2, and 50MP triple camera setup.",
+    "categoryId": 3,
+    "stock": 120,
+    "price": 749.99,
+    "discountPercentage": 8.0,
+    "discountStart": "2024-11-10T00:00:00",
+    "discountEnd": "2024-11-20T23:59:59"
+  },
+  {
+    "name": "Xiaomi 13 Pro",
+    "description": "Xiaomi's premium smartphone with 6.73-inch AMOLED display, Snapdragon 8 Gen 2, and Leica-powered 50MP camera.",
+    "categoryId": 3,
+    "stock": 90,
+    "price": 999.99,
+    "discountPercentage": 18.0,
+    "discountStart": "2024-11-20T00:00:00",
+    "discountEnd": "2024-12-20T23:59:59"
+  },
+  {
+    "name": "Samsung Galaxy Z Fold 5",
+    "description": "Innovative foldable smartphone with 7.6-inch Dynamic AMOLED 2X display, Snapdragon 8 Gen 2, and 50MP camera.",
+    "categoryId": 3,
+    "stock": 60,
+    "price": 1799.99,
+    "discountPercentage": 5.0,
+    "discountStart": "2024-11-01T00:00:00",
+    "discountEnd": "2024-11-30T23:59:59"
+  },
+  {
+    "name": "Motorola Edge 40 Pro",
+    "description": "Premium smartphone with 6.67-inch OLED display, Snapdragon 8 Gen 2, and 50MP triple camera setup.",
+    "categoryId": 3,
+    "stock": 110,
+    "price": 749.99,
+    "discountPercentage": 10.0,
+    "discountStart": "2024-11-05T00:00:00",
+    "discountEnd": "2024-11-25T23:59:59"
+  },
+  {
+    "name": "Realme GT 2 Pro",
+    "description": "Flagship phone with Snapdragon 8 Gen 1, 6.7-inch AMOLED display, and 50MP triple camera setup.",
+    "categoryId": 3,
+    "stock": 75,
+    "price": 599.99,
+    "discountPercentage": 12.0,
+    "discountStart": "2024-12-01T00:00:00",
+    "discountEnd": "2024-12-15T23:59:59"
+  },
+  {
+    "name": "iPhone 14",
+    "description": "Apple's previous-gen iPhone with A15 Bionic chip, 6.1-inch OLED display, and dual 12MP camera system.",
+    "categoryId": 3,
+    "stock": 200,
+    "price": 799.99,
+    "discountPercentage": 5.0,
+    "discountStart": "2024-11-10T00:00:00",
+    "discountEnd": "2024-11-30T23:59:59"
+  },
+  {
+    "name": "Oppo Find X5 Pro",
+    "description": "Oppo's flagship phone with 6.7-inch AMOLED display, Snapdragon 8 Gen 1, and 50MP camera with Hasselblad partnership.",
+    "categoryId": 3,
+    "stock": 85,
+    "price": 1099.99,
+    "discountPercentage": 20.0,
+    "discountStart": "2024-11-20T00:00:00",
+    "discountEnd": "2024-12-20T23:59:59"
+  }
+]
