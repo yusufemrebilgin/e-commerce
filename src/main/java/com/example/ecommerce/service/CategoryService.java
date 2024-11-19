@@ -54,7 +54,7 @@ public class CategoryService {
      */
     @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse createCategory(CreateCategoryRequest categoryRequest) {
-        Category newCategory = new Category(0L, categoryRequest.categoryName());
+        Category newCategory = new Category(0L, categoryRequest.name());
         return categoryMapper.mapToResponse(categoryRepository.save(newCategory));
     }
 

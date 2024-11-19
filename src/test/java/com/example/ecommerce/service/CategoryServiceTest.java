@@ -130,7 +130,7 @@ class CategoryServiceTest {
     void givenCreateCategoryRequest_whenCategoryCreated_thenReturnCategoryResponse() {
         // given
         CreateCategoryRequest request = new CreateCategoryRequest("Electronics");
-        Category category = CategoryFactory.category(request.categoryName());
+        Category category = CategoryFactory.category(request.name());
         CategoryResponse expected = CategoryFactory.response(category);
 
         given(categoryRepository.save(any(Category.class))).willReturn(category);
