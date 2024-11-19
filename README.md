@@ -45,6 +45,11 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
 
 **Option 1: Using Maven**
 
+- Build the application:
+  ```shell
+  mvn clean install -DskipTests
+  ```
+
 - Run the application:
   ```shell
   mvn spring-boot:run
@@ -57,19 +62,29 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
 
 **Option 2: Using Docker Compose**
 
-- Define variables in `.env` file:
+- Define environment variables in the `.env` file:
   ```
-  DB_USERNAME={DB_USERNAME}
-  DB_PASSWORD={DB_PASSWORD}
+  DB_USERNAME=<database_username>
+  DB_PASSWORD=<database_password>
   ```
 
 - Build and run the application:
   ```shell
-  docker compose up
+  docker compose up --build
   ```
-- To start the application with sample data:
+- Build and run the application with sample data:
   ```shell
-  CREATE_DUMMY_DATA=true docker compose up
+  CREATE_DUMMY_DATA=true docker compose up --build
+  ```
+  
+- **Note:** Use the `--build` flag if:
+  - You made changes to the Dockerfile or `docker-compose.yaml`
+  - You updated any application code, dependencies, or configuration files
+  - The existing Docker image does not reflect the latest updates
+  <br><br>
+- Start the application without rebuilding (if no changes were made):
+  ```shell
+  docker compose up
   ```
 
 - To stop the application:
