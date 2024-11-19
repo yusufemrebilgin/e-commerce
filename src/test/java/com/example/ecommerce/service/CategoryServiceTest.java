@@ -1,12 +1,13 @@
 package com.example.ecommerce.service;
 
 import com.example.ecommerce.exception.category.CategoryNotFoundException;
+import com.example.ecommerce.factory.CategoryFactory;
 import com.example.ecommerce.mapper.CategoryMapper;
 import com.example.ecommerce.mapper.PaginationMapper;
 import com.example.ecommerce.model.Category;
-import com.example.ecommerce.payload.dto.CategoryDto;
 import com.example.ecommerce.payload.request.category.CreateCategoryRequest;
 import com.example.ecommerce.payload.request.category.UpdateCategoryRequest;
+import com.example.ecommerce.payload.response.CategoryResponse;
 import com.example.ecommerce.payload.response.PaginatedResponse;
 import com.example.ecommerce.repository.CategoryRepository;
 import org.junit.jupiter.api.Test;
@@ -27,9 +28,9 @@ import java.util.Optional;
 import static org.assertj.core.api.BDDAssertions.catchThrowableOfType;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -53,27 +54,19 @@ class CategoryServiceTest {
             "1, 2, 1",
             "1, 3, 0"
     })
-    void givenPaginationParameters_whenSuccess_returnPaginatedResponse(int page, int size, int expectedSize) {
+    void givenPaginationParameters_whenSuccess_thenReturnPaginatedResponse(int page, int size, int expectedSize) {
         // given
-        Category category1 = new Category(1L, "Clothing");
-        Category category2 = new Category(2L, "Computers");
-        Category category3 = new Category(3L, "Electronics");
-
-        List<Category> categories = List.of(category1, category2, category3);
+        List<Category> categories = CategoryFactory.list(List.of("Clothing", "Computers", "Electronics"));
 
         // from: page * size
         // to  : (page + 1) * size or categories.size()
         Page<Category> categoryPage = new PageImpl<>(categories.subList(page * size, Math.min((page + 1) * size, categories.size())));
 
-        List<CategoryDto> categoryDtoList = List.of(
-                new CategoryDto(category1.getId(), category1.getName()),
-                new CategoryDto(category2.getId(), category2.getName()),
-                new CategoryDto(category3.getId(), category3.getName())
-        );
-        List<CategoryDto> expectedDtoList = categoryDtoList.subList(0, expectedSize);
+        List<CategoryResponse> response = CategoryFactory.responseList(categories);
+        List<CategoryResponse> expectedResponseList = response.subList(0, expectedSize);
 
-        PaginatedResponse<CategoryDto> expected = new PaginatedResponse<>(
-                expectedDtoList,
+        PaginatedResponse<CategoryResponse> expected = new PaginatedResponse<>(
+                expectedResponseList,
                 page,
                 size,
                 categoryPage.getTotalPages(),
@@ -85,13 +78,16 @@ class CategoryServiceTest {
         given(paginationMapper.toPaginatedResponse(categoryPage, categoryMapper)).willReturn(expected);
 
         // when
-        PaginatedResponse<CategoryDto> actual = categoryService.getAllCategories(PageRequest.of(page, size));
+        PaginatedResponse<CategoryResponse> actual = categoryService.getAllCategories(PageRequest.of(page, size));
 
         // then
         then(actual).isNotNull();
+        then(actual.page()).isEqualTo(page);
+        then(actual.size()).isEqualTo(size);
         then(actual.content()).hasSize(expectedSize);
+        then(actual.totalPages()).isEqualTo(categoryPage.getTotalPages());
         for (int i = 0; i < expectedSize; i++) {
-            then(actual.content().get(i).categoryName()).isEqualTo(expectedDtoList.get(i).categoryName());
+            then(actual.content().get(i).categoryName()).isEqualTo(expectedResponseList.get(i).categoryName());
         }
 
         verify(categoryRepository, times(1)).findAll(any(Pageable.class));
@@ -99,24 +95,21 @@ class CategoryServiceTest {
     }
 
     @Test
-    void givenCategoryId_whenCategoryFound_returnCategory() {
+    void givenCategoryId_whenCategoryFound_thenReturnCategory() {
         // given
-        Long categoryId = 1L;
-        Category expected = new Category(categoryId, "Electronics");
-        given(categoryRepository.findById(categoryId)).willReturn(Optional.of(expected));
+        Category expected = CategoryFactory.category("Electronics");
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(expected));
 
         // when
-        Category actual = categoryService.getCategoryById(categoryId);
+        Category actual = categoryService.getCategoryById(expected.getId());
 
-        // get
+        // getProductImage
         then(actual).isNotNull();
         then(actual).isEqualTo(expected);
-        then(actual.getId()).isEqualTo(categoryId);
-        then(actual.getName()).isEqualTo(expected.getName());
     }
 
     @Test
-    void givenCategoryId_whenCategoryNotFound_throwCategoryNotFoundException() {
+    void givenCategoryId_whenCategoryNotFound_thenThrowCategoryNotFoundException() {
         // given
         Long categoryId = 1L;
         given(categoryRepository.findById(categoryId)).willReturn(Optional.empty());
@@ -130,58 +123,57 @@ class CategoryServiceTest {
         // then
         then(ex).isNotNull();
         then(ex).hasMessageContaining(categoryId.toString());
+        verify(categoryRepository, never()).save(any(Category.class));
     }
 
     @Test
-    void givenCreateCategoryRequest_whenCreated_returnCategoryDto() {
+    void givenCreateCategoryRequest_whenCategoryCreated_thenReturnCategoryResponse() {
         // given
         CreateCategoryRequest request = new CreateCategoryRequest("Electronics");
-        Category category = new Category(0L, request.categoryName());
-        CategoryDto expectedDto = new CategoryDto(0L, request.categoryName());
+        Category category = CategoryFactory.category(request.name());
+        CategoryResponse expected = CategoryFactory.response(category);
 
         given(categoryRepository.save(any(Category.class))).willReturn(category);
-        given(categoryMapper.mapToDto(category)).willReturn(expectedDto);
+        given(categoryMapper.mapToResponse(category)).willReturn(expected);
 
         // when
-        CategoryDto actualDto = categoryService.createCategory(request);
+        CategoryResponse actual = categoryService.createCategory(request);
 
         // then
-        then(actualDto).isNotNull();
-        then(actualDto).isEqualTo(expectedDto);
-        then(actualDto.categoryName()).isEqualTo(expectedDto.categoryName());
+        then(actual).isNotNull();
+        then(actual).isEqualTo(expected);
     }
 
     @Test
-    void givenUpdateCategoryRequest_whenUpdated_returnUpdatedCategoryDto() {
+    void givenUpdateCategoryRequest_whenCategoryUpdated_thenReturnUpdatedCategoryResponse() {
         //given
-        Long categoryId = 1L;
         UpdateCategoryRequest request = new UpdateCategoryRequest("Electronics");
 
-        Category existingCategory = new Category(categoryId, "Computers");
-        Category updatedCategory = new Category(categoryId, "Electronics");
-        CategoryDto expectedDto = new CategoryDto(categoryId, "Electronics");
+        Category existingCategory = CategoryFactory.category("Computers");
+        Category updatedCategory = CategoryFactory.category(request.categoryName());
 
-        given(categoryRepository.findById(categoryId)).willReturn(Optional.of(existingCategory));
+        CategoryResponse expected = CategoryFactory.response(updatedCategory);
+
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(existingCategory));
         given(categoryRepository.save(any(Category.class))).willReturn(updatedCategory);
-        given(categoryMapper.mapToDto(updatedCategory)).willReturn(expectedDto);
+        given(categoryMapper.mapToResponse(updatedCategory)).willReturn(expected);
 
         // when
-        CategoryDto actualDto = categoryService.updateCategory(categoryId, request);
+        CategoryResponse actual = categoryService.updateCategory(existingCategory.getId(), request);
 
         // then
-        then(actualDto).isNotNull();
-        then(actualDto.categoryName()).isEqualTo(expectedDto.categoryName());
+        then(actual).isNotNull();
+        then(actual).isEqualTo(expected);
     }
 
     @Test
-    void givenCategoryId_whenSuccess_deleteCategory() {
+    void givenCategoryId_whenCategoryExists_thenDeleteCategory() {
         // given
-        Long categoryId = 1L;
-        Category category = new Category(categoryId, "Electronics");
-        given(categoryRepository.findById(categoryId)).willReturn(Optional.of(category));
+        Category category = CategoryFactory.category("Electronics");
+        given(categoryRepository.findById(category.getId())).willReturn(Optional.of(category));
 
         // when
-        categoryService.deleteCategory(categoryId);
+        categoryService.deleteCategory(category.getId());
 
         // then
         verify(categoryRepository, times(1)).delete(category);

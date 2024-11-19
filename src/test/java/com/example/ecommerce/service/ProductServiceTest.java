@@ -1,14 +1,16 @@
 package com.example.ecommerce.service;
 
+import com.example.ecommerce.constant.ErrorMessages;
+import com.example.ecommerce.exception.product.InsufficientStockException;
 import com.example.ecommerce.exception.product.ProductNotFoundException;
+import com.example.ecommerce.factory.ProductFactory;
 import com.example.ecommerce.mapper.PaginationMapper;
 import com.example.ecommerce.mapper.ProductMapper;
-import com.example.ecommerce.model.Category;
 import com.example.ecommerce.model.Product;
-import com.example.ecommerce.payload.dto.ProductDto;
 import com.example.ecommerce.payload.request.product.CreateProductRequest;
 import com.example.ecommerce.payload.request.product.UpdateProductRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;
+import com.example.ecommerce.payload.response.ProductResponse;
 import com.example.ecommerce.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,14 +24,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.assertj.core.api.BDDAssertions.catchThrowableOfType;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -43,10 +44,10 @@ class ProductServiceTest {
     CategoryService categoryService;
 
     @Mock
-    ProductRepository productRepository;
+    ProductMapper productMapper;
 
     @Mock
-    ProductMapper productMapper;
+    ProductRepository productRepository;
 
     @Mock
     PaginationMapper paginationMapper;
@@ -58,20 +59,16 @@ class ProductServiceTest {
             "1, 2, 1",
             "1, 3, 0"
     })
-    void givenPaginationParameters_whenGetAllProducts_returnPaginatedProductDtoResponse(int page, int size, int expectedSize) {
+    void givenPaginationParameters_whenGetAllProducts_thenReturnPaginatedProductResponse(int page, int size, int expectedSize) {
         // given
-        List<Product> products = List.of(new Product(), new Product(), new Product());
-
+        List<Product> products = ProductFactory.list(3, ProductFactory::product);
         Page<Product> productPage = new PageImpl<>(products.subList(page * size, Math.min((page + 1) * size, products.size())));
 
-        List<ProductDto> productDtoList = List.of(
-                ProductDto.builder().build(),
-                ProductDto.builder().build(),
-                ProductDto.builder().build()
-        );
+        List<ProductResponse> response = ProductFactory.responseList(products);
+        List<ProductResponse> expectedResponseList = response.subList(0, expectedSize);
 
-        PaginatedResponse<ProductDto> expected = new PaginatedResponse<>(
-                productDtoList.subList(0, expectedSize),
+        PaginatedResponse<ProductResponse> expected = new PaginatedResponse<>(
+                expectedResponseList,
                 page,
                 size,
                 productPage.getTotalPages(),
@@ -83,186 +80,243 @@ class ProductServiceTest {
         given(paginationMapper.toPaginatedResponse(productPage, productMapper)).willReturn(expected);
 
         // when
-        PaginatedResponse<ProductDto> actual = productService.getAllProducts(PageRequest.of(page, size));
+        PaginatedResponse<ProductResponse> actual = productService.getAllProducts(PageRequest.of(page, size));
 
         // then
         then(actual).isNotNull();
-        then(actual).isEqualTo(expected);
+        then(actual.page()).isEqualTo(page);
+        then(actual.size()).isEqualTo(size);
         then(actual.content()).hasSize(expectedSize);
-        then(actual.content()).containsExactlyElementsOf(expected.content());
         for (int i = 0; i < expectedSize; i++) {
             then(actual.content().get(i)).isEqualTo(expected.content().get(i));
         }
+
+        verify(productRepository, times(1)).findAll(any(Pageable.class));
+        verify(paginationMapper, times(1)).toPaginatedResponse(productPage, productMapper);
     }
 
     @Test
-    void givenProductId_whenProductFound_returnProduct() {
+    void givenValidProductId_whenProductFound_thenReturnProduct() {
         // given
-        Product expected = Product.builder()
-                .id(UUID.randomUUID())
-                .name("Lenovo Laptop")
-                .build();
-
+        Product expected = ProductFactory.product();
         given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(expected));
 
         // when
-        Product actual = productService.getProductById(expected.getId());
+        Product actual = productService.findProductById(expected.getId());
 
         // then
         then(actual).isNotNull();
         then(actual).isEqualTo(expected);
-        then(actual.getId()).isEqualTo(expected.getId());
+        verify(productRepository, times(1)).findById(expected.getId());
     }
 
     @Test
-    void givenProductId_whenProductNotFound_throwProductNotFoundException() {
+    void givenInvalidProductId_whenProductNotFound_thenThrowProductNotFoundException() {
         // given
         UUID productId = UUID.randomUUID();
-        given(productRepository.findById(productId)).willReturn(Optional.empty());
+        given(productRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
-        // when
+        // when & then
         ProductNotFoundException ex = catchThrowableOfType(
-                () -> productService.getProductById(productId),
+                () -> productService.findProductById(productId),
                 ProductNotFoundException.class
         );
 
-        // then
         then(ex).isNotNull();
         then(ex).hasMessageContaining(productId.toString());
+        verify(productRepository, never()).save(any(Product.class));
     }
 
     @Test
-    void givenCreateProductRequest_whenCreated_returnProductDto() {
+    void givenValidCreateProductRequest_whenProductCreated_thenReturnProductResponse() {
         // given
-        CreateProductRequest request = CreateProductRequest.builder()
-                .name("Lenovo Laptop")
-                .build();
+        Product product = ProductFactory.product();
+        CreateProductRequest request = ProductFactory.createRequest(product);
+        ProductResponse expected = ProductFactory.response(product);
 
-        Category category = new Category(1L, "Laptops");
-
-        Product product = Product.builder()
-                .id(UUID.randomUUID())
-                .name(request.name())
-                .build();
-
-        ProductDto expected = ProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .category(category.getName())
-                .build();
-
-        given(productMapper.mapToEntity(request)).willReturn(product);
-        given(categoryService.getCategoryById(anyLong())).willReturn(category);
+        given(categoryService.getCategoryById(anyLong())).willReturn(product.getCategory());
         given(productRepository.save(any(Product.class))).willReturn(product);
-        given(productMapper.mapToDto(any(Product.class))).willReturn(expected);
+        given(productMapper.mapToResponse(any(Product.class))).willReturn(expected);
 
         // when
-        ProductDto actual = productService.createProduct(category.getId(), request);
+        ProductResponse actual = productService.createProduct(request);
 
         // then
         then(actual).isNotNull();
         then(actual).isEqualTo(expected);
-        then(actual.category()).isEqualTo(category.getName());
+        verify(productRepository, times(1)).save(any(Product.class));
+        verify(productMapper, times(1)).mapToResponse(any(Product.class));
     }
 
     @Test
-    void givenCreateProductRequestWithValidDiscount_whenCreated_returnDiscountAppliedProductDto() {
+    void givenValidUpdateProductRequest_whenExistingProductUpdated_thenReturnUpdatedProductResponse() {
         // given
-        CreateProductRequest request = CreateProductRequest.builder()
-                .name("Lenovo Laptop")
-                .build();
+        Product existingProduct = ProductFactory.product();
+        Product updatedProduct = ProductFactory.product(existingProduct.getId(), "Updated Product");
+        UpdateProductRequest request = ProductFactory.updateRequest(updatedProduct);
+        ProductResponse expected = ProductFactory.response(updatedProduct);
 
-        Category category = new Category(1L, "Laptops");
-
-        Product product = Product.builder()
-                .id(UUID.randomUUID())
-                .name(request.name())
-                .price(BigDecimal.valueOf(500))
-                .discountPercentage(25d)
-                .discountStart(LocalDateTime.now())
-                .discountEnd(LocalDateTime.now().plusDays(10))
-                .build();
-
-        ProductDto expected = ProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .category(category.getName())
-                .hasDiscount(true)
-                .pricePerUnit(BigDecimal.valueOf(500))
-                .discountedPrice(BigDecimal.valueOf(375)) // 500 - (500 * 0.25)
-                .discountPercentage(product.getDiscountPercentage())
-                .discountStart(product.getDiscountStart())
-                .discountEnd(product.getDiscountEnd())
-                .build();
-
-        given(productMapper.mapToEntity(request)).willReturn(product);
-        given(categoryService.getCategoryById(anyLong())).willReturn(category);
-        given(productRepository.save(product)).willReturn(product);
-        given(productMapper.mapToDto(product)).willReturn(expected);
-
-        // when
-        ProductDto actual = productService.createProduct(category.getId(), request);
-
-        // then
-        then(actual).isNotNull();
-        then(actual).isEqualTo(expected);
-        then(product.isDiscountAvailable()).isEqualTo(true);
-        then(product.getDiscountedPrice()).isEqualByComparingTo(expected.discountedPrice());
-    }
-
-    @Test
-    void givenUpdateProductRequest_whenUpdated_returnUpdatedProductDto() {
-        // given
-        UUID productId = UUID.randomUUID();
-
-        UpdateProductRequest request = UpdateProductRequest.builder()
-                .name("RTX 3060")
-                .build();
-
-        Product existingProduct = Product.builder()
-                .id(productId)
-                .name("RTX 2060")
-                .build();
-
-        Product updatedProduct = Product.builder()
-                .id(productId)
-                .name(request.name())
-                .build();
-
-        ProductDto expected = ProductDto.builder()
-                .id(productId)
-                .name(updatedProduct.getName())
-                .build();
-
-        given(productRepository.findById(productId)).willReturn(Optional.of(existingProduct));
+        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(existingProduct));
         given(productRepository.save(any(Product.class))).willReturn(updatedProduct);
-        given(productMapper.mapToDto(updatedProduct)).willReturn(expected);
+        given(productMapper.mapToResponse(updatedProduct)).willReturn(expected);
 
         // when
-        ProductDto actual = productService.updateProduct(productId, request);
+        ProductResponse actual = productService.updateProduct(existingProduct.getId(), request);
 
         // then
         then(actual).isNotNull();
         then(actual).isEqualTo(expected);
+        verify(productRepository, times(1)).save(any(Product.class));
+        verify(productMapper, times(1)).mapToResponse(any(Product.class));
     }
 
     @Test
-    void givenProductId_whenProductFound_deleteProduct() {
+    void givenValidProductId_whenProductExists_thenDeleteExistingProduct() {
+        // given
+        Product product = ProductFactory.product();
+        given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
+
+        // when & then
+        productService.deleteProduct(product.getId());
+        verify(productRepository, times(1)).delete(product);
+        verify(productRepository).delete(argThat(p -> p.getId().equals(product.getId())));
+    }
+
+    @Test
+    void givenInvalidProductId_whenProductNotExists_thenThrowProductNotFoundException() {
         // given
         UUID productId = UUID.randomUUID();
+        given(productRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
-        Product product = Product.builder()
-                .id(productId)
-                .build();
+        // when & then
+        ProductNotFoundException ex = catchThrowableOfType(
+                () -> productService.deleteProduct(productId),
+                ProductNotFoundException.class
+        );
 
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
+        then(ex).isNotNull();
+        then(ex.getMessage()).isEqualTo(ErrorMessages.PRODUCT_NOT_FOUND.message(productId));
+        verify(productRepository, never()).delete(any(Product.class));
+    }
+
+    @Test
+    void givenProductIdAndQuantity_whenProductStockIsSufficient_thenNoExceptionThrown() {
+        // given
+        int initialStock = 1_000;
+        int requestedQuantity = 50;
+
+        Product product = ProductFactory.productWithStock(initialStock);
+        given(productRepository.findStockQuantityByProductId(any(UUID.class))).willReturn(initialStock);
+
+        // when & then
+        productService.checkStock(product.getId(), requestedQuantity);
+    }
+
+    @Test
+    void givenProductIdAndQuantity_whenProductStockIsInsufficient_thenThrowInsufficientStockException() {
+        // given
+        int initialStock = 10;
+        int requestedQuantity = 500;
+
+        Product product = ProductFactory.productWithStock(initialStock);
+        given(productRepository.findStockQuantityByProductId(any(UUID.class))).willReturn(initialStock);
+
+        // when & then
+        InsufficientStockException ex = catchThrowableOfType(
+                () -> productService.checkStock(product.getId(), requestedQuantity),
+                InsufficientStockException.class
+        );
+
+        then(ex).isNotNull();
+        then(ex.getMessage()).isEqualTo(ErrorMessages.INSUFFICIENT_STOCK.message(initialStock, requestedQuantity));
+    }
+
+    @Test
+    void givenProductIdAndValidQuantity_whenIncreaseStock_thenIncreaseProductStockSuccessfully() {
+        // given
+        int initialStock = 100_000;
+        int quantityToIncrease = 500;
+
+        Product product = ProductFactory.productWithStock(initialStock);
+        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(product));
 
         // when
-        productService.deleteProduct(productId);
+        productService.increaseStock(product.getId(), quantityToIncrease);
 
         // then
-        verify(productRepository, times(1)).delete(product);
-        verify(productRepository).delete(argThat(p -> p.getId().equals(productId)));
+        int expectedStock = initialStock + quantityToIncrease;
+        then(product.getStock()).isEqualTo(expectedStock);
+        verify(productRepository, times(1)).save(product);
+    }
+
+    @Test
+    void givenProductIdAndNegativeQuantity_whenIncreaseStock_thenThrowIllegalArgumentException() {
+        // given
+        int negativeQuantity = -10;
+        Product product = ProductFactory.productWithStock(100);
+
+        // when & then
+        IllegalArgumentException ex = catchThrowableOfType(
+                () -> productService.increaseStock(product.getId(), negativeQuantity),
+                IllegalArgumentException.class
+        );
+
+        then(ex).isNotNull();
+        verify(productRepository, never()).save(any(Product.class));
+    }
+
+    @Test
+    void givenProductIdAndValidQuantity_whenDecreaseStock_thenDecreaseProductStockSuccessfully() {
+        // given
+        int initialStock = 100_000;
+        int quantityToDecrease = 500;
+
+        Product product = ProductFactory.productWithStock(initialStock);
+        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(product));
+
+        // when
+        productService.decreaseStock(product.getId(), quantityToDecrease);
+
+        // then
+        int expectedStock = initialStock - quantityToDecrease;
+        then(product.getStock()).isEqualTo(expectedStock);
+        verify(productRepository, times(1)).save(product);
+    }
+
+    @Test
+    void givenProductIdAndInvalidQuantity_whenDecreaseStock_thenThrowInsufficientStockException() {
+        // given
+        int initialStock = 10;
+        int quantityToDecrease = 30;
+
+        Product product = ProductFactory.productWithStock(initialStock);
+        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(product));
+
+        // when & then
+        InsufficientStockException ex = catchThrowableOfType(
+                () -> productService.decreaseStock(product.getId(), quantityToDecrease),
+                InsufficientStockException.class
+        );
+
+        then(ex).isNotNull();
+        then(ex).hasMessageContaining(ErrorMessages.INSUFFICIENT_STOCK.message(initialStock, quantityToDecrease));
+        verify(productRepository, never()).save(any(Product.class));
+    }
+
+    @Test
+    void givenProductIdAndNegativeQuantity_whenDecreaseStock_thenThrowIllegalArgumentException() {
+        // given
+        int negativeQuantity = -10;
+        Product product = ProductFactory.productWithStock(100);
+
+        // when & then
+        IllegalArgumentException ex = catchThrowableOfType(
+                () -> productService.decreaseStock(product.getId(), negativeQuantity),
+                IllegalArgumentException.class
+        );
+
+        then(ex).isNotNull();
+        verify(productRepository, never()).save(any(Product.class));
     }
 
 }

@@ -7,36 +7,40 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Builder
+/**
+ * A request record to create a new product.
+ */
 public record CreateProductRequest(
-
-        @NotBlank(message = "Product name must not be blank or null")
+        
+        @NotBlank(message = "Product name cannot be blank. Please provide a valid product name.")
         String name,
 
-        @NotBlank(message = "Product description must not be blank or null")
+        @NotBlank(message = "Product description cannot be blank. Please provide a description.")
         String description,
 
-        @NotNull(message = "Price must not be null")
-        @PositiveOrZero(message = "Price must be zero or positive")
+        @NotNull(message = "Category ID is required. Please select a category for the product.")
+        Long categoryId,
+
+        @NotNull(message = "Stock quantity is required. Please provide the quantity in the stock.")
+        @Positive(message = "Stock quantity must be a positive number greater than zero.")
+        int stock,
+        
+        @NotNull(message = "Price is required. Please specify the product price.")
+        @PositiveOrZero(message = "Price must be zero or a positive number.")
         BigDecimal price,
 
-        @NotNull(message = "Stock quantity must not be null")
-        @Positive(message = "Stock quantity must be positive")
-        int quantity,
-
-        @Min(value = 0, message = "Discount percentage must be at least 0")
-        @Max(value = 100, message = "Discount percentage must be at most 100")
+        @Min(value = 0, message = "Discount percentage must be at least 0%.")
+        @Max(value = 100, message = "Discount percentage cannot exceed 100%.")
         Double discountPercentage,
 
-        @Future(message = "Discount start date must be in the future")
+        @Future(message = "Discount start date must be in the future. Please choose a valid start date.")
         LocalDateTime discountStart,
 
-        @Future(message = "Discount start date must be in the future")
+        @Future(message = "Discount start date must be in the future. Please choose a valid end date.")
         LocalDateTime discountEnd
 
 ) {}

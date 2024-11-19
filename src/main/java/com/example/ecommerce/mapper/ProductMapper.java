@@ -1,65 +1,48 @@
 package com.example.ecommerce.mapper;
 
-import com.example.ecommerce.payload.dto.ProductDto;
+import com.example.ecommerce.model.embeddable.Discount;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.model.ProductImage;
-import com.example.ecommerce.payload.request.product.CreateProductRequest;
 import com.example.ecommerce.payload.request.product.UpdateProductRequest;
+import com.example.ecommerce.payload.response.ProductResponse;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Component
-public class ProductMapper implements Mapper<Product, ProductDto> {
+public class ProductMapper implements Mapper<Product, ProductResponse> {
 
     @Override
-    public ProductDto mapToDto(@NonNull Product product) {
-        return new ProductDto(
+    public ProductResponse mapToResponse(@NonNull Product product) {
+        return new ProductResponse(
                 product.getId(),
                 product.getName(),
                 product.getCategory().getName(),
                 product.getDescription(),
-                product.getStockQuantity(),
+                product.getStock(),
                 product.getPrice(),
-                product.getDiscountedPrice(),
-                product.isDiscountAvailable(),
-                product.getDiscountPercentage(),
-                product.getDiscountStart(),
-                product.getDiscountEnd(),
-                product.getImages().isEmpty() ? Set.of() : product.getImages().stream()
-                        .map(ProductImage::getUrl).collect(Collectors.toSet())
+                product.getDiscount(),
+                product.getImages().stream().map(ProductImage::getUrl).toList()
         );
     }
 
-    public Product mapToEntity(@NonNull CreateProductRequest request) {
-        return Product.builder()
-                .name(request.name())
-                .description(request.description())
-                .price(request.price())
-                .stockQuantity(request.quantity())
-                .discountPercentage(request.discountPercentage())
-                .discountStart(request.discountStart())
-                .discountEnd(request.discountEnd())
-                .images(List.of())
-                .build();
-    }
-
-    public void updateProductFromDto(@NonNull UpdateProductRequest request, @NonNull Product existingProduct) {
+    public void updateProductFromRequest(@NonNull UpdateProductRequest request, @NonNull Product existingProduct) {
         existingProduct.setName(request.name());
         existingProduct.setDescription(request.description());
+        existingProduct.setStock(request.stock());
         existingProduct.setPrice(request.price());
-        existingProduct.setStockQuantity(request.quantity());
 
-        // Update discount related fields if they are provided
+        Discount discount = existingProduct.getDiscount();
+        if (discount == null) {
+            discount = new Discount();
+            existingProduct.setDiscount(discount);
+        }
+
         if (request.discountPercentage() != null)
-            existingProduct.setDiscountPercentage(request.discountPercentage());
+            discount.setPercentage(request.discountPercentage());
         if (request.discountStart() != null)
-            existingProduct.setDiscountStart(request.discountStart());
+            discount.setStart(request.discountStart());
         if (request.discountEnd() != null)
-            existingProduct.setDiscountEnd(request.discountEnd());
+            discount.setEnd(request.discountEnd());
     }
 
 }

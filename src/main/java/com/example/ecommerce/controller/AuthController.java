@@ -20,14 +20,26 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Authenticates a user and returns an authentication response.
+     *
+     * @param loginRequest the {@link LoginRequest} containing login credentials
+     * @return a {@link ResponseEntity} containing the {@link AuthResponse} with authentication details
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
 
+    /**
+     * Registers a new user and returns a response message.
+     *
+     * @param registrationRequest the {@link UserRegistrationRequest} containing user registration details
+     * @return a {@link ResponseEntity} containing a {@link MessageResponse} indicating success
+     */
     @PostMapping("/register")
-    public ResponseEntity<MessageResponse> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
-        return ResponseEntity.ok(authService.register(userRegistrationRequest));
+    public ResponseEntity<MessageResponse> register(@Valid @RequestBody UserRegistrationRequest registrationRequest) {
+        return ResponseEntity.ok(authService.register(registrationRequest));
     }
 
 }

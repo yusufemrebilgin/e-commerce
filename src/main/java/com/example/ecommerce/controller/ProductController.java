@@ -1,10 +1,9 @@
 package com.example.ecommerce.controller;
 
-import com.example.ecommerce.payload.dto.ProductDto;
-import com.example.ecommerce.payload.dto.ProductImageDto;
 import com.example.ecommerce.payload.request.product.CreateProductRequest;
 import com.example.ecommerce.payload.request.product.UpdateProductRequest;
 import com.example.ecommerce.payload.response.PaginatedResponse;
+import com.example.ecommerce.payload.response.ProductResponse;
 import com.example.ecommerce.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +11,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,69 +21,100 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/products/{productId}")
-    public ResponseEntity<?> getProduct(@PathVariable UUID productId) {
-        return ResponseEntity.ok(productService.getProduct(productId));
+    /**
+     * Retrieves a product by its unique identifier.
+     *
+     * @param productId then unique identifier of the product to be retrieved
+     * @return a {@link ResponseEntity} containing the {@link ProductResponse}
+     */
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID productId) {
+        return ResponseEntity.ok(productService.getProductById(productId));
     }
 
-    @GetMapping("/products")
-    public ResponseEntity<PaginatedResponse<ProductDto>> getAllProducts(@ParameterObject Pageable pageable) {
+    /**
+     * Retrieves all products with pagination.
+     *
+     * @param pageable pagination information
+     * @return a {@link ResponseEntity} containing a {@link PaginatedResponse} of {@link ProductResponse}
+     */
+    @GetMapping
+    public ResponseEntity<PaginatedResponse<ProductResponse>> getAllProducts(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
-    @GetMapping("/products/search")
-    public ResponseEntity<PaginatedResponse<ProductDto>> getAllProductsByName(
+    /**
+     * Retrieves products by their name with pagination.
+     *
+     * @param name the name of the products to search for
+     * @param pageable pagination information
+     * @return a {@link ResponseEntity} containing a {@link PaginatedResponse} of {@link ProductResponse}
+     */
+    @GetMapping("/search")
+    public ResponseEntity<PaginatedResponse<ProductResponse>> getAllProductsByName(
             @RequestParam String name, @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProductsByName(name, pageable));
     }
 
-    @GetMapping("/categories/{categoryId}/products")
-    public ResponseEntity<PaginatedResponse<ProductDto>> getAllProductsByCategory(
+    /**
+     * Retrieves products by category identifier with pagination.
+     *
+     * @param categoryId the unique identifier of the category
+     * @param pageable pagination information
+     * @return a {@link ResponseEntity} containing a {@link PaginatedResponse} of {@link ProductResponse}
+     */
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<PaginatedResponse<ProductResponse>> getAllProductsByCategoryId(
             @PathVariable Long categoryId, @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(productService.getAllProductsByCategory(categoryId, pageable));
+        return ResponseEntity.ok(productService.getAllProductsByCategoryId(categoryId, pageable));
     }
 
-    @PostMapping("/categories/{categoryId}/products")
-    public ResponseEntity<ProductDto> createProduct(@PathVariable Long categoryId,
-                                                    @Valid @RequestBody CreateProductRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(categoryId, request));
+    /**
+     * Creates a new product.
+     *
+     * @param request the {@link CreateProductRequest} containing the details of the product to be created
+     * @return a {@link ResponseEntity} containing the created {@link ProductResponse}
+     */
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody CreateProductRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(request));
     }
 
-    @PutMapping("/products/{productId}")
-    public ResponseEntity<ProductDto> updateProduct(@PathVariable UUID productId,
-                                                    @Valid @RequestBody UpdateProductRequest request) {
+    /**
+     * Updates an existing product.
+     *
+     * @param productId the unique identifier of the product to be updated
+     * @param request the {@link UpdateProductRequest} containing the updated details of the product
+     * @return a {@link ResponseEntity} containing the updated {@link ProductResponse}
+     */
+    @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable UUID productId, @Valid @RequestBody UpdateProductRequest request) {
         return ResponseEntity.ok(productService.updateProduct(productId, request));
     }
 
-    @DeleteMapping("/products/{productId}")
+    /**
+     * Deletes a product by its unique identifier.
+     *
+     * @param productId the unique identifier of the product to be deleted
+     * @return a {@link ResponseEntity} indicating the deletion was successful
+     */
+    @DeleteMapping("/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID productId) {
         productService.deleteProduct(productId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/products/{productId}/images")
-    public ResponseEntity<List<ProductImageDto>> uploadImage(@PathVariable UUID productId,
-                                                             @RequestParam("image") MultipartFile[] files) throws IOException {
-        return ResponseEntity.ok(productService.uploadProductImages(productId, files));
-    }
-
-    @DeleteMapping("/products/{productId}/images")
-    public ResponseEntity<Void> deleteImage(@PathVariable UUID productId,
-                                            @RequestBody List<String> filenames) {
-        productService.deleteProductImages(productId, filenames);
         return ResponseEntity.noContent().build();
     }
 

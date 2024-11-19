@@ -1,32 +1,34 @@
 package com.example.ecommerce.payload.request.address;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
 
-@Builder
+/**
+ * A request record to update an existing address.
+ */
 public record UpdateAddressRequest(
 
-        @NotBlank(message = "Title is required")
+        @NotBlank(message = "Address title is required. Please provide a title for the address.")
         String title,
 
-        @NotBlank(message = "Neighbourhood info is required")
+        @NotBlank(message = "Neighbourhood information is required. Please provide the neighbourhood.")
         String neighbourhood,
 
-        @NotBlank(message = "Street info is required")
+        @NotBlank(message = "Street information is required. Please provide the street name or number.")
         String street,
 
-        @NotBlank(message = "Building info is required")
+        @NotBlank(message = "Building information is required. Please provide the building name or number.")
         String building,
 
-        @NotBlank(message = "City info is required")
+        @NotBlank(message = "City is required. Please provide the city.")
         String city,
 
-        @NotBlank(message = "District info is required")
+        @NotBlank(message = "District is required. Please provide the district.")
         String district,
 
-        @NotBlank(message = "Postal code is required")
+        @NotBlank(message = "Postal code is required. Please provide a valid postal code.")
         String postalCode,
 
-        String addressDetails
+        String addressDetails // optional
+
 
 ) {}

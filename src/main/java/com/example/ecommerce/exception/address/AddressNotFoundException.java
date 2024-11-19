@@ -9,8 +9,8 @@ public class AddressNotFoundException extends NotFoundException {
         super(message);
     }
 
-    public AddressNotFoundException(Long id) {
-        super(ErrorMessages.ADDRESS_NOT_FOUND.message(id));
+    public AddressNotFoundException(Long addressId) {
+        super(ErrorMessages.ADDRESS_NOT_FOUND.message(addressId));
     }
 
 }

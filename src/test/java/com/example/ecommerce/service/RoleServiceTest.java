@@ -1,7 +1,6 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.constant.ErrorMessages;
-import com.example.ecommerce.exception.user.RoleNotFoundException;
+import com.example.ecommerce.exception.auth.RoleNotFoundException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.enums.RoleName;
 import com.example.ecommerce.repository.RoleRepository;
@@ -46,70 +45,66 @@ class RoleServiceTest {
     }
 
     @Test
-    void givenValidSetOfRoleNames_whenRolesFound_assignRoles() {
+    void givenValidSetOfRoleNames_whenAssignRoles_thenReturnSetOfRoles() {
         // given
         given(roleRepository.findByRoleName(ROLE_USER)).willReturn(Optional.of(userRole));
         given(roleRepository.findByRoleName(ROLE_ADMIN)).willReturn(Optional.of(adminRole));
 
-        Set<Role> expected = Set.of(userRole, adminRole);
+        // when
+        Set<Role> roles = roleService.assignRoles(roleNames);
 
-        // when & then
-        Set<Role> actual = roleService.assignRoles(roleNames);
-
-        then(actual).isNotNull();
-        then(actual).isEqualTo(expected);
-        then(actual).contains(userRole, adminRole);
+        // then
+        then(roles).isNotNull();
+        then(roles).contains(userRole, adminRole);
         verify(roleRepository, times(2)).findByRoleName(any(RoleName.class));
     }
 
     @Test
-    void givenValidSetOfRoleNames_whenRoleNotFound_throwRoleNotFoundException() {
+    void givenValidSetOfRoleNames_whenGivenRoleNotFound_thenThrowRoleNotFoundException() {
         // given
-        given(roleRepository.findByRoleName(ROLE_USER)).willReturn(Optional.of(userRole));
-        given(roleRepository.findByRoleName(ROLE_ADMIN)).willReturn(Optional.empty());
+        given(roleRepository.findByRoleName(ROLE_USER)).willReturn(Optional.empty());
 
         // when & then
         RoleNotFoundException ex = catchThrowableOfType(
-                () -> roleService.assignRoles(roleNames),
+                () -> roleService.assignRoles(Set.of(ROLE_USER)),
                 RoleNotFoundException.class
         );
 
         then(ex).isNotNull();
-        then(ex).hasMessage(ErrorMessages.ROLE_NOT_FOUND.message(ROLE_ADMIN));
-        verify(roleRepository, times(1)).findByRoleName(ROLE_USER);
-        verify(roleRepository, times(1)).findByRoleName(ROLE_ADMIN);
+        then(ex).hasMessageContaining(ROLE_USER.name());
+        verify(roleRepository, times(1)).findByRoleName(any(RoleName.class));
     }
 
     @Test
-    void givenEmptySetOfRoleNames_whenDefaultUserRoleFound_assignDefaultRole() {
+    void givenEmptySetOfRoleNames_whenDefaultRoleFound_thenAssignDefaultRole() {
         // given
         given(roleRepository.findByRoleName(ROLE_USER)).willReturn(Optional.of(userRole));
 
-        Set<Role> expected = Set.of(userRole);
+        // when
+        Set<Role> roles = roleService.assignDefaultRole();
 
-        // when & then
-        Set<Role> actual = roleService.assignDefaultRole();
-
-        then(actual).isNotNull();
-        then(actual).isEqualTo(expected);
-        then(actual).contains(userRole);
+        // then
+        then(roles).isNotNull();
+        then(roles).hasSize(1);
+        then(roles).contains(userRole);
         verify(roleRepository, times(1)).findByRoleName(any(RoleName.class));
     }
 
     @Test
-    void givenEmptySetOfRoleNames_whenDefaultUserRoleNotFound_createUserRoleAndAssign() {
+    void givenEmptySetOfRoleNames_whenDefaultRoleNotFound_thenCreateAndAssignDefaultRole() {
         // given
+        given(roleRepository.findByRoleName(ROLE_USER)).willReturn(Optional.empty());
         given(roleRepository.save(any(Role.class))).willReturn(userRole);
 
-        Set<Role> expected = Set.of(userRole);
+        // when
+        Set<Role> roles = roleService.assignDefaultRole();
 
-        // when & then
-        Set<Role> actual = roleService.assignDefaultRole();
-
-        then(actual).isNotNull();
-        then(actual).isEqualTo(expected);
-        then(actual).contains(userRole);
+        // then
+        then(roles).isNotNull();
+        then(roles).hasSize(1);
+        then(roles).contains(userRole);
         verify(roleRepository, times(1)).findByRoleName(any(RoleName.class));
+        verify(roleRepository, times(1)).save(any(Role.class));
     }
 
 }

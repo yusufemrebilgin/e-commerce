@@ -1,25 +1,24 @@
 package com.example.ecommerce.mapper;
 
-import com.example.ecommerce.payload.dto.CartItemDto;
 import com.example.ecommerce.model.CartItem;
+import com.example.ecommerce.payload.response.CartItemResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CartItemMapper implements Mapper<CartItem, CartItemDto> {
+public class CartItemMapper implements Mapper<CartItem, CartItemResponse> {
 
     private final ProductMapper productMapper;
 
     @Override
-    public CartItemDto mapToDto(@NonNull CartItem cartItem) {
-        return new CartItemDto(
+    public CartItemResponse mapToResponse(@NonNull CartItem cartItem) {
+        return new CartItemResponse(
                 cartItem.getId(),
-                productMapper.mapToDto(cartItem.getProduct()),
-                cartItem.getQuantity(),
-                cartItem.getTotalDiscountAmount(),
-                cartItem.getTotalPrice()
+                productMapper.mapToResponse(cartItem.getProduct()),
+                cartItem.getProductInfo(),
+                cartItem.getDiscountInfo()
         );
     }
 

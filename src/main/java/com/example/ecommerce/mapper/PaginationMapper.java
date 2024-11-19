@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 public final class PaginationMapper {
 
-    public <E, D> PaginatedResponse<D> toPaginatedResponse(Page<E> page, Mapper<E, D> mapper) {
+    public <E, R> PaginatedResponse<R> toPaginatedResponse(Page<E> page, Mapper<E, R> mapper) {
         return new PaginatedResponse<>(
-                page.getContent().stream().map(mapper::mapToDto).toList(),
+                page.getContent().stream().map(mapper::mapToResponse).toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalPages(),

@@ -1,8 +1,8 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.exception.user.EmailAlreadyInUseException;
-import com.example.ecommerce.exception.user.ForbiddenRoleAssignmentException;
-import com.example.ecommerce.exception.user.UsernameAlreadyTakenException;
+import com.example.ecommerce.exception.auth.EmailAlreadyInUseException;
+import com.example.ecommerce.exception.auth.ForbiddenRoleAssignmentException;
+import com.example.ecommerce.exception.auth.UsernameAlreadyTakenException;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.model.enums.RoleName;
@@ -19,6 +19,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +41,12 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
 
-
+    /**
+     * Authenticates a user and generates a JWT token.
+     *
+     * @param loginRequest request containing username and password
+     * @return {@link AuthResponse} containing JWT token and user roles
+     */
     public AuthResponse login(LoginRequest loginRequest) {
 
         UsernamePasswordAuthenticationToken token =
@@ -61,6 +68,15 @@ public class AuthService {
         );
     }
 
+    /**
+     * Register a new user in the system.
+     *
+     * @param userRegistrationRequest request containing user registration details
+     * @return {@link MessageResponse} indicating successful registration
+     * @throws UsernameAlreadyTakenException    if username is already taken
+     * @throws EmailAlreadyInUseException       if email is already in use
+     * @throws ForbiddenRoleAssignmentException if user attempts to assign a forbidden role
+     */
     public MessageResponse register(UserRegistrationRequest userRegistrationRequest) {
         if (userRepository.existsByUsername(userRegistrationRequest.username())) {
             throw new UsernameAlreadyTakenException();
@@ -99,6 +115,54 @@ public class AuthService {
         userRepository.save(user);
 
         return new MessageResponse("User registered successfully!");
+    }
+
+    /**
+     * Retrieves a user by their username.
+     *
+     * @param username username of the user to find
+     * @return found {@link User}
+     * @throws UsernameNotFoundException if user is not found by username
+     */
+    private User findUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    }
+
+    /**
+     * Retrieves currently authenticated user.
+     *
+     * @return {@link User} object of the authenticated user
+     * @throws IllegalStateException     if user is not authenticated
+     * @throws UsernameNotFoundException if user is not found by specified username
+     */
+    protected User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("User is not authenticated");
+        }
+
+        String username = null;
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else if (principal instanceof String) {
+            username = (String) principal;
+        }
+
+        return findUserByUsername(username);
+    }
+
+    /**
+     * Retrieves username of the currently authenticated user.
+     *
+     * @return username of the current user
+     * @throws IllegalStateException     if user is not authenticated
+     * @throws UsernameNotFoundException if user is not found by specified username
+     */
+    protected String getCurrentUsername() {
+        return getCurrentUser().getUsername();
     }
 
 }

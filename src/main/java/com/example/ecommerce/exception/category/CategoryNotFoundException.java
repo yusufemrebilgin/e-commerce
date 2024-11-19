@@ -5,8 +5,8 @@ import com.example.ecommerce.exception.NotFoundException;
 
 public class CategoryNotFoundException extends NotFoundException {
 
-    public CategoryNotFoundException(Long id) {
-        super(ErrorMessages.CATEGORY_NOT_FOUND.message(id));
+    public CategoryNotFoundException(Long categoryId) {
+        super(ErrorMessages.CATEGORY_NOT_FOUND.message(categoryId));
     }
 
 }
