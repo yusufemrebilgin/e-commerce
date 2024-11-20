@@ -7,7 +7,6 @@ spring:
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: update
   servlet:
