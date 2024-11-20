@@ -45,34 +45,34 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
 
 **Option 1: Using Maven**
 
-- Build the application:
+  **1:** Build the application:
   ```shell
   mvn clean install -DskipTests
   ```
 
-- Run the application:
+  **2.1:** Run the application:
   ```shell
   mvn spring-boot:run
   ```
 
-- Run the application with sample data:
+  **2.2:** Run the application with sample data:
   ```shell
   mvn spring-boot:run -Dspring-boot.run.arguments="--createDummyData=true"
   ```
 
 **Option 2: Using Docker Compose**
 
-- Define environment variables in the `.env` file:
+  **1:** Define environment variables in the `.env` file:
   ```
   DB_USERNAME=<database_username>
   DB_PASSWORD=<database_password>
   ```
 
-- Build and run the application:
+  **2.1:** Build and run the application:
   ```shell
   docker compose up --build
   ```
-- Build and run the application with sample data:
+  **2.2:** Build and run the application with sample data:
   ```shell
   CREATE_DUMMY_DATA=true docker compose up --build
   ```
@@ -94,7 +94,19 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
 
 ### Explore the Application
 
+- Default Credentials for the API:
+  
+  | **Username** | **Password** | **Role**         |
+  |--------------|--------------|------------------|
+  | admin        | adminpw      | ROLE_SUPER_ADMIN |
+  | testuser     | userpw       | ROLE_USER        |
+
 - API Documentation: http://localhost:8080/swagger-ui.html
+- Postman Collection: To test the API endpoints, 
+  download [collection](https://raw.githubusercontent.com/yusufemrebilgin/e-commerce/main/postman-collection/e-commerce.postman_collection.json) 
+  and [environment](https://raw.githubusercontent.com/yusufemrebilgin/e-commerce/main/postman-collection/e-commerce.postman_environment.json) 
+  files and import it into Postman for easy testing.
+  <br><br>
 - **Note:** The application runs on port `8080`. Make sure it is not being used by
   other services.
   <br><br>
@@ -103,8 +115,6 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
 - [Example Calls](#example-calls)
 
 ### Endpoints
-
-Base URL: `http://localhost:8080`
 
 - **AuthController**
 
@@ -179,3 +189,129 @@ Base URL: `http://localhost:8080`
   | `/api/v1/products/{productId}/images/delete-all` | DELETE     | Deletes all images associated with a specific product                             | ROLE_ADMIN          |
 
 ### Example Calls
+
+- Set base URL to `localhost:8080/api/v1`
+
+  ```shell
+  BASE_URL=localhost:8080/api/v1
+  ```
+
+- **POST** request to `localhost:8080/api/v1/auth/login`
+- Request:
+
+  ```shell
+  curl -X POST "${BASE_URL}/auth/login" \
+    -H 'Content-Type: application/json' \
+    -d '{"username": "testuser", "password": "userpw"}'
+  ```
+
+- Response:
+  ```json
+  {
+      "token": "eyJhbGciOiJIUzI1Ni...",
+      "expiresIn": 3600,
+      "roles": [
+          "ROLE_USER"
+      ]
+  }
+  ```
+  
+- **GET** request to `localhost:8080/api/v1/products/search?name=X&page=0&size=5`
+- Request:
+
+  ```shell
+  curl -X GET "${BASE_URL}/products/search?name=X&page=0&size=5" \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer ${TOKEN}"
+  ```
+
+- Response:
+
+  ```json
+  {
+      "content": [
+          {
+              "id": "530b6c02-d85b-4dd1-91c0-dc38f7f00f82",
+              "name": "Xiaomi Mi Pad 5",
+              "category": "Tablets",
+              "description": "Affordable tablet with 11-inch 120Hz display, Snapdragon 860, and MIUI for Pad interface.",
+              "stock": 60,
+              "price": 399.99,
+              "discount": {
+                  "percentage": 10.0,
+                  "start": "2024-11-25T00:00:00",
+                  "end": "2024-12-25T23:59:59"
+              },
+              "images": []
+          },
+          {
+              "id": "f821bed9-b03d-4b99-a067-bba18c32676f",
+              "name": "Xiaomi 13 Pro",
+              "category": "Smartphones",
+              "description": "Xiaomi's premium smartphone with 6.73-inch AMOLED display, Snapdragon 8 Gen 2, and Leica-powered 50MP camera.",
+              "stock": 90,
+              "price": 999.99,
+              "discount": {
+                  "percentage": 18.0,
+                  "start": "2024-11-20T00:00:00",
+                  "end": "2024-12-20T23:59:59"
+              },
+              "images": []
+          }
+      ],
+      "page": 0,
+      "size": 5,
+      "totalPages": 1,
+      "totalElements": 2,
+      "isLast": true
+  }
+  ```
+ 
+- **GET** request to `localhost:8080/api/v1/cart/current`
+- Request:
+
+  ```shell
+  curl -X GET "${BASE_URL}/cart/current" \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer ${TOKEN}" 
+  ```
+  
+- Response:
+
+  ```json
+  {
+    "cartId": 1,
+    "totalPrice": 799.99,
+    "items": [
+      {
+        "id": "00b8186e-a153-4990-93fe-3dbdca476756",
+        "product": {
+          "id": "01b111dd-a38c-409e-8da9-99c57a8abd4f",
+          "name": "Portable Laptop M3",
+          "category": "Laptops",
+          "description": "Compact and portable laptop with long battery life and sleek design.",
+          "stock": 35,
+          "price": 799.99,
+          "discount": {
+            "percentage": 7.5,
+            "start": "2025-11-10T00:00:00",
+            "end": "2025-11-30T23:59:59"
+          },
+          "images": []
+        },
+        "productInfo": {
+          "quantity": 1,
+          "unitPrice": 799.99,
+          "totalPrice": 799.99
+        },
+        "discountInfo": {
+          "discountApplied": false,
+          "discountPerItem": 0.00,
+          "totalDiscountAmount": 0.00,
+          "discountedUnitPrice": 0.00,
+          "discountedTotalPrice": 0.00
+        }
+      }
+    ]
+  }
+  ```
