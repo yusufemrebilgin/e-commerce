@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -104,6 +105,7 @@ public class OrderService {
         try {
             processOrderPayment(order, createOrderRequest.paymentMethod());
             updateProductStocks(order.getOrderItems(), productService::decreaseStock);
+            cartService.clearCart();
         } catch (PaymentFailedException ex) {
             order.setOrderStatus(OrderStatus.FAILED);
             log.error("Payment failed for order {}", order.getId());
@@ -151,7 +153,7 @@ public class OrderService {
 
         newOrder.setOrderItems(currentUserCart.getCartItems().stream()
                 .map(cartItem -> createNewOrderItemFromCartItem(newOrder, cartItem))
-                .toList());
+                .collect(Collectors.toList()));
 
         return newOrder;
     }
