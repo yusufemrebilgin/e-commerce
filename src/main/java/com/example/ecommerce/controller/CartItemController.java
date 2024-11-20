@@ -4,6 +4,7 @@ import com.example.ecommerce.payload.request.cart.CreateCartItemRequest;
 import com.example.ecommerce.payload.request.cart.UpdateCartItemRequest;
 import com.example.ecommerce.payload.response.CartItemResponse;
 import com.example.ecommerce.service.CartItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class CartItemController {
      * @return a {@link ResponseEntity} containing the {@link CartItemResponse} of the added item
      */
     @PostMapping
-    public ResponseEntity<CartItemResponse> addItemToCart(@RequestBody CreateCartItemRequest request) {
+    public ResponseEntity<CartItemResponse> addItemToCart(@Valid @RequestBody CreateCartItemRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItemService.addItemToCart(request));
     }
 
@@ -45,7 +46,7 @@ public class CartItemController {
      * @return a {@link ResponseEntity} containing the updated {@link CartItemResponse}
      */
     @PutMapping("/{itemId}")
-    public ResponseEntity<CartItemResponse> updateItemQuantity(@PathVariable UUID itemId, UpdateCartItemRequest request) {
+    public ResponseEntity<CartItemResponse> updateItemQuantity(@PathVariable UUID itemId, @Valid @RequestBody UpdateCartItemRequest request) {
         return ResponseEntity.ok(cartItemService.updateItemQuantityInCart(itemId, request));
     }
 
