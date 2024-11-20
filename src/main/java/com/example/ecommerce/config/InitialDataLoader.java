@@ -32,7 +32,8 @@ public class InitialDataLoader {
     CommandLineRunner loadInitialData() {
         return args -> {
             loadDefaultRoles();
-            loadSuperAdminAccount();
+            loadUserAccount("Super Administrator", "admin", "adminpw", ROLE_SUPER_ADMIN);
+            loadUserAccount("Test User", "testuser", "userpw", ROLE_USER);
         };
     }
 
@@ -46,27 +47,26 @@ public class InitialDataLoader {
         }
     }
 
-    private void loadSuperAdminAccount() {
-        final String username = "admin";
-        final String password = "adminpw";
-        if (!userRepository.existsByUsername(username)) {
-            Role role = roleRepository.findByRoleName(ROLE_SUPER_ADMIN)
-                    .orElseThrow(() -> new RoleNotFoundException(ROLE_SUPER_ADMIN.name()));
-
-            User admin = User.builder()
-                    .name(username)
-                    .username(username)
-                    .password(passwordEncoder.encode(password))
-                    .email(username.concat("@example.com"))
-                    .roles(Set.of(role))
-                    .build();
-
-            userRepository.save(admin);
-            logger.info("Super administrator account created with [u: {}, p: {}]", username, password);
-            logger.info("Note: This account created for testing purposes only. Please change it later.");
-        } else {
-            logger.info("Super administrator account already exists for testing purposes");
+    private void loadUserAccount(String title, String username, String password, RoleName roleName) {
+        if (userRepository.existsByUsername(username)) {
+            logger.info("{} account already exists for testing purposes", title);
+            return;
         }
+
+        // Getting role for the test account
+        Role r = roleRepository.findByRoleName(roleName).orElseThrow(() -> new RoleNotFoundException(roleName.name()));
+
+        User testUser = User.builder()
+                .name(username)
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .email(username.concat("@example.com"))
+                .roles(Set.of(r))
+                .build();
+
+        userRepository.save(testUser);
+        logger.info("'{}' account created with [u: {}, p: {}]", title, username, password);
+        logger.warn("Note: This account created for testing purposes only. Please change it later.");
     }
 
 }
