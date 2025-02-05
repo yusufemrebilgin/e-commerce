@@ -1,15 +1,16 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.exception.category.CategoryNotFoundException;
+import com.example.ecommerce.category.exception.CategoryNotFoundException;
 import com.example.ecommerce.factory.CategoryFactory;
-import com.example.ecommerce.mapper.CategoryMapper;
-import com.example.ecommerce.mapper.PaginationMapper;
-import com.example.ecommerce.model.Category;
-import com.example.ecommerce.payload.request.category.CreateCategoryRequest;
-import com.example.ecommerce.payload.request.category.UpdateCategoryRequest;
-import com.example.ecommerce.payload.response.CategoryResponse;
-import com.example.ecommerce.payload.response.PaginatedResponse;
-import com.example.ecommerce.repository.CategoryRepository;
+import com.example.ecommerce.category.mapper.CategoryMapper;
+import com.example.ecommerce.shared.mapper.PaginationMapper;
+import com.example.ecommerce.category.model.Category;
+import com.example.ecommerce.category.payload.request.CreateCategoryRequest;
+import com.example.ecommerce.category.payload.request.UpdateCategoryRequest;
+import com.example.ecommerce.category.payload.response.CategoryResponse;
+import com.example.ecommerce.shared.payload.PaginatedResponse;
+import com.example.ecommerce.category.repository.CategoryRepository;
+import com.example.ecommerce.category.service.CategoryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -1,6 +1,6 @@
 package com.example.ecommerce.factory;
 
-import com.example.ecommerce.model.User;
+import com.example.ecommerce.auth.model.User;
 
 public final class UserFactory {
 

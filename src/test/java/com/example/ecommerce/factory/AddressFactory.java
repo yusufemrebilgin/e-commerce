@@ -1,11 +1,11 @@
 package com.example.ecommerce.factory;
 
-import com.example.ecommerce.model.Address;
-import com.example.ecommerce.model.embeddable.Area;
-import com.example.ecommerce.model.embeddable.Location;
-import com.example.ecommerce.payload.request.address.CreateAddressRequest;
-import com.example.ecommerce.payload.request.address.UpdateAddressRequest;
-import com.example.ecommerce.payload.response.AddressResponse;
+import com.example.ecommerce.address.model.Address;
+import com.example.ecommerce.address.model.embeddable.Area;
+import com.example.ecommerce.address.model.embeddable.Location;
+import com.example.ecommerce.address.payload.request.CreateAddressRequest;
+import com.example.ecommerce.address.payload.request.UpdateAddressRequest;
+import com.example.ecommerce.address.payload.response.AddressResponse;
 
 public final class AddressFactory {
 

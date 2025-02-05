@@ -1,9 +1,10 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.exception.auth.RoleNotFoundException;
-import com.example.ecommerce.model.Role;
-import com.example.ecommerce.model.enums.RoleName;
-import com.example.ecommerce.repository.RoleRepository;
+import com.example.ecommerce.auth.exception.RoleNotFoundException;
+import com.example.ecommerce.auth.model.Role;
+import com.example.ecommerce.auth.model.enums.RoleName;
+import com.example.ecommerce.auth.repository.RoleRepository;
+import com.example.ecommerce.auth.service.RoleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.example.ecommerce.model.enums.RoleName.ROLE_ADMIN;
-import static com.example.ecommerce.model.enums.RoleName.ROLE_USER;
+import static com.example.ecommerce.auth.model.enums.RoleName.ROLE_ADMIN;
+import static com.example.ecommerce.auth.model.enums.RoleName.ROLE_USER;
 import static org.assertj.core.api.BDDAssertions.catchThrowableOfType;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;

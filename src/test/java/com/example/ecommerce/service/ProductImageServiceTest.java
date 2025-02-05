@@ -1,14 +1,16 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.constant.ErrorMessages;
-import com.example.ecommerce.exception.productimage.ProductImageNotFoundException;
-import com.example.ecommerce.exception.product.ProductNotFoundException;
-import com.example.ecommerce.exception.productimage.EmptyFileException;
-import com.example.ecommerce.exception.productimage.InvalidFileTypeException;
+import com.example.ecommerce.shared.constant.ErrorMessages;
+import com.example.ecommerce.product.exception.ProductImageNotFoundException;
+import com.example.ecommerce.product.exception.ProductNotFoundException;
+import com.example.ecommerce.product.exception.EmptyFileException;
+import com.example.ecommerce.product.exception.InvalidFileTypeException;
 import com.example.ecommerce.factory.ProductImageFactory;
-import com.example.ecommerce.model.ProductImage;
-import com.example.ecommerce.payload.response.ProductImageResponse;
-import com.example.ecommerce.repository.ProductImageRepository;
+import com.example.ecommerce.product.model.ProductImage;
+import com.example.ecommerce.product.payload.response.ProductImageResponse;
+import com.example.ecommerce.product.repository.ProductImageRepository;
+import com.example.ecommerce.product.service.ProductImageService;
+import com.example.ecommerce.product.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

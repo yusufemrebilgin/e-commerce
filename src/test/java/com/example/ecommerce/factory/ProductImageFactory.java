@@ -1,6 +1,6 @@
 package com.example.ecommerce.factory;
 
-import com.example.ecommerce.model.ProductImage;
+import com.example.ecommerce.product.model.ProductImage;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -1,7 +1,7 @@
 package com.example.ecommerce.factory;
 
-import com.example.ecommerce.model.Category;
-import com.example.ecommerce.payload.response.CategoryResponse;
+import com.example.ecommerce.category.model.Category;
+import com.example.ecommerce.category.payload.response.CategoryResponse;
 
 import java.util.ArrayList;
 import java.util.List;

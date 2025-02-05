@@ -1,11 +1,11 @@
 package com.example.ecommerce.factory;
 
-import com.example.ecommerce.model.Product;
-import com.example.ecommerce.model.ProductImage;
-import com.example.ecommerce.model.embeddable.Discount;
-import com.example.ecommerce.payload.request.product.CreateProductRequest;
-import com.example.ecommerce.payload.request.product.UpdateProductRequest;
-import com.example.ecommerce.payload.response.ProductResponse;
+import com.example.ecommerce.product.model.Product;
+import com.example.ecommerce.product.model.ProductImage;
+import com.example.ecommerce.product.model.embeddable.Discount;
+import com.example.ecommerce.product.payload.request.CreateProductRequest;
+import com.example.ecommerce.product.payload.request.UpdateProductRequest;
+import com.example.ecommerce.product.payload.response.ProductResponse;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
