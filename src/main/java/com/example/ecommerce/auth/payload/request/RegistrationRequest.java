@@ -5,13 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
-import java.util.Set;
-
 /**
  * A request record to register a new user.
  */
 @Builder
-public record UserRegistrationRequest(
+public record RegistrationRequest(
 
         @Size(max = 100, message = "Name must be at most 100 characters long.")
         @NotBlank(message = "Name is required. Please provide a valid name.")
@@ -29,6 +27,6 @@ public record UserRegistrationRequest(
         @NotBlank(message = "Email is required. Please provide a valid email.")
         String email,
 
-        Set<String> roles
+        String role
 
 ) {}

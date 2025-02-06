@@ -15,8 +15,9 @@ spring:
       max-request-size: 10MB
 
 jwt:
-  secret: aGJrZnJrZ2F334a3fE5MjY0NTYwOTMxMjM0NTYwOTMzMjM0NTYwOTMz
-  expirationMs: 3600000
+  secret: INWG58RSNWQY0UHVKR9QTK72MRZHARGQXV0YO2VLPRY=
+  accessExpInMs: 900000           # 1000*60*15              15 min
+  refreshExpInMs: 604800000       # 1000*60*60*24*7          7 day
 
 springdoc:
   swagger-ui:

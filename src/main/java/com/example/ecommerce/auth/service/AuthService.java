@@ -3,166 +3,54 @@ package com.example.ecommerce.auth.service;
 import com.example.ecommerce.auth.exception.EmailAlreadyInUseException;
 import com.example.ecommerce.auth.exception.ForbiddenRoleAssignmentException;
 import com.example.ecommerce.auth.exception.UsernameAlreadyTakenException;
-import com.example.ecommerce.auth.model.Role;
-import com.example.ecommerce.auth.model.User;
-import com.example.ecommerce.auth.model.enums.RoleName;
 import com.example.ecommerce.auth.payload.request.LoginRequest;
-import com.example.ecommerce.auth.payload.request.UserRegistrationRequest;
-import com.example.ecommerce.auth.payload.response.AuthResponse;
-import com.example.ecommerce.shared.payload.MessageResponse;
-import com.example.ecommerce.auth.repository.UserRepository;
-import com.example.ecommerce.auth.security.CustomUserDetails;
-import com.example.ecommerce.auth.security.jwt.JwtUtils;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import com.example.ecommerce.auth.payload.request.RegistrationRequest;
+import com.example.ecommerce.auth.payload.response.TokenResponse;
+import org.springframework.security.core.AuthenticationException;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.example.ecommerce.auth.model.enums.RoleName.ROLE_ADMIN;
-import static com.example.ecommerce.auth.model.enums.RoleName.ROLE_SUPER_ADMIN;
-
-@Service
-@RequiredArgsConstructor
-public class AuthService {
-
-    private final JwtUtils jwtUtils;
-    private final RoleService roleService;
-    private final PasswordEncoder encoder;
-    private final UserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
+/**
+ * Service interface for authentication-related operations such as login, registration, and logout.
+ * This service handles user authentication, role-based access control, and token management.
+ * <p>
+ * It provides methods for logging in users, registering new users with role validation, and managing user sessions
+ * by issuing and revoking tokens.
+ */
+public interface AuthService {
 
     /**
-     * Authenticates a user and generates a JWT token.
+     * Authenticates a user and returns an authentication response.
      *
-     * @param loginRequest request containing username and password
-     * @return {@link AuthResponse} containing JWT token and user roles
+     * @param loginRequest the {@link LoginRequest} containing login credentials
+     * @return a {@link TokenResponse} containing the generated token pair for the authenticated user
+     * @throws AuthenticationException if authentication fails due to invalid credentials
      */
-    public AuthResponse login(LoginRequest loginRequest) {
-
-        UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password());
-
-        Authentication auth = authenticationManager.authenticate(token);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        Map<String, Object> jwt = jwtUtils.generateTokenFromUsername(userDetails);
-
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
-        return new AuthResponse(
-                (String) jwt.get("token"),
-                (Integer) jwt.get("expiresIn"),
-                roles
-        );
-    }
+    TokenResponse login(LoginRequest loginRequest);
 
     /**
-     * Register a new user in the system.
+     * Registers a new user and assigns them a role based on the provided registration request.
+     * If the role is `ROLE_ADMIN` or `ROLE_SUPER_ADMIN`, the request is validated to ensure that only a super admin
+     * can assign such roles.
      *
-     * @param userRegistrationRequest request containing user registration details
-     * @return {@link MessageResponse} indicating successful registration
-     * @throws UsernameAlreadyTakenException    if username is already taken
-     * @throws EmailAlreadyInUseException       if email is already in use
-     * @throws ForbiddenRoleAssignmentException if user attempts to assign a forbidden role
+     * @param registrationRequest the {@link RegistrationRequest} containing user details and role
+     * @return a {@link TokenResponse} containing the generated token pair for the newly registered user
+     * @throws UsernameAlreadyTakenException    if the username already exists in the database
+     * @throws EmailAlreadyInUseException       if the email address is already registered
+     * @throws ForbiddenRoleAssignmentException if the user attempting to assign a restricted role (e.g., admin)
      */
-    public MessageResponse register(UserRegistrationRequest userRegistrationRequest) {
-        if (userRepository.existsByUsername(userRegistrationRequest.username())) {
-            throw new UsernameAlreadyTakenException();
-        }
-
-        if (userRepository.existsByEmail(userRegistrationRequest.email())) {
-            throw new EmailAlreadyInUseException();
-        }
-
-        Set<RoleName> givenRoles = RoleName.fromStrings(userRegistrationRequest.roles());
-
-        User user = User.builder()
-                .name(userRegistrationRequest.name())
-                .username(userRegistrationRequest.username())
-                .password(encoder.encode(userRegistrationRequest.password()))
-                .email(userRegistrationRequest.email())
-                .build();
-
-        if (givenRoles.contains(ROLE_ADMIN) || givenRoles.contains(ROLE_SUPER_ADMIN)) {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            CustomUserDetails currentUser = (CustomUserDetails) auth.getPrincipal();
-
-            boolean isSuperAdmin = currentUser.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals(ROLE_SUPER_ADMIN.name()));
-
-            if (!isSuperAdmin) {
-                throw new ForbiddenRoleAssignmentException();
-            }
-        }
-
-        Set<Role> roles = givenRoles.isEmpty()
-                ? roleService.assignDefaultRole()
-                : roleService.assignRoles(givenRoles);
-
-        user.setRoles(roles);
-        userRepository.save(user);
-
-        return new MessageResponse("User registered successfully!");
-    }
+    TokenResponse register(RegistrationRequest registrationRequest);
 
     /**
-     * Retrieves a user by their username.
+     * Logs out the user by revoking their refresh token and clearing the security context.
      *
-     * @param username username of the user to find
-     * @return found {@link User}
-     * @throws UsernameNotFoundException if user is not found by username
+     * @param refreshToken the refresh token used to invalidate the session
      */
-    private User findUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-    }
+    void logout(String refreshToken);
 
     /**
-     * Retrieves currently authenticated user.
+     * Logs out the user by revoking all tokens associated with their username and clearing the security context.
      *
-     * @return {@link User} object of the authenticated user
-     * @throws IllegalStateException     if user is not authenticated
-     * @throws UsernameNotFoundException if user is not found by specified username
+     * @param authenticatedUsername the username of the user whose tokens are to be revoked
      */
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("User is not authenticated");
-        }
-
-        String username = null;
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else if (principal instanceof String) {
-            username = (String) principal;
-        }
-
-        return findUserByUsername(username);
-    }
-
-    /**
-     * Retrieves username of the currently authenticated user.
-     *
-     * @return username of the current user
-     * @throws IllegalStateException     if user is not authenticated
-     * @throws UsernameNotFoundException if user is not found by specified username
-     */
-    public String getCurrentUsername() {
-        return getCurrentUser().getUsername();
-    }
+    void logoutAll(String authenticatedUsername);
 
 }
