@@ -1,7 +1,6 @@
 package com.example.ecommerce.shared.exception;
 
-import com.example.ecommerce.shared.payload.ErrorDetails;
-import com.example.ecommerce.shared.payload.SimpleErrorResponse;
+import com.example.ecommerce.shared.payload.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -21,51 +20,91 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.HashMap;
+import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
+/**
+ * GlobalExceptionHandler is a centralized exception handler for the application.
+ * It handles various types of exceptions thrown during request processing.
+ * <p>
+ * For each exception, the handler logs detailed information about the error, including the request details,
+ * the authenticated user (if available), status code, exception message, and the stack trace.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ApplicationException.class)
-    public ResponseEntity<SimpleErrorResponse> handleApplicationException(ApplicationException ex, WebRequest request) {
-        // Logging the request details, current user, status and exception message with stack trace
-        log.error(
-                "Exception occurred at endpoint: {} - User: {} - Status: {} - Error: {}",
+    public ResponseEntity<ErrorResponse> handleApplicationException(ApplicationException ex, WebRequest request) {
+        // Logging the request details, current username, status and exception message with stack trace
+        logger.error(
+                "Exception occurred at endpoint: '{}' - User: '{}' - Status: '{}' - Error: '{}'",
                 request.getDescription(false),
-                getCurrentUser(),
+                getCurrentUsername(),
                 ex.getStatus(),
                 ex.getMessage(),
                 ex
         );
-        return buildSimpleErrorResponse(ex.getStatus(), ex.getMessage());
+
+        return buildApplicationErrorResponse(ex, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<SimpleErrorResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
-        log.error("Access denied. User `{}` tried to access: {}", getCurrentUser(), request.getDescription(false));
-        return buildSimpleErrorResponse(FORBIDDEN, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+
+        logger.error(
+                "User '{}' attempted to unauthorized access to '{}' - Error: '{}'",
+                getCurrentUsername(),
+                request.getDescription(false),
+                ex.getMessage(),
+                ex
+        );
+
+        return buildErrorResponse(FORBIDDEN, ex, request);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<SimpleErrorResponse> handleGenericException(Exception ex) {
-        log.error("Unhandled Exception: {}", ex.getMessage(), ex);
-        return buildSimpleErrorResponse(INTERNAL_SERVER_ERROR, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
+
+        logger.error(
+                "An unexpected error occurred at endpoint '{}' for user '{}' - Error: '{}'",
+                request.getDescription(false),
+                getCurrentUsername(),
+                ex.getMessage(),
+                ex
+        );
+
+        return buildErrorResponse(INTERNAL_SERVER_ERROR, ex, request);
     }
 
     @Override
-    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(@NonNull MaxUploadSizeExceededException ex,
-                                                                          @NonNull HttpHeaders headers,
-                                                                          @NonNull HttpStatusCode status,
-                                                                          @NonNull WebRequest request) {
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+            @NonNull MaxUploadSizeExceededException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request
+    ) {
 
-        log.error("File size exceeds the maximum allowed limit for current request");
-        SimpleErrorResponse errorResponse = new SimpleErrorResponse(PAYLOAD_TOO_LARGE, ex.getMessage());
+        logger.error(
+                "File size exceeds the maximum allowed limit for current endpoint: '{}' - User: '{}' - Error: '{}'",
+                request.getDescription(false),
+                getCurrentUsername(),
+                ex.getMessage(),
+                ex
+        );
+
+        ErrorResponse errorResponse = ErrorResponse.of(
+                ex,
+                PAYLOAD_TOO_LARGE,
+                request.getDescription(false)
+        );
+
         return new ResponseEntity<>(errorResponse, PAYLOAD_TOO_LARGE);
+
     }
 
     @Override
@@ -73,42 +112,55 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   @NonNull HttpHeaders headers,
                                                                   @NonNull HttpStatusCode status,
                                                                   @NonNull WebRequest request) {
-        log.error("Validation failed: {}", ex.getMessage());
 
-        Map<String, String> validationErrors = new HashMap<>();
-        ex.getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            validationErrors.put(fieldName, errorMessage);
-        });
-
-        ErrorDetails errorDetails = new ErrorDetails(
+        logger.error(
+                "Validation failed at endpoint: '{}' - User: '{}' - Status: '{}' - Error: '{}'",
+                request.getDescription(false),
+                getCurrentUsername(),
                 BAD_REQUEST,
-                "Validation Failed",
-                validationErrors
+                ex.getClass().getSimpleName(),
+                ex
         );
 
-        return new ResponseEntity<>(errorDetails, BAD_REQUEST);
+        String timestamp = Instant.now().toString();
+
+        List<ErrorResponse> errors = ex.getAllErrors().stream()
+                .map(error -> new ErrorResponse(
+                        null,
+                        String.format("Validation failed for field [%s]", ((FieldError) error).getField()),
+                        error.getDefaultMessage(),
+                        request.getDescription(false),
+                        timestamp
+                )).toList();
+
+        return new ResponseEntity<>(Map.of("errors", errors), BAD_REQUEST);
     }
 
-    private ResponseEntity<SimpleErrorResponse> buildSimpleErrorResponse(HttpStatus status, String message) {
-        return new ResponseEntity<>(
-                new SimpleErrorResponse(status, message),
-                status
-        );
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, Exception ex, WebRequest request) {
+        return new ResponseEntity<>(ErrorResponse.of(ex, status, request.getDescription(false)), status);
     }
 
-    private String getCurrentUser() {
+    private ResponseEntity<ErrorResponse> buildApplicationErrorResponse(ApplicationException ex, WebRequest request) {
+        return new ResponseEntity<>(ErrorResponse.of(ex, request), ex.getStatus());
+    }
+
+    /**
+     * Retrieves the username of the currently authenticated user.
+     *
+     * @return the username if authenticated, otherwise "anonymousUser"
+     */
+    private String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                return ((UserDetails) principal).getUsername();
-            } else if (principal instanceof String) {
-                return principal.toString();
-            }
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "anonymousUser";
         }
-        return "Anonymous"; // Return "Anonymous" for unauthenticated users
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+
+        return "anonymousUser";
     }
 
 }
