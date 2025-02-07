@@ -5,39 +5,29 @@ import com.example.ecommerce.address.model.embeddable.Area;
 import com.example.ecommerce.address.model.embeddable.Location;
 import com.example.ecommerce.address.payload.request.UpdateAddressRequest;
 import com.example.ecommerce.address.payload.response.AddressResponse;
-import com.example.ecommerce.shared.mapper.Mapper;
+import com.example.ecommerce.shared.mapper.GenericMapper;
 import lombok.NonNull;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class AddressMapper implements Mapper<Address, AddressResponse> {
+@Mapper(componentModel = "spring")
+public interface AddressMapper extends GenericMapper<Address, AddressResponse> {
 
-    @Override
-    public AddressResponse mapToResponse(@NonNull Address address) {
-        return new AddressResponse(
-                address.getId(),
-                address.getTitle(),
-                address.getArea(),
-                address.getLocation()
-        );
-    }
+    default void updateAddressFromRequest(@NonNull UpdateAddressRequest request, @NonNull Address address) {
+        address.setTitle(request.title());
 
-    public void updateAddressFromRequest(@NonNull UpdateAddressRequest request, @NonNull Address existingAddress) {
-        existingAddress.setTitle(request.title());
-
-        Area area = existingAddress.getArea();
+        Area area = address.getArea();
         if (area == null) {
             area = new Area();
-            existingAddress.setArea(area);
+            address.setArea(area);
         }
         area.setCity(request.city());
         area.setDistrict(request.district());
         area.setPostalCode(request.postalCode());
 
-        Location location = existingAddress.getLocation();
+        Location location = address.getLocation();
         if (location == null) {
             location = new Location();
-            existingAddress.setLocation(location);
+            address.setLocation(location);
         }
         location.setNeighbourhood(request.neighbourhood());
         location.setStreet(request.street());

@@ -3,7 +3,7 @@ package com.example.ecommerce.address.model;
 import com.example.ecommerce.address.model.embeddable.Area;
 import com.example.ecommerce.address.model.embeddable.Location;
 import com.example.ecommerce.auth.model.User;
-import com.example.ecommerce.shared.audit.BaseEntity;
+import com.example.ecommerce.shared.audit.Auditable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,7 +22,7 @@ import lombok.Setter;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Address extends BaseEntity {
+public class Address extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,8 +1,8 @@
 package com.example.ecommerce.shared.config;
 
 import com.example.ecommerce.category.payload.request.CreateCategoryRequest;
-import com.example.ecommerce.product.payload.request.CreateProductRequest;
 import com.example.ecommerce.category.service.CategoryService;
+import com.example.ecommerce.product.payload.request.CreateProductRequest;
 import com.example.ecommerce.product.service.ProductService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

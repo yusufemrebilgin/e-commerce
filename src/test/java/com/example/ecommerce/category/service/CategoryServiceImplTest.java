@@ -1,16 +1,14 @@
-package com.example.ecommerce.service;
+package com.example.ecommerce.category.service;
 
+import com.example.ecommerce.category.factory.CategoryFactory;
 import com.example.ecommerce.category.exception.CategoryNotFoundException;
-import com.example.ecommerce.factory.CategoryFactory;
 import com.example.ecommerce.category.mapper.CategoryMapper;
-import com.example.ecommerce.shared.mapper.PaginationMapper;
 import com.example.ecommerce.category.model.Category;
 import com.example.ecommerce.category.payload.request.CreateCategoryRequest;
 import com.example.ecommerce.category.payload.request.UpdateCategoryRequest;
 import com.example.ecommerce.category.payload.response.CategoryResponse;
-import com.example.ecommerce.shared.payload.PaginatedResponse;
 import com.example.ecommerce.category.repository.CategoryRepository;
-import com.example.ecommerce.category.service.CategoryService;
+import com.example.ecommerce.shared.payload.PaginatedResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,19 +32,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CategoryServiceTest {
+class CategoryServiceImplTest {
 
     @InjectMocks
-    CategoryService categoryService;
+    CategoryServiceImpl categoryService;
 
     @Mock
     CategoryRepository categoryRepository;
 
     @Mock
     CategoryMapper categoryMapper;
-
-    @Mock
-    PaginationMapper paginationMapper;
 
     @ParameterizedTest
     @CsvSource({
@@ -76,7 +71,7 @@ class CategoryServiceTest {
         );
 
         given(categoryRepository.findAll(any(Pageable.class))).willReturn(categoryPage);
-        given(paginationMapper.toPaginatedResponse(categoryPage, categoryMapper)).willReturn(expected);
+        given(categoryMapper.mapToPaginatedResponse(categoryPage)).willReturn(expected);
 
         // when
         PaginatedResponse<CategoryResponse> actual = categoryService.getAllCategories(PageRequest.of(page, size));
@@ -92,7 +87,7 @@ class CategoryServiceTest {
         }
 
         verify(categoryRepository, times(1)).findAll(any(Pageable.class));
-        verify(paginationMapper, times(1)).toPaginatedResponse(categoryPage, categoryMapper);
+        verify(categoryMapper, times(1)).mapToPaginatedResponse(categoryPage);
     }
 
     @Test
@@ -102,9 +97,9 @@ class CategoryServiceTest {
         given(categoryRepository.findById(anyLong())).willReturn(Optional.of(expected));
 
         // when
-        Category actual = categoryService.getCategoryById(expected.getId());
+        Category actual = categoryService.findCategoryEntityById(expected.getId());
 
-        // getProductImage
+        // then
         then(actual).isNotNull();
         then(actual).isEqualTo(expected);
     }
@@ -117,8 +112,8 @@ class CategoryServiceTest {
 
         // when
         CategoryNotFoundException ex = catchThrowableOfType(
-                () -> categoryService.getCategoryById(categoryId),
-                CategoryNotFoundException.class
+                CategoryNotFoundException.class,
+                () -> categoryService.findCategoryEntityById(categoryId)
         );
 
         // then

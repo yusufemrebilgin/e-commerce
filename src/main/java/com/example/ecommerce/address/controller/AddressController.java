@@ -34,8 +34,8 @@ public class AddressController {
      * @return a {@link ResponseEntity} containing a list of {@link AddressResponse}
      */
     @GetMapping
-    public ResponseEntity<List<AddressResponse>> getAllAddresses() {
-        return ResponseEntity.ok(addressService.getAllAddresses());
+    public ResponseEntity<List<AddressResponse>> getAllAddressesForUser() {
+        return ResponseEntity.ok(addressService.getAllAddressesForUser());
     }
 
     /**
@@ -58,7 +58,9 @@ public class AddressController {
      */
     @PutMapping("/{addressId}")
     public ResponseEntity<AddressResponse> updateAddress(
-            @PathVariable Long addressId, @Valid @RequestBody UpdateAddressRequest request) {
+            @PathVariable Long addressId,
+            @Valid @RequestBody UpdateAddressRequest request
+    ) {
         return ResponseEntity.ok(addressService.updateAddress(addressId, request));
     }
 

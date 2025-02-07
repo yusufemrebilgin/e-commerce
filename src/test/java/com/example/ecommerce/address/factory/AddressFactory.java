@@ -1,4 +1,4 @@
-package com.example.ecommerce.factory;
+package com.example.ecommerce.address.factory;
 
 import com.example.ecommerce.address.model.Address;
 import com.example.ecommerce.address.model.embeddable.Area;
@@ -6,11 +6,11 @@ import com.example.ecommerce.address.model.embeddable.Location;
 import com.example.ecommerce.address.payload.request.CreateAddressRequest;
 import com.example.ecommerce.address.payload.request.UpdateAddressRequest;
 import com.example.ecommerce.address.payload.response.AddressResponse;
+import com.example.ecommerce.auth.model.User;
 
 public final class AddressFactory {
 
-    private AddressFactory() {
-    }
+    private AddressFactory() {}
 
     public static Address address() {
         return address("Default Title");
@@ -22,7 +22,7 @@ public final class AddressFactory {
                 .title(title)
                 .area(defaultArea())
                 .location(defaultLocation())
-                .user(UserFactory.user())
+                .user(defaultUser())
                 .build();
     }
 
@@ -76,6 +76,16 @@ public final class AddressFactory {
                 "Default Building",
                 "Default Address Details"
         );
+    }
+
+    private static User defaultUser() {
+        return User.builder()
+                .id("default-user-id")
+                .name("Default User")
+                .username("test-user")
+                .password("test-pw")
+                .email("test@example.com")
+                .build();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.example.ecommerce.factory;
+package com.example.ecommerce.category.factory;
 
 import com.example.ecommerce.category.model.Category;
 import com.example.ecommerce.category.payload.response.CategoryResponse;
@@ -11,12 +11,8 @@ public final class CategoryFactory {
     private CategoryFactory() {
     }
 
-    public static Category category() {
-        return category("Test Category");
-    }
-
     public static Category category(String name) {
-        return new Category(1L, name);
+        return category(1L, name);
     }
 
     public static Category category(Long id, String name) {

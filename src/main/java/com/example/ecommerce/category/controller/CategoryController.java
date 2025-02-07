@@ -3,8 +3,8 @@ package com.example.ecommerce.category.controller;
 import com.example.ecommerce.category.payload.request.CreateCategoryRequest;
 import com.example.ecommerce.category.payload.request.UpdateCategoryRequest;
 import com.example.ecommerce.category.payload.response.CategoryResponse;
-import com.example.ecommerce.shared.payload.PaginatedResponse;
 import com.example.ecommerce.category.service.CategoryService;
+import com.example.ecommerce.shared.payload.PaginatedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -61,7 +61,8 @@ public class CategoryController {
     @PutMapping("/{categoryId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponse> updateCategory(
-            @PathVariable Long categoryId, @Valid @RequestBody UpdateCategoryRequest request) {
+            @PathVariable Long categoryId, @Valid @RequestBody UpdateCategoryRequest request
+    ) {
         return ResponseEntity.ok(categoryService.updateCategory(categoryId, request));
     }
 

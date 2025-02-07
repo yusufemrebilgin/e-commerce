@@ -1,6 +1,6 @@
 package com.example.ecommerce.category.model;
 
-import com.example.ecommerce.shared.audit.BaseEntity;
+import com.example.ecommerce.shared.audit.Auditable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +16,7 @@ import lombok.ToString;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category extends BaseEntity {
+public class Category extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
