@@ -31,6 +31,7 @@
 		<jjwt.version>0.12.6</jjwt.version>
 		<lombok.version>1.18.36</lombok.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
+		<mapstruct-binding.version>0.2.0</mapstruct-binding.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -103,11 +104,6 @@
 			<artifactId>mapstruct</artifactId>
 			<version>${mapstruct.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct-processor</artifactId>
-			<version>${mapstruct.version}</version>
-		</dependency>
 
 		<!-- MySQL -->
 		<dependency>
@@ -135,7 +131,6 @@
 						<exclude>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>${lombok.version}</version>
 						</exclude>
 					</excludes>
 				</configuration>
@@ -143,7 +138,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
@@ -157,6 +151,11 @@
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 							<version>${lombok.version}</version>
+						</annotationProcessorPath>
+						<annotationProcessorPath>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>${mapstruct-binding.version}</version>
 						</annotationProcessorPath>
 					</annotationProcessorPaths>
 				</configuration>
