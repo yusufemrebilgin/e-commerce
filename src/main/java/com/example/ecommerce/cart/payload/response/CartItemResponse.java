@@ -4,10 +4,8 @@ import com.example.ecommerce.cart.model.embeddable.DiscountInfo;
 import com.example.ecommerce.cart.model.embeddable.ProductInfo;
 import com.example.ecommerce.product.payload.response.ProductResponse;
 
-import java.util.UUID;
-
 public record CartItemResponse(
-        UUID id,
+        String id,
         ProductResponse product,
         ProductInfo productInfo,
         DiscountInfo discountInfo

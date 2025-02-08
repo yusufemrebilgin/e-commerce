@@ -1,26 +1,25 @@
 package com.example.ecommerce.order.service;
 
 import com.example.ecommerce.address.exception.AddressNotFoundException;
-import com.example.ecommerce.cart.service.CartService;
-import com.example.ecommerce.cart.exception.EmptyCartException;
-import com.example.ecommerce.order.exception.OrderNotFoundException;
-import com.example.ecommerce.payment.exception.PaymentFailedException;
-import com.example.ecommerce.order.mapper.OrderMapper;
-import com.example.ecommerce.shared.mapper.PaginationMapper;
 import com.example.ecommerce.address.model.Address;
+import com.example.ecommerce.auth.model.User;
+import com.example.ecommerce.cart.exception.EmptyCartException;
 import com.example.ecommerce.cart.model.Cart;
 import com.example.ecommerce.cart.model.CartItem;
+import com.example.ecommerce.cart.service.CartService;
+import com.example.ecommerce.order.exception.OrderNotFoundException;
+import com.example.ecommerce.order.mapper.OrderMapper;
 import com.example.ecommerce.order.model.Order;
 import com.example.ecommerce.order.model.OrderItem;
-import com.example.ecommerce.auth.model.User;
 import com.example.ecommerce.order.model.enums.OrderStatus;
 import com.example.ecommerce.order.payload.request.CreateOrderRequest;
 import com.example.ecommerce.order.payload.response.OrderResponse;
-import com.example.ecommerce.payment.model.enums.PaymentMethod;
-import com.example.ecommerce.shared.payload.PaginatedResponse;
-import com.example.ecommerce.product.service.ProductService;
 import com.example.ecommerce.order.repository.OrderRepository;
+import com.example.ecommerce.payment.exception.PaymentFailedException;
+import com.example.ecommerce.payment.model.enums.PaymentMethod;
 import com.example.ecommerce.payment.service.PaymentService;
+import com.example.ecommerce.product.service.ProductService;
+import com.example.ecommerce.shared.payload.PaginatedResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -44,8 +42,6 @@ public class OrderService {
     private final CartService cartService;
     private final PaymentService paymentService;
     private final ProductService productService;
-
-    private final PaginationMapper paginationMapper;
 
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
@@ -82,7 +78,7 @@ public class OrderService {
      */
     public PaginatedResponse<OrderResponse> getAllOrders(Pageable pageable) {
         String username = cartService.getAuthenticatedUsername();
-        return paginationMapper.toPaginatedResponse(orderRepository.findAllByUser(username, pageable), orderMapper);
+        return orderMapper.mapToPaginatedResponse(orderRepository.findAllByUser(username, pageable));
     }
 
     /**
@@ -90,7 +86,7 @@ public class OrderService {
      *
      * @param createOrderRequest the {@link CreateOrderRequest} containing order details
      * @return newly created {@link OrderResponse}
-     * @throws EmptyCartException       if user's cart is empty
+     * @throws EmptyCartException       if a user's cart is empty
      * @throws AddressNotFoundException if specified address is not found
      * @throws PaymentFailedException   if payment fails
      */
@@ -123,10 +119,10 @@ public class OrderService {
     }
 
     /**
-     * Cancels an order if it has been not cancelled yet and restores product stock.
+     * Cancels an order if it has been not canceled yet and restores product stock.
      *
      * @param orderId ID of the order to cancel
-     * @throws IllegalStateException if order is already cancelled
+     * @throws IllegalStateException if order is already canceled
      */
     @Transactional
     public void cancelOrder(Long orderId) {
@@ -222,9 +218,9 @@ public class OrderService {
      * @param orderItems     list of {@link OrderItem}s in the order
      * @param stockOperation stock operation to perform by {@link ProductService} (increase or decrease)
      */
-    private void updateProductStocks(List<OrderItem> orderItems, BiConsumer<UUID, Integer> stockOperation) {
+    private void updateProductStocks(List<OrderItem> orderItems, BiConsumer<String, Integer> stockOperation) {
         orderItems.forEach(orderItem -> {
-            UUID productId = orderItem.getProduct().getId();
+            String productId = orderItem.getProduct().getId();
             stockOperation.accept(productId, orderItem.getProductInfo().getQuantity());
         });
     }

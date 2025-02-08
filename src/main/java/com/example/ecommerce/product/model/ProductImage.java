@@ -1,6 +1,6 @@
 package com.example.ecommerce.product.model;
 
-import com.example.ecommerce.shared.audit.BaseEntity;
+import com.example.ecommerce.shared.audit.Auditable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,18 +16,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Entity
 @Builder
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductImage extends BaseEntity {
+public class ProductImage extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     private String url;
 

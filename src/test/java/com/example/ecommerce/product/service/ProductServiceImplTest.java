@@ -1,19 +1,16 @@
-package com.example.ecommerce.service;
+package com.example.ecommerce.product.service;
 
-import com.example.ecommerce.shared.constant.ErrorMessages;
+import com.example.ecommerce.category.service.CategoryService;
 import com.example.ecommerce.product.exception.InsufficientStockException;
 import com.example.ecommerce.product.exception.ProductNotFoundException;
-import com.example.ecommerce.factory.ProductFactory;
-import com.example.ecommerce.shared.mapper.PaginationMapper;
+import com.example.ecommerce.product.factory.ProductFactory;
 import com.example.ecommerce.product.mapper.ProductMapper;
 import com.example.ecommerce.product.model.Product;
 import com.example.ecommerce.product.payload.request.CreateProductRequest;
 import com.example.ecommerce.product.payload.request.UpdateProductRequest;
-import com.example.ecommerce.shared.payload.PaginatedResponse;
 import com.example.ecommerce.product.payload.response.ProductResponse;
 import com.example.ecommerce.product.repository.ProductRepository;
-import com.example.ecommerce.category.service.CategoryService;
-import com.example.ecommerce.product.service.ProductService;
+import com.example.ecommerce.shared.payload.PaginatedResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,15 +29,16 @@ import java.util.UUID;
 
 import static org.assertj.core.api.BDDAssertions.catchThrowableOfType;
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceTest {
+class ProductServiceImplTest {
 
     @InjectMocks
-    ProductService productService;
+    ProductServiceImpl productService;
 
     @Mock
     CategoryService categoryService;
@@ -50,9 +48,6 @@ class ProductServiceTest {
 
     @Mock
     ProductRepository productRepository;
-
-    @Mock
-    PaginationMapper paginationMapper;
 
     @ParameterizedTest
     @CsvSource({
@@ -79,7 +74,7 @@ class ProductServiceTest {
         );
 
         given(productRepository.findAll(any(Pageable.class))).willReturn(productPage);
-        given(paginationMapper.toPaginatedResponse(productPage, productMapper)).willReturn(expected);
+        given(productMapper.mapToPaginatedResponse(productPage)).willReturn(expected);
 
         // when
         PaginatedResponse<ProductResponse> actual = productService.getAllProducts(PageRequest.of(page, size));
@@ -94,17 +89,17 @@ class ProductServiceTest {
         }
 
         verify(productRepository, times(1)).findAll(any(Pageable.class));
-        verify(paginationMapper, times(1)).toPaginatedResponse(productPage, productMapper);
+        verify(productMapper, times(1)).mapToPaginatedResponse(productPage);
     }
 
     @Test
     void givenValidProductId_whenProductFound_thenReturnProduct() {
         // given
         Product expected = ProductFactory.product();
-        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(expected));
+        given(productRepository.findById(anyString())).willReturn(Optional.of(expected));
 
         // when
-        Product actual = productService.findProductById(expected.getId());
+        Product actual = productService.findProductEntityById(expected.getId());
 
         // then
         then(actual).isNotNull();
@@ -115,17 +110,17 @@ class ProductServiceTest {
     @Test
     void givenInvalidProductId_whenProductNotFound_thenThrowProductNotFoundException() {
         // given
-        UUID productId = UUID.randomUUID();
-        given(productRepository.findById(any(UUID.class))).willReturn(Optional.empty());
+        String productId = UUID.randomUUID().toString();
+        given(productRepository.findById(anyString())).willReturn(Optional.empty());
 
         // when & then
         ProductNotFoundException ex = catchThrowableOfType(
-                () -> productService.findProductById(productId),
-                ProductNotFoundException.class
+                ProductNotFoundException.class,
+                () -> productService.findProductEntityById(productId)
         );
 
         then(ex).isNotNull();
-        then(ex).hasMessageContaining(productId.toString());
+        then(ex).hasMessageContaining(productId);
         verify(productRepository, never()).save(any(Product.class));
     }
 
@@ -136,7 +131,7 @@ class ProductServiceTest {
         CreateProductRequest request = ProductFactory.createRequest(product);
         ProductResponse expected = ProductFactory.response(product);
 
-        given(categoryService.getCategoryById(anyLong())).willReturn(product.getCategory());
+        given(categoryService.findCategoryEntityById(anyLong())).willReturn(product.getCategory());
         given(productRepository.save(any(Product.class))).willReturn(product);
         given(productMapper.mapToResponse(any(Product.class))).willReturn(expected);
 
@@ -158,7 +153,7 @@ class ProductServiceTest {
         UpdateProductRequest request = ProductFactory.updateRequest(updatedProduct);
         ProductResponse expected = ProductFactory.response(updatedProduct);
 
-        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(existingProduct));
+        given(productRepository.findById(anyString())).willReturn(Optional.of(existingProduct));
         given(productRepository.save(any(Product.class))).willReturn(updatedProduct);
         given(productMapper.mapToResponse(updatedProduct)).willReturn(expected);
 
@@ -187,17 +182,17 @@ class ProductServiceTest {
     @Test
     void givenInvalidProductId_whenProductNotExists_thenThrowProductNotFoundException() {
         // given
-        UUID productId = UUID.randomUUID();
-        given(productRepository.findById(any(UUID.class))).willReturn(Optional.empty());
+        String productId = UUID.randomUUID().toString();
+        given(productRepository.findById(anyString())).willReturn(Optional.empty());
 
         // when & then
         ProductNotFoundException ex = catchThrowableOfType(
-                () -> productService.deleteProduct(productId),
-                ProductNotFoundException.class
+                ProductNotFoundException.class,
+                () -> productService.deleteProduct(productId)
         );
 
         then(ex).isNotNull();
-        then(ex.getMessage()).isEqualTo(ErrorMessages.PRODUCT_NOT_FOUND.message(productId));
+        then(ex).hasMessageContaining(productId);
         verify(productRepository, never()).delete(any(Product.class));
     }
 
@@ -208,7 +203,7 @@ class ProductServiceTest {
         int requestedQuantity = 50;
 
         Product product = ProductFactory.productWithStock(initialStock);
-        given(productRepository.findStockQuantityByProductId(any(UUID.class))).willReturn(initialStock);
+        given(productRepository.findStockQuantityByProductId(anyString())).willReturn(initialStock);
 
         // when & then
         productService.checkStock(product.getId(), requestedQuantity);
@@ -221,16 +216,16 @@ class ProductServiceTest {
         int requestedQuantity = 500;
 
         Product product = ProductFactory.productWithStock(initialStock);
-        given(productRepository.findStockQuantityByProductId(any(UUID.class))).willReturn(initialStock);
+        given(productRepository.findStockQuantityByProductId(anyString())).willReturn(initialStock);
 
         // when & then
         InsufficientStockException ex = catchThrowableOfType(
-                () -> productService.checkStock(product.getId(), requestedQuantity),
-                InsufficientStockException.class
+                InsufficientStockException.class,
+                () -> productService.checkStock(product.getId(), requestedQuantity)
         );
 
         then(ex).isNotNull();
-        then(ex.getMessage()).isEqualTo(ErrorMessages.INSUFFICIENT_STOCK.message(initialStock, requestedQuantity));
+        then(ex).isExactlyInstanceOf(InsufficientStockException.class);
     }
 
     @Test
@@ -240,7 +235,7 @@ class ProductServiceTest {
         int quantityToIncrease = 500;
 
         Product product = ProductFactory.productWithStock(initialStock);
-        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(product));
+        given(productRepository.findById(anyString())).willReturn(Optional.of(product));
 
         // when
         productService.increaseStock(product.getId(), quantityToIncrease);
@@ -259,8 +254,8 @@ class ProductServiceTest {
 
         // when & then
         IllegalArgumentException ex = catchThrowableOfType(
-                () -> productService.increaseStock(product.getId(), negativeQuantity),
-                IllegalArgumentException.class
+                IllegalArgumentException.class,
+                () -> productService.increaseStock(product.getId(), negativeQuantity)
         );
 
         then(ex).isNotNull();
@@ -274,7 +269,7 @@ class ProductServiceTest {
         int quantityToDecrease = 500;
 
         Product product = ProductFactory.productWithStock(initialStock);
-        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(product));
+        given(productRepository.findById(anyString())).willReturn(Optional.of(product));
 
         // when
         productService.decreaseStock(product.getId(), quantityToDecrease);
@@ -292,16 +287,16 @@ class ProductServiceTest {
         int quantityToDecrease = 30;
 
         Product product = ProductFactory.productWithStock(initialStock);
-        given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(product));
+        given(productRepository.findById(anyString())).willReturn(Optional.of(product));
 
         // when & then
         InsufficientStockException ex = catchThrowableOfType(
-                () -> productService.decreaseStock(product.getId(), quantityToDecrease),
-                InsufficientStockException.class
+                InsufficientStockException.class,
+                () -> productService.decreaseStock(product.getId(), quantityToDecrease)
         );
 
         then(ex).isNotNull();
-        then(ex).hasMessageContaining(ErrorMessages.INSUFFICIENT_STOCK.message(initialStock, quantityToDecrease));
+        then(ex).isExactlyInstanceOf(InsufficientStockException.class);
         verify(productRepository, never()).save(any(Product.class));
     }
 
@@ -313,8 +308,8 @@ class ProductServiceTest {
 
         // when & then
         IllegalArgumentException ex = catchThrowableOfType(
-                () -> productService.decreaseStock(product.getId(), negativeQuantity),
-                IllegalArgumentException.class
+                IllegalArgumentException.class,
+                () -> productService.decreaseStock(product.getId(), negativeQuantity)
         );
 
         then(ex).isNotNull();

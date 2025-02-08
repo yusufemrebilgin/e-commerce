@@ -2,19 +2,15 @@ package com.example.ecommerce.product.mapper;
 
 import com.example.ecommerce.product.model.ProductImage;
 import com.example.ecommerce.product.payload.response.ProductImageResponse;
-import com.example.ecommerce.shared.mapper.Mapper;
-import lombok.NonNull;
-import org.springframework.stereotype.Component;
+import com.example.ecommerce.shared.mapper.GenericMapper;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class ProductImageMapper implements Mapper<ProductImage, ProductImageResponse> {
+@Mapper(componentModel = "spring")
+public interface ProductImageMapper extends GenericMapper<ProductImage, ProductImageResponse> {
 
     @Override
-    public ProductImageResponse mapToResponse(@NonNull ProductImage productImage) {
-        return new ProductImageResponse(
-                productImage.getType(),
-                productImage.getImageData()
-        );
-    }
+    @Mapping(source = "type", target = "contentType")
+    ProductImageResponse mapToResponse(ProductImage productImage);
 
 }

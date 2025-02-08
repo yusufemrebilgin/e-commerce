@@ -30,15 +30,16 @@ public enum Role {
             throw new IllegalArgumentException("Role cannot be null or empty");
         }
 
-        String formattedName = name.toUpperCase().startsWith("ROLE_") ? name : "ROLE_" + name;
-
-        for (Role role : values()) {
-            if (role.name().equals(formattedName)) {
-                return role;
-            }
+        String formattedName = name.toUpperCase();
+        if (!formattedName.startsWith("ROLE_")) {
+            formattedName = "ROLE_" + formattedName;
         }
 
-        throw new IllegalArgumentException("Invalid role name: '" + name + "'");
+        try {
+            return Role.valueOf(formattedName);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Invalid role name: '" + name + "'");
+        }
     }
 
 }

@@ -2,21 +2,15 @@ package com.example.ecommerce.order.mapper;
 
 import com.example.ecommerce.order.model.OrderItem;
 import com.example.ecommerce.order.payload.response.OrderItemResponse;
-import com.example.ecommerce.shared.mapper.Mapper;
-import lombok.NonNull;
-import org.springframework.stereotype.Component;
+import com.example.ecommerce.shared.mapper.GenericMapper;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class OrderItemMapper implements Mapper<OrderItem, OrderItemResponse> {
+@Mapper(componentModel = "spring")
+public interface OrderItemMapper extends GenericMapper<OrderItem, OrderItemResponse> {
 
     @Override
-    public OrderItemResponse mapToResponse(@NonNull OrderItem orderItem) {
-        return new OrderItemResponse(
-                orderItem.getId(),
-                orderItem.getProduct().getName(),
-                orderItem.getProductInfo(),
-                orderItem.getDiscountInfo()
-        );
-    }
+    @Mapping(target = "productName", source = "product.name")
+    OrderItemResponse mapToResponse(OrderItem orderItem);
 
 }

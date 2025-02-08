@@ -1,9 +1,9 @@
 package com.example.ecommerce.cart.controller;
 
-import com.example.ecommerce.cart.service.CartItemService;
-import com.example.ecommerce.cart.payload.response.CartItemResponse;
 import com.example.ecommerce.cart.payload.request.CreateCartItemRequest;
 import com.example.ecommerce.cart.payload.request.UpdateCartItemRequest;
+import com.example.ecommerce.cart.payload.response.CartItemResponse;
+import com.example.ecommerce.cart.service.CartItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +44,7 @@ public class CartItemController {
      * @return a {@link ResponseEntity} containing the updated {@link CartItemResponse}
      */
     @PutMapping("/{itemId}")
-    public ResponseEntity<CartItemResponse> updateItemQuantity(@PathVariable UUID itemId, @Valid @RequestBody UpdateCartItemRequest request) {
+    public ResponseEntity<CartItemResponse> updateItemQuantity(@PathVariable String itemId, @Valid @RequestBody UpdateCartItemRequest request) {
         return ResponseEntity.ok(cartItemService.updateItemQuantityInCart(itemId, request));
     }
 
@@ -57,7 +55,7 @@ public class CartItemController {
      * @return a {@link ResponseEntity} with no content indicating the item has been removed
      */
     @DeleteMapping("/{itemId}")
-    public ResponseEntity<Void> removeItemFromCart(@PathVariable UUID itemId) {
+    public ResponseEntity<Void> removeItemFromCart(@PathVariable String itemId) {
         cartItemService.removeItemFromCart(itemId);
         return ResponseEntity.noContent().build();
     }

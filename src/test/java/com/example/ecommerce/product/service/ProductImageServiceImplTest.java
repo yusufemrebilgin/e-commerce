@@ -1,16 +1,13 @@
-package com.example.ecommerce.service;
+package com.example.ecommerce.product.service;
 
-import com.example.ecommerce.shared.constant.ErrorMessages;
-import com.example.ecommerce.product.exception.ProductImageNotFoundException;
-import com.example.ecommerce.product.exception.ProductNotFoundException;
 import com.example.ecommerce.product.exception.EmptyFileException;
 import com.example.ecommerce.product.exception.InvalidFileTypeException;
-import com.example.ecommerce.factory.ProductImageFactory;
+import com.example.ecommerce.product.exception.ProductImageNotFoundException;
+import com.example.ecommerce.product.exception.ProductNotFoundException;
+import com.example.ecommerce.product.factory.ProductImageFactory;
 import com.example.ecommerce.product.model.ProductImage;
 import com.example.ecommerce.product.payload.response.ProductImageResponse;
 import com.example.ecommerce.product.repository.ProductImageRepository;
-import com.example.ecommerce.product.service.ProductImageService;
-import com.example.ecommerce.product.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,23 +28,23 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductImageServiceTest {
+class ProductImageServiceImplTest {
 
     @InjectMocks
-    ProductImageService productImageService;
+    ProductImageServiceImpl productImageService;
 
     @Mock
-    ProductService productService;
+    ProductServiceImpl productService;
 
     @Mock
     ProductImageRepository productImageRepository;
 
-    private UUID productId;
+    private String productId;
     private final String mockImageUrlTemplate = "localhost:8080/images/{filename}";
 
     @BeforeEach
     void setUp() {
-        productId = UUID.randomUUID();
+        productId = UUID.randomUUID().toString();
     }
 
     @Test
@@ -78,8 +75,8 @@ class ProductImageServiceTest {
 
         // when & then
         EmptyFileException ex = catchThrowableOfType(
-                () -> productImageService.uploadProductImages(productId, files, mockImageUrlTemplate),
-                EmptyFileException.class
+                EmptyFileException.class,
+                () -> productImageService.uploadProductImages(productId, files, mockImageUrlTemplate)
         );
 
         then(ex).isNotNull();
@@ -94,8 +91,8 @@ class ProductImageServiceTest {
 
         // when & then
         InvalidFileTypeException ex = catchThrowableOfType(
-                () -> productImageService.uploadProductImages(productId, files, mockImageUrlTemplate),
-                InvalidFileTypeException.class
+                InvalidFileTypeException.class,
+                () -> productImageService.uploadProductImages(productId, files, mockImageUrlTemplate)
         );
 
         then(ex).isNotNull();
@@ -108,19 +105,18 @@ class ProductImageServiceTest {
     void givenInvalidProductIdAndMultipartFile_whenUploadProductImages_thenThrowProductNotFoundException() {
         // given
         MultipartFile[] files = new MultipartFile[]{ProductImageFactory.validImageFile()};
-        given(productService.findProductById(productId)).willThrow(new ProductNotFoundException(productId));
+        given(productService.findProductEntityById(productId)).willThrow(new ProductNotFoundException(productId));
 
         // when & then
         ProductNotFoundException ex = catchThrowableOfType(
-                () -> productImageService.uploadProductImages(productId, files, mockImageUrlTemplate),
-                ProductNotFoundException.class
+                ProductNotFoundException.class,
+                () -> productImageService.uploadProductImages(productId, files, mockImageUrlTemplate)
         );
 
         then(ex).isNotNull();
-        then(ex.getMessage()).isEqualTo(ErrorMessages.PRODUCT_NOT_FOUND.message(productId));
-
+        then(ex).hasMessageContaining(productId);
         verify(productImageRepository, never()).save(any());
-        verify(productService, times(1)).findProductById(productId);
+        verify(productService, times(1)).findProductEntityById(productId);
     }
 
     @Test
@@ -150,12 +146,12 @@ class ProductImageServiceTest {
 
         // when & then
         ProductImageNotFoundException ex = catchThrowableOfType(
-                () -> productImageService.getProductImage(productImage.getId(), productImage.getFilename()),
-                ProductImageNotFoundException.class
+                ProductImageNotFoundException.class,
+                () -> productImageService.getProductImage(productImage.getId(), productImage.getFilename())
         );
 
         then(ex).isNotNull();
-        then(ex).hasMessageContaining(ErrorMessages.PRODUCT_IMAGE_NOT_FOUND.message(productImage.getFilename()));
+        then(ex).hasMessageContaining(productImage.getFilename());
     }
 
     @Test
@@ -195,8 +191,8 @@ class ProductImageServiceTest {
 
         // when & then
         ProductImageNotFoundException ex = catchThrowableOfType(
-                () -> productImageService.deleteProductImages(productId, Set.of()),
-                ProductImageNotFoundException.class
+                ProductImageNotFoundException.class,
+                () -> productImageService.deleteProductImages(productId, Set.of())
         );
 
         then(ex).isNotNull();

@@ -3,7 +3,7 @@ package com.example.ecommerce.order.model;
 import com.example.ecommerce.cart.model.embeddable.DiscountInfo;
 import com.example.ecommerce.cart.model.embeddable.ProductInfo;
 import com.example.ecommerce.product.model.Product;
-import com.example.ecommerce.shared.audit.BaseEntity;
+import com.example.ecommerce.shared.audit.Auditable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,18 +17,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Entity
 @Builder
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItem extends BaseEntity {
+public class OrderItem extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "order_id")

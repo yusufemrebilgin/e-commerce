@@ -1,12 +1,11 @@
 package com.example.ecommerce.payment.exception;
 
-import com.example.ecommerce.shared.constant.ErrorMessages;
 import com.example.ecommerce.shared.exception.InternalServerException;
 
 public class PaymentFailedException extends InternalServerException {
 
     public PaymentFailedException() {
-        super(ErrorMessages.PAYMENT_FAILED.message());
+        super("Payment processing failed. Please try again or use a different payment method");
     }
 
 }

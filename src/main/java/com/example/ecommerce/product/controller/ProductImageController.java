@@ -1,7 +1,7 @@
 package com.example.ecommerce.product.controller;
 
 import com.example.ecommerce.product.payload.response.ProductImageResponse;
-import com.example.ecommerce.product.service.ProductImageService;
+import com.example.ecommerce.product.service.ProductImageServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +19,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/products/{productId}/images")
 public class ProductImageController {
 
-    private final ProductImageService productImageService;
+    private final ProductImageServiceImpl productImageService;
 
     /**
      * Uploads images for a specific product and returns the URLs of the uploaded images.
@@ -37,7 +36,7 @@ public class ProductImageController {
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<String>> uploadImages(@PathVariable UUID productId, @RequestParam("image") MultipartFile[] files) {
+    public ResponseEntity<List<String>> uploadImages(@PathVariable String productId, @RequestParam("image") MultipartFile[] files) {
         // Properly encode the URL to handle special characters
         String urlTemplate = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{filename}")
@@ -55,7 +54,7 @@ public class ProductImageController {
      * @return a {@link ResponseEntity} containing image data
      */
     @GetMapping("/{filename}")
-    public ResponseEntity<byte[]> getImage(@PathVariable UUID productId, @PathVariable String filename) {
+    public ResponseEntity<byte[]> getImage(@PathVariable String productId, @PathVariable String filename) {
         ProductImageResponse response = productImageService.getProductImage(productId, filename);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(response.contentType()))
@@ -69,7 +68,7 @@ public class ProductImageController {
      * @return a {@link ResponseEntity} containing list of product image URLs
      */
     @GetMapping
-    public ResponseEntity<List<String>> getAllImages(@PathVariable UUID productId) {
+    public ResponseEntity<List<String>> getAllImages(@PathVariable String productId) {
         return ResponseEntity.ok(productImageService.getAllProductImageUrls(productId));
     }
 
@@ -82,7 +81,7 @@ public class ProductImageController {
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteImages(@PathVariable UUID productId, @RequestBody Set<String> filenames) {
+    public ResponseEntity<Void> deleteImages(@PathVariable String productId, @RequestBody Set<String> filenames) {
         productImageService.deleteProductImages(productId, filenames);
         return ResponseEntity.ok().build();
     }
@@ -95,7 +94,7 @@ public class ProductImageController {
      */
     @DeleteMapping("/delete-all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteAllImages(@PathVariable UUID productId) {
+    public ResponseEntity<Void> deleteAllImages(@PathVariable String productId) {
         productImageService.deleteAllProductImages(productId);
         return ResponseEntity.ok().build();
     }

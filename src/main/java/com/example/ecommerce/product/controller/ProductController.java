@@ -2,9 +2,9 @@ package com.example.ecommerce.product.controller;
 
 import com.example.ecommerce.product.payload.request.CreateProductRequest;
 import com.example.ecommerce.product.payload.request.UpdateProductRequest;
-import com.example.ecommerce.shared.payload.PaginatedResponse;
 import com.example.ecommerce.product.payload.response.ProductResponse;
-import com.example.ecommerce.product.service.ProductService;
+import com.example.ecommerce.product.service.ProductServiceImpl;
+import com.example.ecommerce.shared.payload.PaginatedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -22,14 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/products")
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductServiceImpl productService;
 
     /**
      * Retrieves a product by its unique identifier.
@@ -38,7 +36,7 @@ public class ProductController {
      * @return a {@link ResponseEntity} containing the {@link ProductResponse}
      */
     @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID productId) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable String productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
@@ -69,14 +67,14 @@ public class ProductController {
     /**
      * Retrieves products by category identifier with pagination.
      *
-     * @param categoryId the unique identifier of the category
+     * @param categoryName the unique identifier of the category
      * @param pageable pagination information
      * @return a {@link ResponseEntity} containing a {@link PaginatedResponse} of {@link ProductResponse}
      */
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<PaginatedResponse<ProductResponse>> getAllProductsByCategoryId(
-            @PathVariable Long categoryId, @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(productService.getAllProductsByCategoryId(categoryId, pageable));
+    @GetMapping("/category/{categoryName}")
+    public ResponseEntity<PaginatedResponse<ProductResponse>> getAllProductsByCategoryName(
+            @PathVariable String categoryName, @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(productService.getAllProductsByCategoryName(categoryName, pageable));
     }
 
     /**
@@ -101,7 +99,7 @@ public class ProductController {
     @PutMapping("/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> updateProduct(
-            @PathVariable UUID productId, @Valid @RequestBody UpdateProductRequest request) {
+            @PathVariable String productId, @Valid @RequestBody UpdateProductRequest request) {
         return ResponseEntity.ok(productService.updateProduct(productId, request));
     }
 
@@ -113,7 +111,7 @@ public class ProductController {
      */
     @DeleteMapping("/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteProduct(@PathVariable UUID productId) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable String productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
     }

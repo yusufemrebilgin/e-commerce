@@ -1,6 +1,6 @@
 package com.example.ecommerce.cart.service;
 
-import com.example.ecommerce.auth.service.AuthService;
+import com.example.ecommerce.auth.service.UserContextService;
 import com.example.ecommerce.cart.mapper.CartMapper;
 import com.example.ecommerce.cart.model.Cart;
 import com.example.ecommerce.cart.model.CartItem;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartService {
 
-    private final AuthService authService;
+    private final UserContextService userContextService;
 
     private final CartMapper cartMapper;
     private final CartRepository cartRepository;
@@ -28,27 +28,27 @@ public class CartService {
     /**
      * Retrieves the authenticated user's username.
      * <p>
-     * Although this method is already available in {@code AuthService},
+     * Although this method is already available in {@code UserContextService},
      * it is defined in {@code CartService} to assist other services like
      * {@code OrderService} in accessing the authenticated user's information
-     * without needing to directly inject {@code AuthService}.
+     * without needing to directly inject {@code UserContextService}.
      *
      * @return authenticated user's username
      */
     public String getAuthenticatedUsername() {
-        return authService.getCurrentUsername();
+        return userContextService.getCurrentUsername();
     }
 
     /**
      * Retrieves cart for the authenticated user. If no cart exists, a new one is created.
      *
      * @return user's cart
-     * @throws IllegalStateException     if user is not authenticated (by AuthService)
-     * @throws UsernameNotFoundException if user is not found by specified username (by AuthService)
+     * @throws IllegalStateException     if a user is not authenticated (by UserContextService)
+     * @throws UsernameNotFoundException if a user is not found by specified username (by UserContextService)
      */
     public Cart getCartByAuthenticatedUser() {
         return cartRepository
-                .findByUser(authService.getCurrentUsername())
+                .findByUser(userContextService.getCurrentUsername())
                 .orElseGet(this::createCart);
     }
 
@@ -73,7 +73,7 @@ public class CartService {
     }
 
     /**
-     * Updates total price of the user's cart by applying the given price difference.
+     * Updates the total price of the user's cart by applying the given price difference.
      *
      * @param priceDifference amount to be added or subtracted from the current total price
      */
@@ -104,7 +104,7 @@ public class CartService {
      * @return newly created {@link Cart}
      */
     private Cart createCart() {
-        Cart cart = new Cart(0L, authService.getCurrentUser(), List.of(), BigDecimal.ZERO);
+        Cart cart = new Cart(null, userContextService.getCurrentUser(), List.of(), BigDecimal.ZERO);
         return cartRepository.save(cart);
     }
 

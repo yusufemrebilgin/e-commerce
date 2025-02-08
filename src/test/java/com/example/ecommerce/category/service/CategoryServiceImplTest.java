@@ -146,7 +146,7 @@ class CategoryServiceImplTest {
         UpdateCategoryRequest request = new UpdateCategoryRequest("Electronics");
 
         Category existingCategory = CategoryFactory.category("Computers");
-        Category updatedCategory = CategoryFactory.category(request.categoryName());
+        Category updatedCategory = CategoryFactory.category(request.name());
 
         CategoryResponse expected = CategoryFactory.response(updatedCategory);
 

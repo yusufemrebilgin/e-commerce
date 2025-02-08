@@ -2,221 +2,116 @@ package com.example.ecommerce.product.service;
 
 import com.example.ecommerce.product.exception.InsufficientStockException;
 import com.example.ecommerce.product.exception.ProductNotFoundException;
-import com.example.ecommerce.shared.mapper.PaginationMapper;
-import com.example.ecommerce.product.mapper.ProductMapper;
 import com.example.ecommerce.product.model.Product;
-import com.example.ecommerce.product.model.embeddable.Discount;
 import com.example.ecommerce.product.payload.request.CreateProductRequest;
 import com.example.ecommerce.product.payload.request.UpdateProductRequest;
-import com.example.ecommerce.shared.payload.PaginatedResponse;
 import com.example.ecommerce.product.payload.response.ProductResponse;
-import com.example.ecommerce.product.repository.ProductRepository;
-import com.example.ecommerce.category.service.CategoryService;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.ecommerce.shared.payload.PaginatedResponse;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
-
-@Service
-@RequiredArgsConstructor
-public class ProductService {
-
-    private final CategoryService categoryService;
-
-    private final ProductMapper productMapper;
-    private final ProductRepository productRepository;
-
-    private final PaginationMapper paginationMapper;
-
-    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
+/**
+ * Service interface for managing products in the e-commerce system.
+ * Provides methods for creating, updating, retrieving, and deleting products,
+ * as well as managing stock quantities.
+ */
+public interface ProductService {
 
     /**
-     * Retrieves a product by its ID.
+     * Finds a product entity by its unique identifier.
      *
-     * @param productId UUID of the product to retrieve
-     * @return found {@link Product}
-     * @throws ProductNotFoundException if product image is not found
+     * @param productId the unique identifier of the product
+     * @return the product entity
+     * @throws ProductNotFoundException if the product is not found
      */
-    public Product findProductById(UUID productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> {
-                    log.error("Product not found with id {}", productId);
-                    return new ProductNotFoundException(productId);
-                });
-    }
+    Product findProductEntityById(String productId);
 
     /**
-     * Retrieves product details as a {@code ProductResponse} object.
+     * Retrieves a product's details by its unique identifier.
      *
-     * @param productId UUID of the product to retrieve
-     * @return {@link ProductResponse} containing product details
+     * @param productId the unique identifier of the product
+     * @return the product details
+     * @throws ProductNotFoundException if the product is not found
      */
-    public ProductResponse getProductById(UUID productId) {
-        return productMapper.mapToResponse(findProductById(productId));
-    }
+    ProductResponse getProductById(String productId);
 
     /**
-     * Retrieves all products with pagination support.
+     * Retrieves all products in a paginated response.
      *
-     * @param pageable pagination information
-     * @return a paginated list of {@link ProductResponse}
+     * @param pageable pagination details
+     * @return a paginated response containing product details
      */
-    public PaginatedResponse<ProductResponse> getAllProducts(Pageable pageable) {
-        return paginationMapper.toPaginatedResponse(productRepository.findAll(pageable), productMapper);
-    }
+    PaginatedResponse<ProductResponse> getAllProducts(Pageable pageable);
 
     /**
-     * Retrieves products by their name with pagination support.
+     * Retrieves products by name, supporting pagination.
      *
-     * @param name     product name to filter products by
-     * @param pageable pagination information
-     * @return a paginated list of {@link ProductResponse}
+     * @param name the name or partial name of the product
+     * @param pageable pagination details
+     * @return a paginated response containing product details matching the name
      */
-    public PaginatedResponse<ProductResponse> getAllProductsByName(String name, Pageable pageable) {
-        return paginationMapper.toPaginatedResponse(
-                productRepository.findAllByNameIgnoreCaseStartingWith(name, pageable),
-                productMapper
-        );
-    }
+    PaginatedResponse<ProductResponse> getAllProductsByName(String name, Pageable pageable);
 
     /**
-     * Retrieves products by their category ID with pagination support.
+     * Retrieves products by category name, supporting pagination.
      *
-     * @param categoryId ID of the category to filter products by
-     * @param pageable   pagination information
-     * @return a paginated list of {@link ProductResponse}
+     * @param categoryName the category name
+     * @param pageable pagination details
+     * @return a paginated response containing products in the specified category
      */
-    public PaginatedResponse<ProductResponse> getAllProductsByCategoryId(Long categoryId, Pageable pageable) {
-        return paginationMapper.toPaginatedResponse(
-                productRepository.findAllByCategoryId(categoryId, pageable),
-                productMapper
-        );
-    }
+    PaginatedResponse<ProductResponse> getAllProductsByCategoryName(String categoryName, Pageable pageable);
 
     /**
-     * Creates a new product based on provided request.
+     * Creates a new product based on the provided request data
      *
-     * @param request the {@link CreateProductRequest} containing product details
-     * @return newly created {@link ProductResponse}
+     * @param createRequest the request containing product details
+     * @return the created product details
      */
-    public ProductResponse createProduct(CreateProductRequest request) {
-        Discount discount = new Discount(
-                request.discountPercentage(),
-                request.discountStart(),
-                request.discountEnd()
-        );
-
-        Product product = Product.builder()
-                .name(request.name())
-                .category(categoryService.getCategoryById(request.categoryId()))
-                .description(request.description())
-                .stock(request.stock())
-                .price(request.price())
-                .discount(discount)
-                .images(List.of())
-                .build();
-
-        log.info("Product '{}' created", product.getName());
-        return productMapper.mapToResponse(productRepository.save(product));
-    }
+    ProductResponse createProduct(CreateProductRequest createRequest);
 
     /**
-     * Updates an existing product based on the provided request.
+     * Updates an existing product with the provided request data
      *
-     * @param productId UUID of the product to update
-     * @param request   the {@link UpdateProductRequest} containing updated product details
-     * @return updated {@link ProductResponse}
+     * @param productId the unique identifier of the product to update
+     * @param updateRequest the request containing updated product details
+     * @return the updated product details
+     * @throws ProductNotFoundException if the product is not found
      */
-    public ProductResponse updateProduct(UUID productId, UpdateProductRequest request) {
-        Product existingProduct = findProductById(productId);
-        productMapper.updateProductFromRequest(request, existingProduct);
-        Product updatedProduct = productRepository.save(existingProduct);
-        log.info("Product '{}' updated", updatedProduct.getName());
-        return productMapper.mapToResponse(updatedProduct);
-    }
+    ProductResponse updateProduct(String productId, UpdateProductRequest updateRequest);
 
     /**
-     * Deletes a product by its ID.
+     * Deletes a product by its unique identifier.
      *
-     * @param productId UUID of the product to delete
+     * @param productId the unique identifier of the product to delete
+     * @throws ProductNotFoundException if the product is not found
      */
-    public void deleteProduct(UUID productId) {
-        Product productToBeDeleted = findProductById(productId);
-        log.info("Product '{}' deleted", productToBeDeleted.getName());
-        productRepository.delete(productToBeDeleted);
-    }
+    void deleteProduct(String productId);
 
     /**
-     * Checks if there is sufficient stock for a product
+     * Checks if sufficient stock is available for a product.
      *
-     * @param productId         UUID of the product to check
-     * @param requestedQuantity requested quantity
-     * @throws InsufficientStockException if available stock is less than requested quantity
+     * @param productId the unique identifier of the product
+     * @param requestedQuantity the quantity to check against available stock
+     * @throws InsufficientStockException if there are not enough stocks
      */
-    public void checkStock(UUID productId, int requestedQuantity) {
-        int availableStock = productRepository.findStockQuantityByProductId(productId);
-        if (availableStock < requestedQuantity) {
-            throw new InsufficientStockException(availableStock, requestedQuantity);
-        }
-    }
+    void checkStock(String productId, int requestedQuantity);
 
     /**
-     * Increase stock quantity for a product.
+     * Increases the stock quantity for a product.
      *
-     * @param productId UUID of the product
-     * @param quantity  quantity value to increase
-     * @throws IllegalArgumentException if quantity is negative
+     * @param productId the unique identifier of the product
+     * @param quantity the quantity to add to the stock
+     * @throws IllegalArgumentException if the quantity is negative
      */
-    @Transactional
-    public void increaseStock(UUID productId, int quantity) {
-        log.info("Attempting to increase stock for product {} by quantity: {}", productId, quantity);
-        if (quantity < 0) {
-            log.error("Requested quantity must be a positive number for product {}", productId);
-            throw new IllegalArgumentException("Quantity must be positive number");
-        }
-        Product existingProduct = findProductById(productId);
-        int newStock = existingProduct.getStock() + quantity;
-        existingProduct.setStock(newStock);
-
-        log.info("Successfully increased stock for product {}. New stock: {}", productId, newStock);
-        productRepository.save(existingProduct);
-    }
+    void increaseStock(String productId, int quantity);
 
     /**
-     * Decreases stock quantity for a product.
+     * Decreases the stock quantity for a product.
      *
-     * @param productId UUID of the product
-     * @param quantity  quantity value to decrease
-     * @throws IllegalArgumentException   if quantity is negative
-     * @throws InsufficientStockException if quantity is negative or there is not enough stock
+     * @param productId the unique identifier of the product
+     * @param quantity the quantity to subtract from the stock
+     * @throws IllegalArgumentException if the quantity is negative
+     * @throws InsufficientStockException if there are not enough stocks to decrease
      */
-    @Transactional
-    public void decreaseStock(UUID productId, int quantity) {
-        log.info("Attempting to decrease stock for product {} by quantity: {}", productId, quantity);
-        if (quantity < 0) {
-            log.error("Negative quantity provided for product {}. Requested: {}", productId, quantity);
-            throw new IllegalArgumentException("Quantity must be positive number");
-        }
-
-        Product existingProduct = findProductById(productId);
-        if (!existingProduct.hasSufficientStock(quantity)) {
-            log.error(
-                    "Insufficient stock for product {}. Requested: {}, Available: {}",
-                    productId, quantity, existingProduct.getStock()
-            );
-            throw new InsufficientStockException(existingProduct.getStock(), quantity);
-        }
-
-        int newStock = existingProduct.getStock() - quantity;
-        existingProduct.setStock(newStock);
-
-        log.info("Successfully decreased stock for product {}. New stock: {}", productId, newStock);
-        productRepository.save(existingProduct);
-    }
+    void decreaseStock(String productId, int quantity);
 
 }

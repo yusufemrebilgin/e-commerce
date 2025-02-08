@@ -3,7 +3,7 @@ package com.example.ecommerce.payment.model;
 import com.example.ecommerce.order.model.Order;
 import com.example.ecommerce.payment.model.enums.PaymentMethod;
 import com.example.ecommerce.payment.model.enums.PaymentStatus;
-import com.example.ecommerce.shared.audit.BaseEntity;
+import com.example.ecommerce.shared.audit.Auditable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Payment extends BaseEntity {
+public class Payment extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,7 +1,7 @@
 package com.example.ecommerce.cart.model;
 
 import com.example.ecommerce.auth.model.User;
-import com.example.ecommerce.shared.audit.BaseEntity;
+import com.example.ecommerce.shared.audit.Auditable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,7 +27,7 @@ import static lombok.Builder.Default;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Cart extends BaseEntity {
+public class Cart extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,24 +2,16 @@ package com.example.ecommerce.cart.mapper;
 
 import com.example.ecommerce.cart.model.Cart;
 import com.example.ecommerce.cart.payload.response.CartResponse;
-import com.example.ecommerce.shared.mapper.Mapper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import com.example.ecommerce.shared.mapper.GenericMapper;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-@RequiredArgsConstructor
-public class CartMapper implements Mapper<Cart, CartResponse> {
-
-    private final CartItemMapper cartItemMapper;
+@Mapper(componentModel = "spring", uses = CartItemMapper.class)
+public interface CartMapper extends GenericMapper<Cart, CartResponse> {
 
     @Override
-    public CartResponse mapToResponse(@NonNull Cart cart) {
-        return new CartResponse(
-                cart.getId(),
-                cart.getTotalPrice(),
-                cartItemMapper.mapToResponseList(cart.getCartItems(), cartItemMapper)
-        );
-    }
+    @Mapping(target = "cartId", source = "id")
+    @Mapping(target = "items", source = "cartItems")
+    CartResponse mapToResponse(Cart cart);
 
 }

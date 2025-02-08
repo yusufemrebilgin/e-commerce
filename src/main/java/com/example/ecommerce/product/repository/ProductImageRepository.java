@@ -6,17 +6,16 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface ProductImageRepository extends JpaRepository<ProductImage, UUID> {
+public interface ProductImageRepository extends JpaRepository<ProductImage, String> {
 
-    List<ProductImage> findAllByProductId(UUID productId);
+    List<ProductImage> findAllByProductId(String productId);
 
     boolean existsByFilename(String fileName);
 
-    int countProductImageByProductId(UUID productId);
+    int countProductImageByProductId(String productId);
 
     @Query("SELECT pi FROM ProductImage pi WHERE pi.product.id = ?1 AND pi.filename = ?2")
-    Optional<ProductImage> findByProductIdAndFilename(UUID productId, String filename);
+    Optional<ProductImage> findByProductIdAndFilename(String productId, String filename);
 
 }

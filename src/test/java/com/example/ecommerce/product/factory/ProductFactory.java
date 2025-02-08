@@ -1,5 +1,6 @@
-package com.example.ecommerce.factory;
+package com.example.ecommerce.product.factory;
 
+import com.example.ecommerce.category.factory.CategoryFactory;
 import com.example.ecommerce.product.model.Product;
 import com.example.ecommerce.product.model.ProductImage;
 import com.example.ecommerce.product.model.embeddable.Discount;
@@ -11,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public final class ProductFactory {
@@ -20,28 +20,28 @@ public final class ProductFactory {
     }
 
     public static Product product() {
-        return product(UUID.randomUUID(), "Default Product");
+        return product("default-id", "Default Product");
     }
 
-    public static Product product(UUID id, String name) {
+    public static Product product(String id, String name) {
         return Product.builder()
                 .id(id)
                 .name(name)
                 .description("Description for test product")
                 .price(BigDecimal.valueOf(1000))
                 .stock(10)
-                .category(CategoryFactory.category())
+                .category(CategoryFactory.category("test-category"))
                 .build();
     }
 
     public static Product productWithStock(int stock) {
         return Product.builder()
-                .id(UUID.randomUUID())
+                .id("default-id")
                 .name("Custom Product with Stock Value")
                 .description("Product with given stock: " + stock)
                 .price(BigDecimal.valueOf(1000))
                 .stock(stock)
-                .category(CategoryFactory.category())
+                .category(CategoryFactory.category("test-category"))
                 .build();
     }
 

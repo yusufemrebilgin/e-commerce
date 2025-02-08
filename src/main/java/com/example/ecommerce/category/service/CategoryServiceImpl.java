@@ -35,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse createCategory(CreateCategoryRequest createRequest) {
-        Category newCategory = new Category(0L, createRequest.name());
+        Category newCategory = new Category(null, createRequest.name());
         return categoryMapper.mapToResponse(categoryRepository.save(newCategory));
     }
 
@@ -43,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
     @CacheEvict(value = {"category", "categories"}, key = "#categoryId", allEntries = true)
     public CategoryResponse updateCategory(Long categoryId, UpdateCategoryRequest updateRequest) {
         Category existingCategory = findCategoryEntityById(categoryId);
-        existingCategory.setName(updateRequest.categoryName());
+        existingCategory.setName(updateRequest.name());
         return categoryMapper.mapToResponse(categoryRepository.save(existingCategory));
     }
 

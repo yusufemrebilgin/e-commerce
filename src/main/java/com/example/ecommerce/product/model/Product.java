@@ -3,7 +3,7 @@ package com.example.ecommerce.product.model;
 import com.example.ecommerce.category.model.Category;
 import com.example.ecommerce.product.model.embeddable.Discount;
 import com.example.ecommerce.product.model.listener.ProductListener;
-import com.example.ecommerce.shared.audit.BaseEntity;
+import com.example.ecommerce.shared.audit.Auditable;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CascadeType;
@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static lombok.Builder.Default;
 
@@ -40,11 +39,11 @@ import static lombok.Builder.Default;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(ProductListener.class)
-public class Product extends BaseEntity {
+public class Product extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

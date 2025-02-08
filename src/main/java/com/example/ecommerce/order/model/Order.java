@@ -2,9 +2,9 @@ package com.example.ecommerce.order.model;
 
 import com.example.ecommerce.address.model.Address;
 import com.example.ecommerce.auth.model.User;
-import com.example.ecommerce.payment.model.Payment;
 import com.example.ecommerce.order.model.enums.OrderStatus;
-import com.example.ecommerce.shared.audit.BaseEntity;
+import com.example.ecommerce.payment.model.Payment;
+import com.example.ecommerce.shared.audit.Auditable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,7 +34,7 @@ import static lombok.Builder.Default;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "orders")
-public class Order extends BaseEntity {
+public class Order extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

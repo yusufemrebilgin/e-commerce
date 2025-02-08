@@ -4,14 +4,14 @@ import com.example.ecommerce.cart.exception.CartItemNotFoundException;
 import com.example.ecommerce.cart.mapper.CartItemMapper;
 import com.example.ecommerce.cart.model.Cart;
 import com.example.ecommerce.cart.model.CartItem;
-import com.example.ecommerce.cart.payload.response.CartItemResponse;
+import com.example.ecommerce.cart.model.embeddable.DiscountInfo;
+import com.example.ecommerce.cart.model.embeddable.ProductInfo;
 import com.example.ecommerce.cart.payload.request.CreateCartItemRequest;
 import com.example.ecommerce.cart.payload.request.UpdateCartItemRequest;
+import com.example.ecommerce.cart.payload.response.CartItemResponse;
 import com.example.ecommerce.cart.repository.CartItemRepository;
 import com.example.ecommerce.product.exception.InsufficientStockException;
 import com.example.ecommerce.product.model.Product;
-import com.example.ecommerce.cart.model.embeddable.DiscountInfo;
-import com.example.ecommerce.cart.model.embeddable.ProductInfo;
 import com.example.ecommerce.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class CartItemService {
      * @return found {@link CartItem}
      * @throws CartItemNotFoundException if cart item is not found
      */
-    protected CartItem findCartItemById(UUID cartItemId) {
+    protected CartItem findCartItemById(String cartItemId) {
         return cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> {
                     log.error("Cart item not found with id {}", cartItemId);
@@ -54,13 +53,13 @@ public class CartItemService {
      *
      * @param createCartItemRequest request containing details of the item to be added
      * @return {@link CartItemResponse} containing added or updated cart item
-     * @throws InsufficientStockException if available stock is less than requested quantity (by ProductService)
+     * @throws InsufficientStockException if available, stock is less than requested quantity (by ProductService)
      */
     @Transactional
     public CartItemResponse addItemToCart(CreateCartItemRequest createCartItemRequest) {
 
         Cart currentUserCart = cartService.getCartByAuthenticatedUser();
-        Product requestedProduct = productService.findProductById(UUID.fromString(createCartItemRequest.productId()));
+        Product requestedProduct = productService.findProductEntityById(createCartItemRequest.productId());
 
         CartItem cartItem = cartItemRepository
                 .findByCartIdAndProductId(currentUserCart.getId(), requestedProduct.getId())
@@ -93,10 +92,10 @@ public class CartItemService {
      * @param updateCartItemRequest request containing the updated quantity
      * @return {@link CartItemResponse} containing the updated cart item
      * @throws CartItemNotFoundException  if cart item with given UUID is not found
-     * @throws InsufficientStockException if available stock is less than requested quantity (by ProductService)
+     * @throws InsufficientStockException if available, stock is less than requested quantity (by ProductService)
      */
     @Transactional
-    public CartItemResponse updateItemQuantityInCart(UUID cartItemId, UpdateCartItemRequest updateCartItemRequest) {
+    public CartItemResponse updateItemQuantityInCart(String cartItemId, UpdateCartItemRequest updateCartItemRequest) {
 
         CartItem existingCartItem = findCartItemById(cartItemId);
 
@@ -135,13 +134,13 @@ public class CartItemService {
     }
 
     /**
-     * Removes an item from user's cart by its ID.
+     * Removes an item from a user's cart by its ID.
      *
      * @param cartItemId ID of the cart item to remove
      * @throws CartItemNotFoundException if cart item with given UUID is not found
      */
     @Transactional
-    public void removeItemFromCart(UUID cartItemId) {
+    public void removeItemFromCart(String cartItemId) {
 
         Cart currentUserCart = cartService.getCartByAuthenticatedUser();
         CartItem existingCartItem = findCartItemById(cartItemId);
@@ -181,7 +180,7 @@ public class CartItemService {
      *
      * @param requestedQuantity requested quantity
      * @param product           product to check
-     * @throws InsufficientStockException if available stock is less than requested quantity (by ProductService)
+     * @throws InsufficientStockException if available, stock is less than requested quantity (by ProductService)
      */
     private void checkStockAvailability(int requestedQuantity, Product product) {
         productService.checkStock(product.getId(), requestedQuantity);

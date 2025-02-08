@@ -1,4 +1,4 @@
-package com.example.ecommerce.factory;
+package com.example.ecommerce.product.factory;
 
 import com.example.ecommerce.product.model.ProductImage;
 import org.springframework.mock.web.MockMultipartFile;
@@ -6,7 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public final class ProductImageFactory {
@@ -20,7 +19,7 @@ public final class ProductImageFactory {
 
     public static ProductImage productImage(String filename) {
         return ProductImage.builder()
-                .id(UUID.randomUUID())
+                .id("image-id")
                 .filename(filename)
                 .type("image/jpeg")
                 .imageData("image-data".getBytes())
