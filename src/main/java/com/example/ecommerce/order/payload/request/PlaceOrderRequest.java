@@ -3,9 +3,9 @@ package com.example.ecommerce.order.payload.request;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * A request record to create a new order.
+ * A request record to place a new order.
  */
-public record CreateOrderRequest(
+public record PlaceOrderRequest(
 
         @NotNull(message = "Address ID is required. Please provide a valid address ID.")
         Long addressId,

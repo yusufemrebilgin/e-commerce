@@ -4,8 +4,8 @@ import com.example.ecommerce.shared.exception.NotFoundException;
 
 public class OrderNotFoundException extends NotFoundException {
 
-    public OrderNotFoundException(Long orderId) {
-        super("Order not found with id " + orderId);
+    public OrderNotFoundException(String orderId) {
+        super("Order not found with id '" + orderId + "'");
     }
 
 }

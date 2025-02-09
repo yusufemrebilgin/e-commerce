@@ -1,9 +1,10 @@
 package com.example.ecommerce.order.controller;
 
-import com.example.ecommerce.order.payload.request.CreateOrderRequest;
+import com.example.ecommerce.order.payload.request.CancelOrderRequest;
+import com.example.ecommerce.order.payload.request.PlaceOrderRequest;
 import com.example.ecommerce.order.payload.response.OrderResponse;
-import com.example.ecommerce.shared.payload.PaginatedResponse;
 import com.example.ecommerce.order.service.OrderService;
+import com.example.ecommerce.shared.payload.PaginatedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -34,7 +35,7 @@ public class OrderController {
      */
     @GetMapping
     public ResponseEntity<PaginatedResponse<OrderResponse>> getAllOrders(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(orderService.getAllOrders(pageable));
+        return ResponseEntity.ok(orderService.getAllOrdersForCurrentUser(pageable));
     }
 
     /**
@@ -44,30 +45,30 @@ public class OrderController {
      * @return a {@link ResponseEntity} containing the {@link OrderResponse}
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long orderId) {
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable String orderId) {
         return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 
     /**
      * Places a new order.
      *
-     * @param createOrderRequest the {@link CreateOrderRequest} containing the details of the order to be placed
+     * @param placeOrderRequest the {@link PlaceOrderRequest} containing the details of the order to be placed
      * @return a {@link ResponseEntity} containing the created {@link OrderResponse}
      */
     @PostMapping("/checkout")
-    public ResponseEntity<OrderResponse> placeOrder(@Valid @RequestBody CreateOrderRequest createOrderRequest) {
-        return ResponseEntity.ok(orderService.placeOrder(createOrderRequest));
+    public ResponseEntity<OrderResponse> placeOrder(@Valid @RequestBody PlaceOrderRequest placeOrderRequest) {
+        return ResponseEntity.ok(orderService.placeOrder(placeOrderRequest));
     }
 
     /**
      * Cancels an existing order.
      *
-     * @param orderId the unique identifier of the order to be cancelled
+     * @param request the {@link CancelOrderRequest} containing the order ID and optional cancellation reason
      * @return a {@link ResponseEntity} indicating the cancellation was successful
      */
-    @DeleteMapping("/{orderId}/cancel")
-    public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId) {
-        orderService.cancelOrder(orderId);
+    @DeleteMapping("/cancel")
+    public ResponseEntity<Void> cancelOrder(@RequestBody CancelOrderRequest request) {
+        orderService.cancelOrder(request);
         return ResponseEntity.ok().build();
     }
 

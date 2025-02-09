@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderResponse(
-        Long id,
+        String id,
         String orderStatus,
         LocalDateTime orderDate,
         BigDecimal totalPrice,
