@@ -1,6 +1,5 @@
 package com.example.ecommerce.auth.security.web;
 
-import com.example.ecommerce.auth.exception.UserNotFoundException;
 import com.example.ecommerce.auth.repository.UserRepository;
 import com.example.ecommerce.auth.security.jwt.JwtAuthEntryPoint;
 import com.example.ecommerce.auth.security.jwt.JwtTokenFilter;
@@ -16,6 +15,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,7 +32,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private static final String[] WHITE_LIST = {
-            "/api/v1/auth/**",
+            "/api/v1/auth/login",
+            "/api/v1/auth/register",
             "/v3/api-docs/**",
             "/swagger-ui/**",
     };
@@ -46,7 +47,7 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(UserRepository userRepository) {
         return username -> userRepository
                 .findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+                .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     @Bean

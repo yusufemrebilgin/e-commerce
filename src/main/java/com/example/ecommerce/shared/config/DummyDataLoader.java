@@ -4,6 +4,7 @@ import com.example.ecommerce.category.payload.request.CreateCategoryRequest;
 import com.example.ecommerce.category.service.CategoryService;
 import com.example.ecommerce.product.payload.request.CreateProductRequest;
 import com.example.ecommerce.product.service.ProductService;
+import com.example.ecommerce.shared.util.SecurityUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class DummyDataLoader {
 
     @Bean
     CommandLineRunner load() {
-        return args -> {
+        return args -> SecurityUtils.runWithTemporarySystemAuthentication(() -> {
             if (!createDummyData) {
                 logger.info("Dummy data loading is disabled. Set '--createDummyData=true' to enable.");
                 return;
@@ -47,7 +48,7 @@ public class DummyDataLoader {
             TypeReference<List<CreateProductRequest>> createProductReference = new TypeReference<>() {};
             loadData("/data/products.json", createProductReference, productService::createProduct);
             logger.info("Dummy data loading is completed.");
-        };
+        });
     }
 
     private <T> void loadData(String filename, TypeReference<List<T>> typeReference, Consumer<T> action) {
