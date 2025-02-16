@@ -14,8 +14,9 @@ and perform other essential e-commerce functionalities.
 - Spring Boot
 - Spring Security with JWT Authentication
 - MySQL
-- H2 (for testing purposes)
+- MapStruct
 - Maven
+- GitHub Actions
 - Docker and Docker Compose
 - JUnit 5, Mockito and AssertJ for testing
 - OpenAPI 3 for API documentation
@@ -98,8 +99,8 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
   
   | **Username** | **Password** | **Role**         |
   |--------------|--------------|------------------|
+  | user         | userpw       | ROLE_USER        |
   | admin        | adminpw      | ROLE_SUPER_ADMIN |
-  | testuser     | userpw       | ROLE_USER        |
 
 - API Documentation: http://localhost:8080/swagger-ui.html
 - Postman Collection: To test the API endpoints, 
@@ -118,10 +119,13 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
 
 - **AuthController**
 
-  | **Endpoint**            | **Method** | **Description**                                         | **Accessible By** |
-  |-------------------------|------------|---------------------------------------------------------|-------------------|
-  | `/api/v1/auth/login`    | POST       | Authenticates a user and returns authentication details | Everyone          |
-  | `/api/v1/auth/register` | POST       | Registers a new user and returns a success message      | Everyone          |
+  | **Endpoint**                 | **Method** | **Description**                                            | **Accessible By**   |
+  |------------------------------|------------|------------------------------------------------------------|---------------------|
+  | `/api/v1/auth/login`         | POST       | Authenticates a user and returns authentication token pair | Everyone            |
+  | `/api/v1/auth/register`      | POST       | Registers a new user and returns authentication token pair | Everyone            |
+  | `/api/v1/auth/refresh-token` | POST       | Refreshes authentication token pair using a refresh token  | Everyone            |
+  | `/api/v1/auth/logout`        | POST       | Logs out user by revoking their refresh token              | Authenticated Users |
+  | `/api/v1/auth/logout-all`    | POST       | Logs out user from all active sessions                     | Authenticated Users |
 
 - **AddressController**
 
@@ -168,15 +172,15 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
 
 - **ProductController**
 
-  | **Endpoint**                             | **Method** | **Description**                                           | **Accessible By**   |
-  |------------------------------------------|------------|-----------------------------------------------------------|---------------------|
-  | `/api/v1/products/{productId}`           | GET        | Retrieves a product by its unique identifier              | Authenticated Users |
-  | `/api/v1/products`                       | GET        | Retrieves all products with pagination                    | Authenticated Users |
-  | `/api/v1/products/search`                | GET        | Retrieves products by their name with pagination          | Authenticated Users |
-  | `/api/v1/products/category/{categoryId}` | GET        | Retrieves products by category identifier with pagination | Authenticated Users |
-  | `/api/v1/products`                       | POST       | Creates a new product                                     | ROLE_ADMIN          |
-  | `/api/v1/products/{productId}`           | PUT        | User Updates an existing product                          | ROLE_ADMIN          |
-  | `/api/v1/products/{productId}`           | DELETE     | Deletes a product by its unique identifier                | ROLE_ADMIN          |
+  | **Endpoint**                               | **Method** | **Description**                                     | **Accessible By**   |
+  |--------------------------------------------|------------|-----------------------------------------------------|---------------------|
+  | `/api/v1/products/{productId}`             | GET        | Retrieves a product by its unique identifier        | Authenticated Users |
+  | `/api/v1/products`                         | GET        | Retrieves all products with pagination              | Authenticated Users |
+  | `/api/v1/products/search`                  | GET        | Retrieves products by their name with pagination    | Authenticated Users |
+  | `/api/v1/products/category/{categoryName}` | GET        | Retrieves products by category name with pagination | Authenticated Users |
+  | `/api/v1/products`                         | POST       | Creates a new product                               | ROLE_ADMIN          |
+  | `/api/v1/products/{productId}`             | PUT        | User Updates an existing product                    | ROLE_ADMIN          |
+  | `/api/v1/products/{productId}`             | DELETE     | Deletes a product by its unique identifier          | ROLE_ADMIN          |
 
 - **ProductImageController**
 
@@ -202,17 +206,15 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
   ```shell
   curl -X POST "${BASE_URL}/auth/login" \
     -H 'Content-Type: application/json' \
-    -d '{"username": "testuser", "password": "userpw"}'
+    -d '{"username": "user", "password": "userpw"}'
   ```
 
 - Response:
   ```json
   {
-      "token": "eyJhbGciOiJIUzI1Ni...",
-      "expiresIn": 3600,
-      "roles": [
-          "ROLE_USER"
-      ]
+      "accessToken": "eyJhbGciOiJIUzI1Ni...",
+      "refreshToken": "eyJhbGciOiJIUzI1Ni...",
+      "expiresIn": 900000
   }
   ```
   
@@ -313,5 +315,56 @@ git clone git@github.com:yusufemrebilgin/e-commerce.git && cd e-commerce
         }
       }
     ]
+  }
+  ```
+
+**POST** request to `localhost:8080/api/v1/auth/register`
+- Request:
+
+  ```shell
+  curl -X POST "${BASE_URL}/auth/register" \
+    -H 'Content-Type: application/json' \
+    -d '{"username": "newuser", "password": "userpw"}' 
+  ```
+  
+- Response
+
+  ```json
+  {
+    "errors": [
+        {
+            "title": "Validation failed for field [name]",
+            "detail": "Name is required. Please provide a valid name.",
+            "path": "uri=/api/v1/auth/register",
+            "timestamp": "2025-02-16T20:44:18.294331748Z"
+        },
+        {
+            "title": "Validation failed for field [email]",
+            "detail": "Email is required. Please provide a valid email.",
+            "path": "uri=/api/v1/auth/register",
+            "timestamp": "2025-02-16T20:44:18.294331748Z"
+        }
+    ]
+  }
+  ```
+
+**GET** request to `localhost:8080/api/v1/products/25cc49a8-1e45-43cd-88c8-6aeb9e8ef622`
+- Request:
+
+  ```shell
+  curl -X GET "${BASE_URL}/products/25cc49a8-1e45-43cd-88c8-6aeb9e8ef622" \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer ${TOKEN}" 
+  ```
+
+- Response
+- 
+  ```json
+  {
+    "status": 404,
+    "title": "Not Found",
+    "detail": "Product not found with id '25cc49a8-1e45-43cd-88c8-6aeb9e8ef622'",
+    "path": "uri=/api/v1/products/25cc49a8-1e45-43cd-88c8-6aeb9e8ef622",
+    "timestamp": "2025-02-16T20:38:16.314629472Z"
   }
   ```

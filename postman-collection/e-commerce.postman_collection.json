@@ -1,946 +1,1248 @@
 {
-	"info": {
-		"_postman_id": "aa881b8f-fea7-4cfb-96e1-c81c70711a14",
-		"name": "Spring E-Commerce",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "33271341"
-	},
-	"item": [
-		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Sign In",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let response = pm.response.json();",
-									"",
-									"const jwt = response.token;",
-									"pm.collectionVariables.set(\"jwt\", jwt);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"adminpw\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Sign Up",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Yusuf Emre B.\",\n    \"username\": \"yusufemrebilgin\",\n    \"password\": \"yusuf123\",\n    \"email\": \"yusuf@example.com\",\n    \"roles\": [\n        \"user\"\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/auth/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Category",
-			"item": [
-				{
-					"name": "Get All Categories",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"categories"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create New Category",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let response = pm.response.json();",
-									"const categoryId = response.categoryId;",
-									"pm.environment.set(\"categoryId\", categoryId);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test Kategorisi\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"categories"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Category",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test Kategorisi Güncel\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/categories/{{categoryId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"categories",
-								"{{categoryId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Category",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/categories/{{categoryId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"categories",
-								"{{categoryId}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Product",
-			"item": [
-				{
-					"name": "Get All Products",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/products?page=0&size=10",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "0"
-								},
-								{
-									"key": "size",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Product by Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/products/{{productId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"{{productId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Products by Name",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/products/search?name=L",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"search"
-							],
-							"query": [
-								{
-									"key": "name",
-									"value": "L"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Product by Category",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/products/category/{{categoryId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"category",
-								"{{categoryId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Product",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Lenovo Ideapad Gaming-3\",\n    \"description\": \"GTX-1650Ti ekran kartına sahip bir oyuncu bilgisayarı\",\n    \"categoryId\": {{categoryId}},\n    \"price\": 9800.75,\n    \"stock\": 500,\n    \"discountPercentage\": 25,\n    \"discountStart\": \"2025-10-01T17:00:00\",\n    \"discountEnd\": \"2025-10-15T17:00:00\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/products",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Existing Product",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Lenovo Ideapad Gaming-3 Güncel\",\n    \"description\": \"GTX-1650Ti ekran kartına sahip bir oyuncu bilgisayarı\",\n    \"categoryId\": {{categoryId}},\n    \"price\": 9800.75,\n    \"stock\": 5001\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/products/{{productId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"{{productId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Existing Product",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/products/{{productId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"{{productId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Upload Product Image",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const response = pm.response.json();",
-									"",
-									"let filenames = [];",
-									"response.forEach(data => {",
-									"    const filename = data.split('/').pop();",
-									"    filenames.push(filename);",
-									"});",
-									"",
-									"pm.environment.set(\"filenames\", JSON.stringify(filenames));",
-									"console.log(filenames);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "image",
-									"type": "file",
-									"src": "/home/yusufemrebilgin/Desktop/image.jpg"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/products/{{productId}}/images",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"{{productId}}",
-								"images"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Product Image by Filename",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/products/{{productId}}/images/{{filename}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"{{productId}}",
-								"images",
-								"{{filename}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Product Image Urls",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/products/{{productId}}/images",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"{{productId}}",
-								"images"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Product Images",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{{filenames}}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/products/{{productId}}/images/delete",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"{{productId}}",
-								"images",
-								"delete"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete All Product Images",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/products/{{productId}}/images/delete-all",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"products",
-								"{{productId}}",
-								"images",
-								"delete-all"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Cart",
-			"item": [
-				{
-					"name": "View Cart",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/cart/current",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"cart",
-								"current"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "View Cart Summary",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/cart/summary",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"cart",
-								"summary"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Clear Cart",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/cart/clear",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"cart",
-								"clear"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add Item to Cart",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const response = pm.response.json();",
-									"",
-									"const cartItemId = response.id;",
-									"",
-									"pm.environment.set(\"cartItemId\", cartItemId);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"productId\": \"{{productId}}\",\n    \"quantity\": 1\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/cart/items",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"cart",
-								"items"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Item Quantity",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"quantity\": 5\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/cart/items/{{cartItemId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"cart",
-								"items",
-								"{{cartItemId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Remove Item From Cart",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/cart/items/{{cartItemId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"cart",
-								"items",
-								"{{cartItemId}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Address",
-			"item": [
-				{
-					"name": "Get All Addresses for User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/addresses",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"addresses"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Address",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const addressId = pm.response.json().id;",
-									"pm.environment.set(\"addressId\", addressId);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\": \"Test Adresi\",\n    \"neighbourhood\": \"ABC Mahallesi\",\n    \"street\": \"XYZ Sokak\",\n    \"building\": \"123 Apartmanı\",\n    \"city\": \"İstanbul\",\n    \"district\": \"Beylikdüzü\",\n    \"postalCode\": \"34000\",\n    \"addressDetails\": \"Adres Detayları\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/addresses",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"addresses"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Address",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\": \"Test Adresi Güncel\",\n    \"neighbourhood\": \"ABC Mahallesi\",\n    \"street\": \"XYZ Sokak\",\n    \"building\": \"123 Apartmanı\",\n    \"city\": \"İstanbul\",\n    \"district\": \"Beylikdüzü\",\n    \"postalCode\": \"34000\",\n    \"addressDetails\": \"Adres Detayları\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/addresses/{{addressId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"addresses",
-								"{{addressId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Address",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let addressId = pm.environment.get(\"addressId\");",
-									"pm.environment.set(\"addressId\", addressId - 1);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/addresses/{{addressId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"addresses",
-								"{{addressId}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Order",
-			"item": [
-				{
-					"name": "Get All Orders",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/orders",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"orders"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Order by Id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/orders/{{orderId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"orders",
-								"{{orderId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Place Order",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const response = pm.response.json();",
-									"const orderId = response.id;",
-									"pm.environment.set(\"orderId\", orderId);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"addressId\": {{addressId}},\n    \"paymentMethod\": \"DEBIT_CARD\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/orders/checkout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"orders",
-								"checkout"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Cancel Order",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/orders/{{orderId}}/cancel",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"orders",
-								"{{orderId}}",
-								"cancel"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{jwt}}",
-				"type": "string"
-			}
-		]
-	},
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "jwt",
-			"value": "enter-jwt-token"
-		},
-		{
-			"key": "baseUrl",
-			"value": "localhost:8080/api/v1"
-		}
-	]
+  "info": {
+    "_postman_id": "aa881b8f-fea7-4cfb-96e1-c81c70711a14",
+    "name": "Spring E-Commerce",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33271341"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Yusuf Emre B.\",\n    \"username\": \"yusufemrebilgin\",\n    \"password\": \"yusuf123\",\n    \"email\": \"yusuf@example.com\",\n    \"role\": \"user\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"yusufemrebilgin\",\n    \"password\": \"yusuf123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sign In | Predefined User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// This account predefined with role 'ROLE_USER'\n{\n    \"username\": \"user\",\n    \"password\": \"userpw\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sign In | Predefined Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// This account predefined with role 'ROLE_SUPER_ADMIN'\n{\n    \"username\": \"admin\",\n    \"password\": \"adminpw\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sign In | Created Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// This account predefined with role 'ROLE_ADMIN' \n// and created with \"Register Admin (...)\" request in Postman Client \n{\n    \"username\": \"adminacc\",\n    \"password\": \"adminpw\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Admin (Super Admin Required)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// Access token must be related with ROLE_SUPER_ADMIN\n{\n    \"name\": \"Admin Acc\",\n    \"username\": \"adminacc\",\n    \"password\": \"adminpw\",\n    \"email\": \"adminacc@example.com\",\n    \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": {{refreshToken}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout All",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout-all"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "exec": [
+              "const status = pm.response.code;",
+              "",
+              "if (status === 200 || status === 201) {",
+              "    ",
+              "    const response = pm.response.json();",
+              "    const accessToken = response.accessToken;",
+              "    const refreshToken = response.refreshToken;",
+              "",
+              "    if (accessToken != null && accessToken !== '')",
+              "        pm.collectionVariables.set(",
+              "            \"accessToken\", accessToken",
+              "        );",
+              "    if (refreshToken != null && refreshToken !== '')",
+              "        pm.collectionVariables.set(",
+              "            \"refreshToken\",",
+              "            refreshToken",
+              "        );",
+              "",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    const categoryId = response.categoryId;",
+                  "    const categoryName = response.categoryName;",
+                  "    pm.environment.set(\"categoryId\", categoryId);",
+                  "    pm.environment.set(\"categoryName\", categoryName);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test Kategorisi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test Kategorisi Güncel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Products by Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/search?name=X&page=0&size=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "X"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Product by Category Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/category/{{categoryName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "category",
+                "{{categoryName}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    const productId = response.id;",
+                  "    pm.environment.set(\"productId\", productId);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Lenovo Ideapad Gaming-3\",\n    \"description\": \"GTX-1650Ti ekran kartına sahip bir oyuncu bilgisayarı\",\n    \"categoryId\": {{categoryId}},\n    \"price\": 9800.75,\n    \"stock\": 500,\n    \"discountPercentage\": 25,\n    \"discountStart\": \"2025-10-01T17:00:00\",\n    \"discountEnd\": \"2025-10-15T17:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Existing Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Lenovo Ideapad Gaming-3 Güncel\",\n    \"description\": \"GTX-1650Ti ekran kartına sahip bir oyuncu bilgisayarı\",\n    \"categoryId\": {{categoryId}},\n    \"price\": 9800.75,\n    \"stock\": 5001\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Existing Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Product Image",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "let filenames = [];",
+                  "response.forEach(data => {",
+                  "    const filename = data.split('/').pop();",
+                  "    filenames.push(filename);",
+                  "});",
+                  "",
+                  "pm.environment.set(\"filename\", filenames[0]);",
+                  "pm.environment.set(\"filenames\", JSON.stringify(filenames));",
+                  "console.log(filenames);"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "/home/yusufemrebilgin/Documents/vesikalık.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/images",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "images"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Image by Filename",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/images/{{filename}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "images",
+                "{{filename}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Product Image Urls",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/images",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "images"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product Images",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{{filenames}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/images/delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "images",
+                "delete"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete All Product Images",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/images/delete-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "images",
+                "delete-all"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "View Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cart/current",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "current"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Cart Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cart/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cart/clear",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "clear"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Item to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    const cartItemId = response.cartItemId;",
+                  "    pm.environment.set(\"cartItemId\", cartItemId);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"productId\": \"{{productId}}\",\n    \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cart/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "items"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Item Quantity",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"quantity\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cart/items/{{cartItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "{{cartItemId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Item From Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cart/items/{{cartItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "{{cartItemId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Address",
+      "item": [
+        {
+          "name": "Get All Addresses for User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/addresses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    const addressId = response.id;",
+                  "    pm.environment.set(\"addressId\", addressId);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Test Adresi\",\n    \"neighbourhood\": \"ABC Mahallesi\",\n    \"street\": \"XYZ Sokak\",\n    \"building\": \"123 Apartmanı\",\n    \"city\": \"İstanbul\",\n    \"district\": \"Beylikdüzü\",\n    \"postalCode\": \"34000\",\n    \"addressDetails\": \"Adres Detayları\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/addresses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Test Adresi Güncel\",\n    \"neighbourhood\": \"ABC Mahallesi\",\n    \"street\": \"XYZ Sokak\",\n    \"building\": \"123 Apartmanı\",\n    \"city\": \"İstanbul\",\n    \"district\": \"Beylikdüzü\",\n    \"postalCode\": \"34000\",\n    \"addressDetails\": \"Adres Detayları\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/addresses/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addresses",
+                "{{addressId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let addressId = pm.environment.get(\"addressId\");",
+                  "pm.environment.set(\"addressId\", addressId - 1);"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/addresses/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addresses",
+                "{{addressId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order by Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Place Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    const orderId = response.id;",
+                  "    pm.environment.set(\"orderId\", orderId);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"addressId\": {{addressId}},\n    \"paymentMethod\": \"DEBIT_CARD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"orderId\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "localhost:8080/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": "enter-access-token"
+    },
+    {
+      "key": "refreshToken",
+      "value": "enter-refresh-token"
+    }
+  ]
 }
