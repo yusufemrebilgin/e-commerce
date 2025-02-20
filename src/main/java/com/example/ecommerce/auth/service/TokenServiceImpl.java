@@ -140,6 +140,11 @@ public class TokenServiceImpl implements TokenService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    @Override
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
     // **************** Helper Methods **************** //
 
     private Key getSigningKey() {

@@ -6,6 +6,8 @@ import com.example.ecommerce.auth.payload.response.TokenResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Date;
+
 /**
  * Service interface for handling token operations, including token generation, validation,
  * extraction, and revocation. This service manages both access tokens and refresh tokens.
@@ -67,5 +69,13 @@ public interface TokenService {
      * @return the username contained in the token
      */
     String extractUsername(String token);
+
+    /**
+     * Extracts the expiration date from a given token.
+     *
+     * @param token the token from which to extract the expiration date
+     * @return the expiration date of the token
+     */
+    Date extractExpiration(String token);
 
 }

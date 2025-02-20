@@ -1,6 +1,7 @@
 package com.example.ecommerce.auth.controller;
 
 import com.example.ecommerce.auth.payload.request.LoginRequest;
+import com.example.ecommerce.auth.payload.request.LogoutRequest;
 import com.example.ecommerce.auth.payload.request.RefreshTokenRequest;
 import com.example.ecommerce.auth.payload.request.RegistrationRequest;
 import com.example.ecommerce.auth.payload.response.TokenResponse;
@@ -8,12 +9,14 @@ import com.example.ecommerce.auth.service.AuthService;
 import com.example.ecommerce.auth.service.TokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,26 +69,36 @@ public class AuthController {
     }
 
     /**
-     * Logs out the user by revoking their refresh token and clearing the security context.
+     * Logs out the user by revoking their refresh token and blacklisting the access token.
+     * This ensures that both the refresh and access tokens can no longer be used.
      *
-     * @param request the {@link RefreshTokenRequest} containing the refresh token
-     * @return a {@link ResponseEntity} with no content to indicate successful logout
+     * @param request the {@link LogoutRequest} containing the refresh token to be revoked
+     * @param authorizationHeader the {@code Authorization} header containing the access token to be blacklisted
+     * @return a {@link ResponseEntity} with no content to indicate a successful logout
      */
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
-        authService.logout(request.refreshToken());
+    public ResponseEntity<Void> logout(
+            @Valid @RequestBody LogoutRequest request,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+    ) {
+        authService.logout(authorizationHeader, request.refreshToken());
         return ResponseEntity.noContent().build();
     }
 
     /**
-     * Logs out the user from all active sessions by revoking all refresh tokens associated with their username.
+     * Logs out the user from all active sessions by revoking all refresh tokens associated with their username
+     * and blacklisting the current access token. This ensures that all authentication sessions for the user are invalidated.
      *
-     * @param authenticatedUserDetails the authenticated user's details used to retrieve the username
-     * @return a {@link ResponseEntity} with no content to indicate successful logout from all sessions
+     * @param authenticatedUserDetails the authenticated user's details used to retrieve the username and revoke all refresh tokens
+     * @param authorizationHeader the {@code Authorization} header containing the access token to be blacklisted
+     * @return a {@link ResponseEntity} with no content to indicate a successful logout from all sessions
      */
     @PostMapping("/logout-all")
-    public ResponseEntity<Void> logoutAll(@AuthenticationPrincipal UserDetails authenticatedUserDetails) {
-        authService.logoutAll(authenticatedUserDetails.getUsername());
+    public ResponseEntity<Void> logoutAll(
+            @AuthenticationPrincipal UserDetails authenticatedUserDetails,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+    ) {
+        authService.logoutAll(authorizationHeader, authenticatedUserDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 

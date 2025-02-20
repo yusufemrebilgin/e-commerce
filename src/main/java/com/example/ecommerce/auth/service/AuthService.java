@@ -40,17 +40,21 @@ public interface AuthService {
     TokenResponse register(RegistrationRequest registrationRequest);
 
     /**
-     * Logs out the user by revoking their refresh token and clearing the security context.
+     * Logs out the user by revoking their refresh token, adding their access token to the blacklist,
+     * and clearing the security context.
      *
+     * @param authorizationHeader the authorization header containing the access token
      * @param refreshToken the refresh token used to invalidate the session
      */
-    void logout(String refreshToken);
+    void logout(String authorizationHeader, String refreshToken);
 
     /**
-     * Logs out the user by revoking all tokens associated with their username and clearing the security context.
+     * Logs out the user by revoking all tokens associated with their username,
+     * adding their access tokens to the blacklist, and clearing the security context.
      *
+     * @param authorizationHeader the authorization header containing the access token
      * @param authenticatedUsername the username of the user whose tokens are to be revoked
      */
-    void logoutAll(String authenticatedUsername);
+    void logoutAll(String authorizationHeader, String authenticatedUsername);
 
 }
