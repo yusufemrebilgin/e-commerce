@@ -20,6 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Date;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +37,9 @@ class AuthServiceImplTest {
 
     @Mock
     TokenService tokenService;
+
+    @Mock
+    TokenBlacklistService tokenBlacklistService;
 
     @Mock
     UserRepository userRepository;
@@ -135,11 +140,14 @@ class AuthServiceImplTest {
     void givenRefreshToken_whenUserLogout_thenRevokeGivenTokenAndClearSecurityContext() {
         // given
         String refreshToken = "test-refresh-token";
+        String authorizationHeader = "test-authorization-header";
+        given(tokenService.extractExpiration(anyString())).willReturn(new Date());
 
         // when & then
-        authService.logout(refreshToken);
+        authService.logout(authorizationHeader, refreshToken);
 
         verify(tokenService).revokeToken(refreshToken);
+        verify(tokenBlacklistService).blacklistToken(anyString(), anyLong(), any());
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
@@ -151,12 +159,19 @@ class AuthServiceImplTest {
                 .password("test-pw")
                 .build();
 
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(authenticatedUser, null));
+        String authorizationHeader = "test-authorization-header";
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken(authenticatedUser, null)
+        );
+
+        given(tokenService.extractExpiration(anyString())).willReturn(new Date());
 
         // when & then
-        authService.logoutAll(authenticatedUser.getUsername());
+        authService.logoutAll(authorizationHeader, authenticatedUser.getUsername());
 
         verify(tokenService).revokeAllTokensForUser(authenticatedUser.getUsername());
+        verify(tokenBlacklistService).blacklistToken(anyString(), anyLong(), any());
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 

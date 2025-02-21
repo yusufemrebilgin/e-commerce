@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.FieldError;
@@ -51,6 +52,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
 
         return buildApplicationErrorResponse(ex, request);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
+
+        logger.error(
+                "Unauthorized access attempt by user '{}' to '{}' - Error: '{}'",
+                getCurrentUsername(),
+                request.getDescription(false),
+                ex.getMessage(),
+                ex
+        );
+
+        return buildErrorResponse(UNAUTHORIZED, ex, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)

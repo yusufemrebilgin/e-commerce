@@ -1,6 +1,14 @@
 spring:
   application:
     name: e-commerce
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      repositories:
+        enabled: false
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/ecommerce
     username: ${DB_USERNAME:root}

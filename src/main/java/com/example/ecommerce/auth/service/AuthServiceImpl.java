@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.example.ecommerce.auth.model.enums.Role.ROLE_ADMIN;
 import static com.example.ecommerce.auth.model.enums.Role.ROLE_SUPER_ADMIN;
@@ -34,6 +35,8 @@ public class AuthServiceImpl implements AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final TokenService tokenService;
+    private final TokenBlacklistService tokenBlacklistService;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -104,15 +107,27 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(String refreshToken) {
+    public void logout(String authorizationHeader, String refreshToken) {
         tokenService.revokeToken(refreshToken);
+        extractAndBlacklistTokenFromGivenHeader(authorizationHeader);
         SecurityContextHolder.clearContext();
     }
 
     @Override
-    public void logoutAll(String authenticatedUsername) {
+    public void logoutAll(String authorizationHeader, String authenticatedUsername) {
         tokenService.revokeAllTokensForUser(authenticatedUsername);
+        extractAndBlacklistTokenFromGivenHeader(authorizationHeader);
         SecurityContextHolder.clearContext();
+    }
+
+    private void extractAndBlacklistTokenFromGivenHeader(String authorizationHeader) {
+        if (authorizationHeader == null  || authorizationHeader.isBlank()) {
+            throw new IllegalArgumentException();
+        }
+
+        String token = authorizationHeader.replace("Bearer ", "");
+        long expirationInMs = tokenService.extractExpiration(token).getTime();
+        tokenBlacklistService.blacklistToken(token, expirationInMs, TimeUnit.MILLISECONDS);
     }
 
 }

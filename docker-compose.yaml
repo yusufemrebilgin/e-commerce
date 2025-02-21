@@ -1,4 +1,11 @@
 services:
+  redis:
+    image: redis
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce-network
   database:
     image: mysql
     container_name: mysql-container
@@ -20,6 +27,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - database
+      - redis
     ports:
       - "8080:8080"
     environment:
@@ -28,6 +36,8 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       createDummyData: ${CREATE_DUMMY_DATA:-false}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     networks:
       - ecommerce-network
 
